@@ -32,7 +32,6 @@ export default function Login() {
     isEmailAuthEnabled,
     registeredEmail,
     error,
-    errorNeedsSupport,
     isLoading,
     isTelegramWebApp,
     botUsername,
@@ -75,12 +74,9 @@ export default function Login() {
   ) : (
     <>
       {error && (
-        <>
-          <div className="mb-4 rounded-lg border border-error-400/25 bg-error-500/10 px-4 py-3 text-sm leading-5 text-error-200">
-            {error}
-          </div>
-          <AuthSupportAction visible={errorNeedsSupport} containerClassName="mb-4" />
-        </>
+        <div className="mb-4 rounded-lg border border-error-400/25 bg-error-500/10 px-4 py-3 text-sm leading-5 text-error-200">
+          {error}
+        </div>
       )}
 
       <LoginEmailAuthSection
@@ -130,6 +126,7 @@ export default function Login() {
           </div>
         </div>
       )}
+      {!showForgotPassword && <AuthSupportAction visible containerClassName="mt-4" />}
     </>
   );
 

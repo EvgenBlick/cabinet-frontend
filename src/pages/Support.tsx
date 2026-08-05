@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useWebSocket } from '../hooks/useWebSocket';
 import { useSearchParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
@@ -196,6 +197,23 @@ function SupportContent() {
   // Media attachment states
   const [createAttachment, setCreateAttachment] = useState<MediaAttachment | null>(null);
   const [replyAttachment, setReplyAttachment] = useState<MediaAttachment | null>(null);
+
+  useWebSocket({
+    onMessage: (message) => {
+      if (!message.type.startsWith('ticket.')) return;
+      void queryClient.invalidateQueries({ queryKey: ['tickets'] });
+      if (message.ticket_id) {
+        void queryClient.invalidateQueries({ queryKey: ['ticket', message.ticket_id] });
+        if (message.type === 'ticket.admin_reply' && !selectedTicket) {
+          void ticketsApi.getTicket(message.ticket_id).then((ticket) => {
+            setSelectedTicket(ticket);
+            setIsTicketsOpen(true);
+            setShowCreateForm(false);
+          });
+        }
+      }
+    },
+  });
   const createFileInputRef = useRef<HTMLInputElement>(null);
   const replyFileInputRef = useRef<HTMLInputElement>(null);
   const createPreviewRef = useRef<string | null>(null);

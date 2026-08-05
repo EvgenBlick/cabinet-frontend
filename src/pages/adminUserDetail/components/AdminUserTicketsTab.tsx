@@ -1,9 +1,11 @@
-import type { RefObject } from 'react';
+import { useState, type RefObject } from 'react';
 import { useTranslation } from 'react-i18next';
+import { MessageSquarePlus, Send, X } from 'lucide-react';
 import { ticketsApi } from '../../../api/tickets';
 import type { AdminTicket, AdminTicketDetail } from '../../../api/admin';
 
 interface AdminUserTicketsTabProps {
+  userId: number;
   selectedTicketId: number | null;
   selectedTicket: AdminTicketDetail | null;
   ticketDetailLoading: boolean;
@@ -15,6 +17,8 @@ interface AdminUserTicketsTabProps {
   setReplyText: (value: string) => void;
   onTicketReply: () => void;
   replySending: boolean;
+  conversationSending: boolean;
+  onStartConversation: (message: string, title: string) => Promise<AdminTicketDetail | null>;
   messagesEndRef: RefObject<HTMLDivElement | null>;
   ticketsLoading: boolean;
   tickets: AdminTicket[];
@@ -23,6 +27,7 @@ interface AdminUserTicketsTabProps {
 }
 
 export function AdminUserTicketsTab({
+  userId,
   selectedTicketId,
   selectedTicket,
   ticketDetailLoading,
@@ -34,6 +39,8 @@ export function AdminUserTicketsTab({
   setReplyText,
   onTicketReply,
   replySending,
+  conversationSending,
+  onStartConversation,
   messagesEndRef,
   ticketsLoading,
   tickets,
@@ -41,6 +48,90 @@ export function AdminUserTicketsTab({
   onOpenTicket,
 }: AdminUserTicketsTabProps) {
   const { t } = useTranslation();
+  const [showComposer, setShowComposer] = useState(false);
+  const [conversationTitle, setConversationTitle] = useState('Сообщение от поддержки');
+  const [conversationMessage, setConversationMessage] = useState('');
+
+  const composer = (
+    <div className="rounded-lg border border-accent-500/25 bg-accent-500/5 p-4">
+      {!showComposer ? (
+        <button
+          type="button"
+          onClick={() => setShowComposer(true)}
+          className="flex w-full items-center justify-between gap-3 text-left"
+        >
+          <span className="flex items-center gap-3">
+            <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent-500/15 text-accent-400">
+              <MessageSquarePlus className="h-5 w-5" />
+            </span>
+            <span>
+              <span className="block font-medium text-dark-100">Написать пользователю</span>
+              <span className="mt-0.5 block text-xs text-dark-400">
+                Начать личный онлайн-диалог из кабинета
+              </span>
+            </span>
+          </span>
+          <span className="rounded-lg bg-accent-500 px-3 py-2 text-xs font-semibold text-dark-950">
+            Написать
+          </span>
+        </button>
+      ) : (
+        <form
+          className="space-y-3"
+          onSubmit={async (event) => {
+            event.preventDefault();
+            const created = await onStartConversation(conversationMessage, conversationTitle);
+            if (created) {
+              setConversationMessage('');
+              setShowComposer(false);
+            }
+          }}
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="font-medium text-dark-100">Новое сообщение</div>
+              <div className="text-xs text-dark-500">
+                Пользователь #{userId} увидит его в кабинете и получит уведомление
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowComposer(false)}
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-dark-400 hover:bg-dark-800"
+              aria-label="Закрыть"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+          <input
+            className="input w-full"
+            value={conversationTitle}
+            onChange={(event) => setConversationTitle(event.target.value)}
+            minLength={3}
+            maxLength={255}
+            placeholder="Тема диалога"
+            required
+          />
+          <textarea
+            className="input min-h-24 w-full resize-none"
+            value={conversationMessage}
+            onChange={(event) => setConversationMessage(event.target.value)}
+            maxLength={4000}
+            placeholder="Введите сообщение пользователю"
+            required
+          />
+          <button
+            type="submit"
+            disabled={!conversationMessage.trim() || conversationSending}
+            className="flex h-10 items-center justify-center gap-2 rounded-lg bg-accent-500 px-4 text-sm font-semibold text-dark-950 disabled:opacity-50"
+          >
+            <Send className="h-4 w-4" />
+            {conversationSending ? 'Отправляем…' : 'Отправить и открыть чат'}
+          </button>
+        </form>
+      )}
+    </div>
+  );
 
   if (selectedTicketId) {
     if (ticketDetailLoading) {
@@ -216,27 +307,19 @@ export function AdminUserTicketsTab({
 
   if (tickets.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-xl bg-dark-800/50 py-12">
-        <svg
-          className="mb-3 h-12 w-12 text-dark-600"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={1.5}
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 01-.825-.242m9.345-8.334a2.126 2.126 0 00-.476-.095 48.64 48.64 0 00-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0011.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155"
-          />
-        </svg>
-        <p className="text-dark-400">{t('admin.users.detail.noTickets')}</p>
+      <div className="space-y-4">
+        {composer}
+        <div className="flex flex-col items-center justify-center rounded-lg bg-dark-800/50 py-10">
+          <MessageSquarePlus className="mb-3 h-10 w-10 text-dark-600" />
+          <p className="text-dark-400">Диалогов пока нет</p>
+        </div>
       </div>
     );
   }
 
   return (
     <>
+      {composer}
       <div className="text-sm text-dark-400">
         {ticketsTotal} {t('admin.users.detail.ticketsCount')}
       </div>

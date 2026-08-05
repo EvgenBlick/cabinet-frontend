@@ -107,10 +107,12 @@ export default function AdminUserDetail() {
     replyText,
     setReplyText,
     replySending,
+    conversationSending,
     messagesEndRef,
     loadTickets,
     handleTicketReply,
     handleTicketStatusChange,
+    handleStartConversation,
   } = useAdminUserTickets({ userId, setActionLoading });
   const {
     handleUpdateBalance,
@@ -279,6 +281,7 @@ export default function AdminUserDetail() {
     onSyncFromPanel: handleSyncFromPanel,
     onSyncToPanel: handleSyncToPanel,
     selectedTicketId,
+    userId: user.id,
     selectedTicket,
     ticketDetailLoading,
     onBackToTickets: () => {
@@ -290,6 +293,8 @@ export default function AdminUserDetail() {
     setReplyText,
     onTicketReply: handleTicketReply,
     replySending,
+    conversationSending,
+    onStartConversation: handleStartConversation,
     messagesEndRef,
     ticketsLoading,
     tickets,

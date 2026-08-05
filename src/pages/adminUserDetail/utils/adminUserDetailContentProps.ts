@@ -20,6 +20,7 @@ import type { NodeUsagePeriodItem } from '../components/subscriptionTypes';
 
 interface BuildAdminUserDetailContentPropsParams {
   user: UserDetailResponse;
+  userId: number;
   actionLoading: boolean;
   formatDate: (date: string | null) => string;
   formatWithCurrency: (value: number) => string;
@@ -100,6 +101,8 @@ interface BuildAdminUserDetailContentPropsParams {
   setReplyText: Dispatch<SetStateAction<string>>;
   onTicketReply: () => Promise<void>;
   replySending: boolean;
+  conversationSending: boolean;
+  onStartConversation: (message: string, title: string) => Promise<AdminTicketDetail | null>;
   messagesEndRef: RefObject<HTMLDivElement | null>;
   ticketsLoading: boolean;
   tickets: AdminTicket[];
@@ -313,6 +316,7 @@ function buildTicketsTabProps(
   params: BuildAdminUserDetailContentPropsParams,
 ): TicketsTabContentProps {
   const {
+    userId,
     selectedTicketId,
     selectedTicket,
     ticketDetailLoading,
@@ -324,6 +328,8 @@ function buildTicketsTabProps(
     setReplyText,
     onTicketReply,
     replySending,
+    conversationSending,
+    onStartConversation,
     messagesEndRef,
     ticketsLoading,
     tickets,
@@ -332,6 +338,7 @@ function buildTicketsTabProps(
   } = params;
 
   return {
+    userId,
     selectedTicketId,
     selectedTicket,
     ticketDetailLoading,
@@ -343,6 +350,8 @@ function buildTicketsTabProps(
     setReplyText,
     onTicketReply,
     replySending,
+    conversationSending,
+    onStartConversation,
     messagesEndRef,
     ticketsLoading,
     tickets,

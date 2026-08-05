@@ -11,6 +11,11 @@ export interface AdminTicketUser {
   last_name: string | null;
 }
 
+export interface AdminTicketGuest {
+  name: string;
+  contact?: string | null;
+}
+
 export interface AdminTicketMessage {
   id: number;
   message_text: string;
@@ -32,6 +37,7 @@ export interface AdminTicket {
   closed_at: string | null;
   messages_count: number;
   user: AdminTicketUser | null;
+  guest?: AdminTicketGuest | null;
   last_message: AdminTicketMessage | null;
 }
 
@@ -66,6 +72,7 @@ export interface AdminTicketDetail {
   closed_at: string | null;
   is_reply_blocked: boolean;
   user: AdminTicketUser | null;
+  guest?: AdminTicketGuest | null;
   user_context: AdminTicketUserContext | null;
   messages: AdminTicketMessage[];
 }
@@ -148,6 +155,19 @@ export const adminApi = {
     const response = await apiClient.post(`/cabinet/admin/tickets/${ticketId}/reply`, {
       message,
       ...media,
+    });
+    return response.data;
+  },
+
+  createConversation: async (
+    userId: number,
+    message: string,
+    title = 'Сообщение от поддержки',
+  ): Promise<AdminTicketDetail> => {
+    const response = await apiClient.post('/cabinet/admin/tickets/conversations', {
+      user_id: userId,
+      title,
+      message,
     });
     return response.data;
   },

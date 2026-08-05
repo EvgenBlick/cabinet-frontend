@@ -77,6 +77,7 @@ const AUTH_ENDPOINTS = [
   '/cabinet/auth/password/reset',
   '/cabinet/auth/oauth/',
   '/cabinet/auth/link/oauth/server-complete',
+  '/cabinet/public/support',
 ];
 
 function isAuthEndpoint(url: string | undefined): boolean {

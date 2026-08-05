@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { adminApi, type AdminTicket, type AdminTicketDetail } from '../../../api/admin';
+import { useWebSocket } from '../../../hooks/useWebSocket';
 
 interface UseAdminUserTicketsParams {
   userId: number | null;
@@ -15,6 +16,7 @@ export function useAdminUserTickets({ userId, setActionLoading }: UseAdminUserTi
   const [ticketDetailLoading, setTicketDetailLoading] = useState(false);
   const [replyText, setReplyText] = useState('');
   const [replySending, setReplySending] = useState(false);
+  const [conversationSending, setConversationSending] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   const loadTickets = useCallback(async () => {
@@ -84,6 +86,33 @@ export function useAdminUserTickets({ userId, setActionLoading }: UseAdminUserTi
     [loadTicketDetail, loadTickets, selectedTicketId, setActionLoading],
   );
 
+  const handleStartConversation = useCallback(
+    async (message: string, title: string) => {
+      if (!userId || !message.trim()) return null;
+      setConversationSending(true);
+      try {
+        const ticket = await adminApi.createConversation(userId, message.trim(), title.trim());
+        await loadTickets();
+        setSelectedTicketId(ticket.id);
+        setSelectedTicket(ticket);
+        return ticket;
+      } finally {
+        setConversationSending(false);
+      }
+    },
+    [loadTickets, userId],
+  );
+
+  useWebSocket({
+    onMessage: (message) => {
+      if (!message.type.startsWith('ticket.') || message.user_id !== userId) return;
+      void loadTickets();
+      if (message.ticket_id && message.ticket_id === selectedTicketId) {
+        void loadTicketDetail(message.ticket_id);
+      }
+    },
+  });
+
   useEffect(() => {
     if (selectedTicketId) {
       loadTicketDetail(selectedTicketId);
@@ -108,9 +137,11 @@ export function useAdminUserTickets({ userId, setActionLoading }: UseAdminUserTi
     replyText,
     setReplyText,
     replySending,
+    conversationSending,
     messagesEndRef,
     loadTickets,
     handleTicketReply,
     handleTicketStatusChange,
+    handleStartConversation,
   };
 }

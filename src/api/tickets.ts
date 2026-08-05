@@ -18,6 +18,18 @@ interface MediaParams {
   media_caption?: string;
 }
 
+export interface GuestSupportIdentity {
+  ticketId: number;
+  accessToken: string;
+}
+
+export interface GuestTicketCreatePayload {
+  name: string;
+  contact?: string;
+  title: string;
+  message: string;
+}
+
 export const ticketsApi = {
   // Get tickets list
   getTickets: async (params?: {
@@ -90,5 +102,30 @@ export const ticketsApi = {
   getMediaUrl: (fileId: string): string => {
     const baseUrl = import.meta.env.VITE_API_URL || '';
     return `${baseUrl}/cabinet/media/${fileId}`;
+  },
+};
+
+export const guestSupportApi = {
+  create: async (
+    payload: GuestTicketCreatePayload,
+  ): Promise<{ ticket: TicketDetail; access_token: string }> => {
+    const response = await apiClient.post('/cabinet/public/support/sessions', payload);
+    return response.data;
+  },
+
+  get: async (identity: GuestSupportIdentity): Promise<TicketDetail> => {
+    const response = await apiClient.get(`/cabinet/public/support/sessions/${identity.ticketId}`, {
+      headers: { 'X-Guest-Token': identity.accessToken },
+    });
+    return response.data;
+  },
+
+  reply: async (identity: GuestSupportIdentity, message: string): Promise<TicketMessage> => {
+    const response = await apiClient.post(
+      `/cabinet/public/support/sessions/${identity.ticketId}/messages`,
+      { message },
+      { headers: { 'X-Guest-Token': identity.accessToken } },
+    );
+    return response.data;
   },
 };

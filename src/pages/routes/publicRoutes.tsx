@@ -6,6 +6,7 @@ import DeepLinkRedirect from '../DeepLinkRedirect';
 import OAuthCallback from '../OAuthCallback';
 import VerifyEmail from '../VerifyEmail';
 import ResetPassword from '../ResetPassword';
+import GuestSupport from '../GuestSupport';
 
 export const publicRoutes: RouteConfig[] = [
   { path: '/login', element: <Login /> },
@@ -17,4 +18,5 @@ export const publicRoutes: RouteConfig[] = [
   { path: '/auth/oauth/callback', element: <OAuthCallback /> },
   { path: '/verify-email', element: <VerifyEmail /> },
   { path: '/reset-password', element: <ResetPassword /> },
+  { path: '/support/guest', element: <GuestSupport /> },
 ];

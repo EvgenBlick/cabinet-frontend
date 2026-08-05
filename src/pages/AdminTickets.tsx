@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useWebSocket } from '../hooks/useWebSocket';
 import { useTranslation } from 'react-i18next';
 import {
   adminApi,
@@ -256,6 +257,17 @@ export default function AdminTickets() {
   const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [replyText, setReplyText] = useState('');
+
+  useWebSocket({
+    onMessage: (message) => {
+      if (!message.type.startsWith('ticket.')) return;
+      void queryClient.invalidateQueries({ queryKey: ['admin-tickets'] });
+      void queryClient.invalidateQueries({ queryKey: ['admin-ticket-stats'] });
+      if (message.ticket_id && message.ticket_id === selectedTicketId) {
+        void queryClient.invalidateQueries({ queryKey: ['admin-ticket', message.ticket_id] });
+      }
+    },
+  });
   const [page, setPage] = useState(1);
   const [attachment, setAttachment] = useState<MediaAttachment | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -438,7 +450,8 @@ export default function AdminTickets() {
   };
 
   const formatUser = (ticket: AdminTicket | AdminTicketDetail) => {
-    if (!ticket.user) return 'Unknown';
+    if (ticket.guest) return `${ticket.guest.name} · гость`;
+    if (!ticket.user) return 'Неизвестный пользователь';
     const { first_name, last_name, username } = ticket.user;
     if (first_name || last_name) return `${first_name || ''} ${last_name || ''}`.trim();
     if (username) return `@${username}`;
@@ -721,6 +734,14 @@ export default function AdminTickets() {
                     </button>
                   )}
                 </div>
+                {selectedTicket.guest?.contact && (
+                  <div className="mb-4 rounded-lg border border-dark-700 bg-dark-800/50 px-3 py-2 text-sm text-dark-300">
+                    Контакт гостя:{' '}
+                    <span className="font-medium text-dark-100">
+                      {selectedTicket.guest.contact}
+                    </span>
+                  </div>
+                )}
                 <div className="flex flex-wrap gap-2">
                   {['open', 'pending', 'answered', 'closed'].map((s) => (
                     <button

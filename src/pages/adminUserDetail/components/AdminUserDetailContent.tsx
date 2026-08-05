@@ -116,6 +116,7 @@ export interface SyncTabContentProps {
 }
 
 export interface TicketsTabContentProps {
+  userId: number;
   selectedTicketId: number | null;
   selectedTicket: AdminTicketDetail | null;
   ticketDetailLoading: boolean;
@@ -127,6 +128,8 @@ export interface TicketsTabContentProps {
   setReplyText: Dispatch<SetStateAction<string>>;
   onTicketReply: () => Promise<void>;
   replySending: boolean;
+  conversationSending: boolean;
+  onStartConversation: (message: string, title: string) => Promise<AdminTicketDetail | null>;
   messagesEndRef: RefObject<HTMLDivElement | null>;
   ticketsLoading: boolean;
   tickets: AdminTicket[];
@@ -261,6 +264,7 @@ export function AdminUserDetailContent({
 
       {activeTab === 'tickets' && (
         <AdminUserTicketsTab
+          userId={ticketsTab.userId}
           selectedTicketId={ticketsTab.selectedTicketId}
           selectedTicket={ticketsTab.selectedTicket}
           ticketDetailLoading={ticketsTab.ticketDetailLoading}
@@ -272,6 +276,8 @@ export function AdminUserDetailContent({
           setReplyText={ticketsTab.setReplyText}
           onTicketReply={ticketsTab.onTicketReply}
           replySending={ticketsTab.replySending}
+          conversationSending={ticketsTab.conversationSending}
+          onStartConversation={ticketsTab.onStartConversation}
           messagesEndRef={ticketsTab.messagesEndRef}
           ticketsLoading={ticketsTab.ticketsLoading}
           tickets={ticketsTab.tickets}
