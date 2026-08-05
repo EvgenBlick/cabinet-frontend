@@ -4171,6 +4171,9 @@
       "actions": {
         "actionError": "Не удалось выполнить действие",
         "addQuarantine": "В карантин",
+        "attackModeDisabled": "Нода возвращена в выдачу",
+        "attackModeEnabled": "Нода немедленно изолирована",
+        "attackModeError": "Не удалось изменить режим защиты",
         "changesDiscarded": "Изменения отменены",
         "groupNameRequired": "Название группы обязательно",
         "groupNamesUnique": "Названия групп должны быть уникальными",
@@ -4186,6 +4189,8 @@
         "refreshStats": "Обновить статистику",
         "refreshStatsSuccess": "Статистика обновлена",
         "removeQuarantine": "Убрать",
+        "releaseProtection": "Вернуть",
+        "enableAttackMode": "Изолировать",
         "tokenError": "Не удалось выполнить проверку токена"
       },
       "cards": {
@@ -4288,6 +4293,10 @@
         },
         "probeInterval": "Интервал проверок",
         "probeIntervalDesc": "Как часто Xray выполняет проверку: например 30s, 1m или 3m.",
+        "probeSampling": "Количество замеров за проверку",
+        "probeTimeout": "Таймаут одной проверки",
+        "probeHttpMethod": "HTTP-метод проверки",
+        "probeConnectivityUrl": "URL проверки доступности интернета",
         "fastestProbeUrl": "URL проверки пинга",
         "fastestProbeUrlDesc": "HTTP-адрес, по которому проверяется задержка для режима «самые быстрые».",
         "nodeStatsStaleSec": "Срок актуальности статистики, сек",
@@ -4324,7 +4333,19 @@
         "balancerLatencyWeightDesc": "Чем выше значение, тем сильнее выбор зависит от пинга и сетевой задержки.",
         "balancerMaxLatencyMsDesc": "После этой задержки сервер считается максимально плохим по отклику.",
         "balancerSmoothingAlphaDesc": "Помогает убрать резкие скачки при выборе сервера.",
-        "balancerHysteresisDeltaDesc": "Новый сервер должен быть лучше не меньше чем на это значение, чтобы система переключилась."
+        "balancerHysteresisDeltaDesc": "Новый сервер должен быть лучше не меньше чем на это значение, чтобы система переключилась.",
+        "sectionProtection": "Защита от атак и сбоев нод",
+        "sectionProtectionHint": "Проблемная нода исключается из новых подписок, её закрепления очищаются, а часть мощностей сохраняется в резерве.",
+        "protectionEnabled": "Включить автоматическую защиту",
+        "protectionEnabledDesc": "Повторные отключения или слишком высокий пинг временно изолируют ноду для новых подключений.",
+        "protectionFailures": "Сбоев до изоляции",
+        "protectionReleaseSuccesses": "Успешных проверок для возврата",
+        "protectionIsolationTtlSec": "Минимальное время изоляции, сек",
+        "protectionLatencyThresholdMs": "Порог задержки для изоляции, мс",
+        "protectionMinAvailableNodes": "Сколько нод всегда оставлять доступными",
+        "emergencyFallbackEnabled": "Включить резерв из других групп",
+        "emergencyFallbackEnabledDesc": "Если основной пул недоступен, клиент получит исправную резервную ноду из другой группы.",
+        "emergencyFallbackMaxNodes": "Максимум межгрупповых резервных нод"
       },
       "labels": {
         "autoGroups": "Автогруппы",
@@ -4362,6 +4383,13 @@
         "title": "Карантин",
         "hint": "Ноды в карантине исключаются из сгенерированных групп до ручного снятия карантина."
       },
+      "protection": {
+        "title": "Защита нод",
+        "active": "Изолировано защитой",
+        "manual": "Вручную",
+        "automatic": "Автоматически",
+        "normal": "Норма"
+      },
       "table": {
         "action": "Действие",
         "connected": "Подключено",
@@ -4370,6 +4398,7 @@
         "disabled": "Отключено",
         "node": "Нода",
         "quarantine": "Карантин",
+        "protection": "Защита",
         "ramLoad": "Нагрузка RAM",
         "totalRam": "RAM всего",
         "users": "Пользователи"

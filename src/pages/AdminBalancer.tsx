@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 import {
   BalancerGroupsResponse,
+  BalancerProtectionNode,
   UpdateBalancerGroupsPayload,
   adminBalancerApi,
 } from '../api/adminBalancer';
@@ -17,7 +18,7 @@ type GroupDraft = {
 
 const DEFAULT_FASTEST_GROUP_NAME = '🏁 🇪🇺 Самые быстрые';
 const DEFAULT_FASTEST_PROBE_URL = 'https://ya.ru';
-const DEFAULT_PROBE_INTERVAL = '3m';
+const DEFAULT_PROBE_INTERVAL = '30s';
 const STRATEGY_OPTIONS = ['leastLoad', 'leastPing', 'random', 'roundRobin'] as const;
 
 type BalancerStrategy = (typeof STRATEGY_OPTIONS)[number];
@@ -51,6 +52,10 @@ type ChecklistCardProps = {
 type BalancerAdvancedSettings = {
   strategy: BalancerStrategy;
   probeInterval: string;
+  probeSampling: number;
+  probeTimeout: string;
+  probeConnectivityUrl: string;
+  probeHttpMethod: 'GET' | 'HEAD';
   fastestProbeUrl: string;
   nodeStatsStaleSec: number;
   stickyEnabled: boolean;
@@ -67,6 +72,14 @@ type BalancerAdvancedSettings = {
   autoDrainReleaseSuccesses: number;
   autoDrainLoadThreshold: number;
   autoDrainScorePenalty: number;
+  protectionEnabled: boolean;
+  protectionFailures: number;
+  protectionReleaseSuccesses: number;
+  protectionIsolationTtlSec: number;
+  protectionLatencyThresholdMs: number;
+  protectionMinAvailableNodes: number;
+  emergencyFallbackEnabled: boolean;
+  emergencyFallbackMaxNodes: number;
   balancerLoadWeight: number;
   balancerLatencyWeight: number;
   balancerMaxLatencyMs: number;
@@ -77,6 +90,10 @@ type BalancerAdvancedSettings = {
 const DEFAULT_ADVANCED_SETTINGS: BalancerAdvancedSettings = {
   strategy: 'leastLoad',
   probeInterval: DEFAULT_PROBE_INTERVAL,
+  probeSampling: 1,
+  probeTimeout: '3s',
+  probeConnectivityUrl: '',
+  probeHttpMethod: 'HEAD',
   fastestProbeUrl: DEFAULT_FASTEST_PROBE_URL,
   nodeStatsStaleSec: 360,
   stickyEnabled: false,
@@ -93,6 +110,14 @@ const DEFAULT_ADVANCED_SETTINGS: BalancerAdvancedSettings = {
   autoDrainReleaseSuccesses: 2,
   autoDrainLoadThreshold: 0.85,
   autoDrainScorePenalty: 0.6,
+  protectionEnabled: false,
+  protectionFailures: 2,
+  protectionReleaseSuccesses: 3,
+  protectionIsolationTtlSec: 300,
+  protectionLatencyThresholdMs: 1500,
+  protectionMinAvailableNodes: 1,
+  emergencyFallbackEnabled: false,
+  emergencyFallbackMaxNodes: 1,
   balancerLoadWeight: 0.4,
   balancerLatencyWeight: 0.6,
   balancerMaxLatencyMs: 300,
@@ -369,6 +394,16 @@ function normalizeAdvancedSettings(
       typeof source?.probe_interval === 'string' && source.probe_interval.trim()
         ? source.probe_interval.trim()
         : DEFAULT_ADVANCED_SETTINGS.probeInterval,
+    probeSampling: toFinite(source?.probe_sampling, DEFAULT_ADVANCED_SETTINGS.probeSampling),
+    probeTimeout:
+      typeof source?.probe_timeout === 'string' && source.probe_timeout.trim()
+        ? source.probe_timeout.trim()
+        : DEFAULT_ADVANCED_SETTINGS.probeTimeout,
+    probeConnectivityUrl:
+      typeof source?.probe_connectivity_url === 'string'
+        ? source.probe_connectivity_url.trim()
+        : DEFAULT_ADVANCED_SETTINGS.probeConnectivityUrl,
+    probeHttpMethod: source?.probe_http_method === 'GET' ? 'GET' : 'HEAD',
     fastestProbeUrl:
       typeof source?.fastest_probe_url === 'string' && source.fastest_probe_url.trim()
         ? source.fastest_probe_url.trim()
@@ -426,6 +461,38 @@ function normalizeAdvancedSettings(
     autoDrainScorePenalty: toFinite(
       source?.auto_drain_score_penalty,
       DEFAULT_ADVANCED_SETTINGS.autoDrainScorePenalty,
+    ),
+    protectionEnabled:
+      typeof source?.protection_enabled === 'boolean'
+        ? source.protection_enabled
+        : DEFAULT_ADVANCED_SETTINGS.protectionEnabled,
+    protectionFailures: toFinite(
+      source?.protection_failures,
+      DEFAULT_ADVANCED_SETTINGS.protectionFailures,
+    ),
+    protectionReleaseSuccesses: toFinite(
+      source?.protection_release_successes,
+      DEFAULT_ADVANCED_SETTINGS.protectionReleaseSuccesses,
+    ),
+    protectionIsolationTtlSec: toFinite(
+      source?.protection_isolation_ttl_sec,
+      DEFAULT_ADVANCED_SETTINGS.protectionIsolationTtlSec,
+    ),
+    protectionLatencyThresholdMs: toFinite(
+      source?.protection_latency_threshold_ms,
+      DEFAULT_ADVANCED_SETTINGS.protectionLatencyThresholdMs,
+    ),
+    protectionMinAvailableNodes: toFinite(
+      source?.protection_min_available_nodes,
+      DEFAULT_ADVANCED_SETTINGS.protectionMinAvailableNodes,
+    ),
+    emergencyFallbackEnabled:
+      typeof source?.emergency_fallback_enabled === 'boolean'
+        ? source.emergency_fallback_enabled
+        : DEFAULT_ADVANCED_SETTINGS.emergencyFallbackEnabled,
+    emergencyFallbackMaxNodes: toFinite(
+      source?.emergency_fallback_max_nodes,
+      DEFAULT_ADVANCED_SETTINGS.emergencyFallbackMaxNodes,
     ),
     balancerLoadWeight: toFinite(
       source?.balancer_load_weight,
@@ -496,6 +563,35 @@ function buildAdvancedPayload(
     )
   ) {
     payload.probe_interval = settings.probeInterval.trim() || DEFAULT_PROBE_INTERVAL;
+  }
+  if (
+    include(
+      source?.probe_sampling,
+      settings.probeSampling !== DEFAULT_ADVANCED_SETTINGS.probeSampling,
+    )
+  ) {
+    payload.probe_sampling = Math.max(1, Math.round(settings.probeSampling));
+  }
+  if (
+    include(source?.probe_timeout, settings.probeTimeout !== DEFAULT_ADVANCED_SETTINGS.probeTimeout)
+  ) {
+    payload.probe_timeout = settings.probeTimeout.trim() || DEFAULT_ADVANCED_SETTINGS.probeTimeout;
+  }
+  if (
+    include(
+      source?.probe_connectivity_url,
+      settings.probeConnectivityUrl !== DEFAULT_ADVANCED_SETTINGS.probeConnectivityUrl,
+    )
+  ) {
+    payload.probe_connectivity_url = settings.probeConnectivityUrl.trim();
+  }
+  if (
+    include(
+      source?.probe_http_method,
+      settings.probeHttpMethod !== DEFAULT_ADVANCED_SETTINGS.probeHttpMethod,
+    )
+  ) {
+    payload.probe_http_method = settings.probeHttpMethod;
   }
   if (
     include(
@@ -626,6 +722,87 @@ function buildAdvancedPayload(
     )
   ) {
     payload.auto_drain_score_penalty = Math.max(0, settings.autoDrainScorePenalty);
+  }
+  if (
+    include(
+      source?.protection_enabled,
+      settings.protectionEnabled !== DEFAULT_ADVANCED_SETTINGS.protectionEnabled,
+    )
+  ) {
+    payload.protection_enabled = settings.protectionEnabled;
+  }
+  if (
+    include(
+      source?.protection_failures,
+      settings.protectionFailures !== DEFAULT_ADVANCED_SETTINGS.protectionFailures,
+    )
+  ) {
+    payload.protection_failures = Math.max(1, Math.round(settings.protectionFailures));
+  }
+  if (
+    include(
+      source?.protection_release_successes,
+      settings.protectionReleaseSuccesses !== DEFAULT_ADVANCED_SETTINGS.protectionReleaseSuccesses,
+    )
+  ) {
+    payload.protection_release_successes = Math.max(
+      1,
+      Math.round(settings.protectionReleaseSuccesses),
+    );
+  }
+  if (
+    include(
+      source?.protection_isolation_ttl_sec,
+      settings.protectionIsolationTtlSec !== DEFAULT_ADVANCED_SETTINGS.protectionIsolationTtlSec,
+    )
+  ) {
+    payload.protection_isolation_ttl_sec = Math.max(
+      1,
+      Math.round(settings.protectionIsolationTtlSec),
+    );
+  }
+  if (
+    include(
+      source?.protection_latency_threshold_ms,
+      settings.protectionLatencyThresholdMs !==
+        DEFAULT_ADVANCED_SETTINGS.protectionLatencyThresholdMs,
+    )
+  ) {
+    payload.protection_latency_threshold_ms = Math.max(
+      1,
+      Math.round(settings.protectionLatencyThresholdMs),
+    );
+  }
+  if (
+    include(
+      source?.protection_min_available_nodes,
+      settings.protectionMinAvailableNodes !==
+        DEFAULT_ADVANCED_SETTINGS.protectionMinAvailableNodes,
+    )
+  ) {
+    payload.protection_min_available_nodes = Math.max(
+      1,
+      Math.round(settings.protectionMinAvailableNodes),
+    );
+  }
+  if (
+    include(
+      source?.emergency_fallback_enabled,
+      settings.emergencyFallbackEnabled !== DEFAULT_ADVANCED_SETTINGS.emergencyFallbackEnabled,
+    )
+  ) {
+    payload.emergency_fallback_enabled = settings.emergencyFallbackEnabled;
+  }
+  if (
+    include(
+      source?.emergency_fallback_max_nodes,
+      settings.emergencyFallbackMaxNodes !== DEFAULT_ADVANCED_SETTINGS.emergencyFallbackMaxNodes,
+    )
+  ) {
+    payload.emergency_fallback_max_nodes = Math.max(
+      1,
+      Math.round(settings.emergencyFallbackMaxNodes),
+    );
   }
   if (
     include(
@@ -768,6 +945,16 @@ export default function AdminBalancer() {
     refetchInterval: 30_000,
   });
 
+  const {
+    data: attackModeData,
+    refetch: refetchAttackMode,
+    isLoading: attackModeLoading,
+  } = useQuery({
+    queryKey: ['admin', 'balancer', 'attack-mode'],
+    queryFn: adminBalancerApi.getAttackMode,
+    refetchInterval: 15_000,
+  });
+
   useEffect(() => {
     if (!groupsData || groupsDirty) return;
     setGroupsDraft(groupsToDraft(groupsData));
@@ -897,6 +1084,38 @@ export default function AdminBalancer() {
     },
   });
 
+  const enableAttackModeMutation = useMutation({
+    mutationFn: (node: string) => adminBalancerApi.enableAttackMode(node),
+    onSuccess: async () => {
+      setAlert(t('admin.balancer.actions.attackModeEnabled', 'Node isolated'), 'success');
+      await Promise.all([
+        refetchAttackMode(),
+        refetchNodeStats(),
+        refetchDebugStats(),
+        refetchGroups(),
+      ]);
+    },
+    onError: () => {
+      setAlert(t('admin.balancer.actions.attackModeError', 'Failed to update protection'), 'error');
+    },
+  });
+
+  const disableAttackModeMutation = useMutation({
+    mutationFn: adminBalancerApi.disableAttackMode,
+    onSuccess: async () => {
+      setAlert(t('admin.balancer.actions.attackModeDisabled', 'Node returned'), 'success');
+      await Promise.all([
+        refetchAttackMode(),
+        refetchNodeStats(),
+        refetchDebugStats(),
+        refetchGroups(),
+      ]);
+    },
+    onError: () => {
+      setAlert(t('admin.balancer.actions.attackModeError', 'Failed to update protection'), 'error');
+    },
+  });
+
   const profileMode = useMemo(() => {
     const raw = debugStats?.profile_mode;
     if (!raw || typeof raw !== 'string') return '—';
@@ -947,6 +1166,14 @@ export default function AdminBalancer() {
     [quarantineData],
   );
 
+  const protectionByNode = useMemo(() => {
+    const result = new Map<string, BalancerProtectionNode>();
+    for (const node of attackModeData?.nodes || []) {
+      result.set(node.normalizedNode || node.nodeName.trim().toLowerCase(), node);
+    }
+    return result;
+  }, [attackModeData]);
+
   const nodeRows = useMemo(() => {
     const source = toRecord(nodeStats);
     return Object.entries(source).map(([nodeName, stat]) => {
@@ -963,9 +1190,10 @@ export default function AdminBalancer() {
         isAlias: Boolean(statRecord.isAlias),
         quarantined:
           Boolean(statRecord.quarantined) || quarantineSet.has(nodeName.trim().toLowerCase()),
+        protection: protectionByNode.get(nodeName.trim().toLowerCase()) || null,
       };
     });
-  }, [nodeStats, quarantineSet]);
+  }, [nodeStats, protectionByNode, quarantineSet]);
 
   const visibleNodeRows = useMemo(() => {
     const primaryRows = nodeRows.filter((row) => !row.isAlias);
@@ -2043,6 +2271,62 @@ export default function AdminBalancer() {
                   </p>
                 </label>
 
+                <label className="text-xs text-dark-400">
+                  {t('admin.balancer.groups.probeSampling', 'Probe samples')}
+                  <input
+                    type="number"
+                    min={1}
+                    step={1}
+                    value={advancedSettings.probeSampling}
+                    onChange={(event) =>
+                      updateAdvancedSetting(
+                        'probeSampling',
+                        parseNumericInput(event.target.value, advancedSettings.probeSampling),
+                      )
+                    }
+                    className="mt-1 w-full rounded-lg border border-dark-600 bg-dark-900/70 px-3 py-2 text-sm text-dark-100 outline-none focus:border-accent-500"
+                  />
+                </label>
+
+                <label className="text-xs text-dark-400">
+                  {t('admin.balancer.groups.probeTimeout', 'Probe timeout')}
+                  <input
+                    value={advancedSettings.probeTimeout}
+                    onChange={(event) => updateAdvancedSetting('probeTimeout', event.target.value)}
+                    placeholder="3s"
+                    className="mt-1 w-full rounded-lg border border-dark-600 bg-dark-900/70 px-3 py-2 text-sm text-dark-100 outline-none focus:border-accent-500"
+                  />
+                </label>
+
+                <label className="text-xs text-dark-400">
+                  {t('admin.balancer.groups.probeHttpMethod', 'Probe method')}
+                  <select
+                    value={advancedSettings.probeHttpMethod}
+                    onChange={(event) =>
+                      updateAdvancedSetting(
+                        'probeHttpMethod',
+                        event.target.value === 'GET' ? 'GET' : 'HEAD',
+                      )
+                    }
+                    className="mt-1 w-full rounded-lg border border-dark-600 bg-dark-900/70 px-3 py-2 text-sm text-dark-100 outline-none focus:border-accent-500"
+                  >
+                    <option value="HEAD">HEAD</option>
+                    <option value="GET">GET</option>
+                  </select>
+                </label>
+
+                <label className="text-xs text-dark-400 md:col-span-2">
+                  {t('admin.balancer.groups.probeConnectivityUrl', 'Connectivity check URL')}
+                  <input
+                    value={advancedSettings.probeConnectivityUrl}
+                    onChange={(event) =>
+                      updateAdvancedSetting('probeConnectivityUrl', event.target.value)
+                    }
+                    placeholder="https://connectivitycheck.gstatic.com/generate_204"
+                    className="mt-1 w-full rounded-lg border border-dark-600 bg-dark-900/70 px-3 py-2 text-sm text-dark-100 outline-none focus:border-accent-500"
+                  />
+                </label>
+
                 <label className="text-xs text-dark-400 md:col-span-2">
                   {t('admin.balancer.groups.fastestProbeUrl', 'Fastest probe URL')}
                   <input
@@ -2449,6 +2733,88 @@ export default function AdminBalancer() {
               </div>
             </details>
 
+            <details className="rounded-lg border border-error-500/30 bg-dark-900/30 p-3" open>
+              <summary className="cursor-pointer text-sm font-semibold text-dark-100">
+                {t('admin.balancer.groups.sectionProtection', 'DDoS and node protection')}
+              </summary>
+              <p className="mt-2 text-xs text-dark-500">
+                {t(
+                  'admin.balancer.groups.sectionProtectionHint',
+                  'Removes an unhealthy node from new subscriptions, clears sticky assignments and keeps reserve capacity available.',
+                )}
+              </p>
+              <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+                <label className="flex items-center gap-2 text-sm text-dark-200 md:col-span-2 xl:col-span-3">
+                  <input
+                    type="checkbox"
+                    checked={advancedSettings.protectionEnabled}
+                    onChange={(event) =>
+                      updateAdvancedSetting('protectionEnabled', event.target.checked)
+                    }
+                  />
+                  <span>
+                    {t('admin.balancer.groups.protectionEnabled', 'Enable automatic protection')}
+                    <span className="mt-1 block text-xs text-dark-500">
+                      {t(
+                        'admin.balancer.groups.protectionEnabledDesc',
+                        'Repeated disconnects or excessive latency isolate a node for new subscription updates.',
+                      )}
+                    </span>
+                  </span>
+                </label>
+
+                {(
+                  [
+                    ['protectionFailures', 'protectionFailures', 1],
+                    ['protectionReleaseSuccesses', 'protectionReleaseSuccesses', 1],
+                    ['protectionIsolationTtlSec', 'protectionIsolationTtlSec', 1],
+                    ['protectionLatencyThresholdMs', 'protectionLatencyThresholdMs', 1],
+                    ['protectionMinAvailableNodes', 'protectionMinAvailableNodes', 1],
+                    ['emergencyFallbackMaxNodes', 'emergencyFallbackMaxNodes', 1],
+                  ] as const
+                ).map(([labelKey, settingKey, min]) => (
+                  <label key={settingKey} className="text-xs text-dark-400">
+                    {t(`admin.balancer.groups.${labelKey}`, labelKey)}
+                    <input
+                      type="number"
+                      min={min}
+                      step={1}
+                      value={advancedSettings[settingKey]}
+                      onChange={(event) =>
+                        updateAdvancedSetting(
+                          settingKey,
+                          parseNumericInput(event.target.value, advancedSettings[settingKey]),
+                        )
+                      }
+                      className="mt-1 w-full rounded-lg border border-dark-600 bg-dark-900/70 px-3 py-2 text-sm text-dark-100 outline-none focus:border-accent-500"
+                    />
+                  </label>
+                ))}
+
+                <label className="flex items-center gap-2 text-sm text-dark-200 md:col-span-2 xl:col-span-3">
+                  <input
+                    type="checkbox"
+                    checked={advancedSettings.emergencyFallbackEnabled}
+                    onChange={(event) =>
+                      updateAdvancedSetting('emergencyFallbackEnabled', event.target.checked)
+                    }
+                  />
+                  <span>
+                    {t(
+                      'admin.balancer.groups.emergencyFallbackEnabled',
+                      'Enable cross-group reserve',
+                    )}
+                    <span className="mt-1 block text-xs text-dark-500">
+                      {t(
+                        'admin.balancer.groups.emergencyFallbackEnabledDesc',
+                        'Adds healthy nodes from other groups as a last-resort fallback when the primary pool fails.',
+                      )}
+                    </span>
+                  </span>
+                </label>
+              </div>
+            </details>
+
             <details className="rounded-lg border border-dark-700 bg-dark-900/30 p-3">
               <summary className="cursor-pointer text-sm font-semibold text-dark-100">
                 {t('admin.balancer.groups.sectionScoreModel', 'Score model')}
@@ -2662,6 +3028,10 @@ export default function AdminBalancer() {
               'Quarantined nodes are excluded from generated groups until removed from quarantine.',
             )}
           </p>
+          <p className="mt-1 text-dark-400">
+            {t('admin.balancer.protection.active', 'Protection active')}:{' '}
+            <span className="font-medium text-dark-200">{attackModeData?.nodes?.length || 0}</span>
+          </p>
         </div>
 
         {nodesLoading ? (
@@ -2698,6 +3068,9 @@ export default function AdminBalancer() {
                   <th className="px-2 py-2">
                     {t('admin.balancer.table.quarantine', 'Quarantine')}
                   </th>
+                  <th className="px-2 py-2">
+                    {t('admin.balancer.table.protection', 'Protection')}
+                  </th>
                   <th className="px-2 py-2">{t('admin.balancer.table.action', 'Action')}</th>
                 </tr>
               </thead>
@@ -2724,21 +3097,57 @@ export default function AdminBalancer() {
                       )}
                     </td>
                     <td className="px-2 py-2">
-                      <button
-                        onClick={() => toggleNodeQuarantine(row.nodeName, row.quarantined)}
-                        disabled={
-                          addQuarantineMutation.isPending || removeQuarantineMutation.isPending
-                        }
-                        className={`rounded-md border px-2 py-1 text-xs transition-colors disabled:opacity-50 ${
-                          row.quarantined
-                            ? 'border-success-500/40 bg-success-500/10 text-success-300 hover:bg-success-500/20'
-                            : 'border-warning-500/40 bg-warning-500/10 text-warning-300 hover:bg-warning-500/20'
-                        }`}
-                      >
-                        {row.quarantined
-                          ? t('admin.balancer.actions.removeQuarantine', 'Remove')
-                          : t('admin.balancer.actions.addQuarantine', 'Quarantine')}
-                      </button>
+                      {row.protection ? (
+                        <span className="whitespace-nowrap rounded bg-error-500/15 px-2 py-1 text-xs text-error-300">
+                          {row.protection.isolation?.mode === 'manual'
+                            ? t('admin.balancer.protection.manual', 'Manual')
+                            : t('admin.balancer.protection.automatic', 'Automatic')}
+                        </span>
+                      ) : (
+                        <span className="rounded bg-success-500/15 px-2 py-1 text-xs text-success-300">
+                          {t('admin.balancer.protection.normal', 'Normal')}
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-2 py-2">
+                      <div className="flex min-w-max gap-1.5">
+                        <button
+                          onClick={() => toggleNodeQuarantine(row.nodeName, row.quarantined)}
+                          disabled={
+                            addQuarantineMutation.isPending || removeQuarantineMutation.isPending
+                          }
+                          className={`rounded-md border px-2 py-1 text-xs transition-colors disabled:opacity-50 ${
+                            row.quarantined
+                              ? 'border-success-500/40 bg-success-500/10 text-success-300 hover:bg-success-500/20'
+                              : 'border-warning-500/40 bg-warning-500/10 text-warning-300 hover:bg-warning-500/20'
+                          }`}
+                        >
+                          {row.quarantined
+                            ? t('admin.balancer.actions.removeQuarantine', 'Remove')
+                            : t('admin.balancer.actions.addQuarantine', 'Quarantine')}
+                        </button>
+                        <button
+                          onClick={() =>
+                            row.protection
+                              ? disableAttackModeMutation.mutate(row.nodeName)
+                              : enableAttackModeMutation.mutate(row.nodeName)
+                          }
+                          disabled={
+                            attackModeLoading ||
+                            enableAttackModeMutation.isPending ||
+                            disableAttackModeMutation.isPending
+                          }
+                          className={`rounded-md border px-2 py-1 text-xs transition-colors disabled:opacity-50 ${
+                            row.protection
+                              ? 'border-success-500/40 bg-success-500/10 text-success-300 hover:bg-success-500/20'
+                              : 'border-error-500/40 bg-error-500/10 text-error-300 hover:bg-error-500/20'
+                          }`}
+                        >
+                          {row.protection
+                            ? t('admin.balancer.actions.releaseProtection', 'Return')
+                            : t('admin.balancer.actions.enableAttackMode', 'Isolate')}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -2783,6 +3192,11 @@ export default function AdminBalancer() {
         <JsonDetails
           title={t('admin.balancer.quarantine.title', 'Quarantine')}
           data={quarantineLoading ? { loading: true } : (quarantineData ?? {})}
+          rawLabel={t('admin.balancer.rawJson', 'raw JSON')}
+        />
+        <JsonDetails
+          title={t('admin.balancer.protection.title', 'Node protection')}
+          data={attackModeLoading ? { loading: true } : (attackModeData ?? {})}
           rawLabel={t('admin.balancer.rawJson', 'raw JSON')}
         />
       </div>

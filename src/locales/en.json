@@ -3629,6 +3629,9 @@
       "actions": {
         "actionError": "Action failed",
         "addQuarantine": "Quarantine",
+        "attackModeDisabled": "Node returned to rotation",
+        "attackModeEnabled": "Node isolated immediately",
+        "attackModeError": "Failed to update protection",
         "changesDiscarded": "Changes discarded",
         "groupNameRequired": "Group name is required",
         "groupNamesUnique": "Group names must be unique",
@@ -3644,6 +3647,8 @@
         "refreshStats": "Refresh stats",
         "refreshStatsSuccess": "Stats updated",
         "removeQuarantine": "Remove",
+        "releaseProtection": "Return",
+        "enableAttackMode": "Isolate",
         "tokenError": "Token debug failed"
       },
       "cards": {
@@ -3746,6 +3751,10 @@
         },
         "probeInterval": "Probe interval",
         "probeIntervalDesc": "How often Xray runs the probe, for example 30s, 1m, or 3m.",
+        "probeSampling": "Samples per probe",
+        "probeTimeout": "Probe timeout",
+        "probeHttpMethod": "Probe HTTP method",
+        "probeConnectivityUrl": "Connectivity check URL",
         "fastestProbeUrl": "Ping probe URL",
         "fastestProbeUrlDesc": "HTTP URL used to measure latency for fastest-server mode.",
         "nodeStatsStaleSec": "Stats freshness TTL, sec",
@@ -3782,7 +3791,19 @@
         "balancerLatencyWeightDesc": "Higher values make ping and network delay matter more in the decision.",
         "balancerMaxLatencyMsDesc": "After this latency, the server is treated as maximally poor for responsiveness.",
         "balancerSmoothingAlphaDesc": "Helps avoid abrupt jumps in server choice.",
-        "balancerHysteresisDeltaDesc": "A new server must be better by at least this amount before the system switches."
+        "balancerHysteresisDeltaDesc": "A new server must be better by at least this amount before the system switches.",
+        "sectionProtection": "DDoS and node protection",
+        "sectionProtectionHint": "An unhealthy node is removed from new subscriptions, its sticky assignments are cleared, and reserve capacity remains available.",
+        "protectionEnabled": "Enable automatic protection",
+        "protectionEnabledDesc": "Repeated disconnects or excessive latency temporarily isolate a node for new connections.",
+        "protectionFailures": "Failures before isolation",
+        "protectionReleaseSuccesses": "Successful checks before return",
+        "protectionIsolationTtlSec": "Minimum isolation time, sec",
+        "protectionLatencyThresholdMs": "Isolation latency threshold, ms",
+        "protectionMinAvailableNodes": "Nodes always kept available",
+        "emergencyFallbackEnabled": "Enable cross-group reserve",
+        "emergencyFallbackEnabledDesc": "If the primary pool is unavailable, the client receives a healthy fallback node from another group.",
+        "emergencyFallbackMaxNodes": "Maximum cross-group fallback nodes"
       },
       "labels": {
         "autoGroups": "Auto groups",
@@ -3820,6 +3841,13 @@
         "title": "Quarantine",
         "hint": "Quarantined nodes are excluded from generated groups until removed from quarantine."
       },
+      "protection": {
+        "title": "Node protection",
+        "active": "Isolated by protection",
+        "manual": "Manual",
+        "automatic": "Automatic",
+        "normal": "Normal"
+      },
       "table": {
         "action": "Action",
         "connected": "Connected",
@@ -3828,6 +3856,7 @@
         "disabled": "Disabled",
         "node": "Node",
         "quarantine": "Quarantine",
+        "protection": "Protection",
         "ramLoad": "RAM Load",
         "totalRam": "Total RAM",
         "users": "Users"

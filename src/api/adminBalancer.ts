@@ -27,6 +27,10 @@ export interface BalancerGroupsResponse {
   hidden_groups?: string[];
   hidden_nodes?: string[];
   probe_interval?: string;
+  probe_sampling?: number;
+  probe_timeout?: string;
+  probe_connectivity_url?: string;
+  probe_http_method?: string;
   fastest_probe_url?: string;
   node_stats_stale_sec?: number;
   sticky_enabled?: boolean;
@@ -44,6 +48,14 @@ export interface BalancerGroupsResponse {
   auto_drain_release_successes?: number;
   auto_drain_load_threshold?: number;
   auto_drain_score_penalty?: number;
+  protection_enabled?: boolean;
+  protection_failures?: number;
+  protection_release_successes?: number;
+  protection_isolation_ttl_sec?: number;
+  protection_latency_threshold_ms?: number;
+  protection_min_available_nodes?: number;
+  emergency_fallback_enabled?: boolean;
+  emergency_fallback_max_nodes?: number;
   balancer_load_weight?: number;
   balancer_latency_weight?: number;
   balancer_max_latency_ms?: number;
@@ -55,6 +67,30 @@ export interface BalancerQuarantineResponse {
   status: string;
   quarantine_nodes: string[];
   quarantine_count: number;
+}
+
+export interface BalancerProtectionNode {
+  nodeName: string;
+  normalizedNode: string;
+  state: 'healthy' | 'suspect' | 'isolated' | 'recovering';
+  failureCount: number;
+  recoverySuccessCount: number;
+  isolation: {
+    mode: 'manual' | 'automatic';
+    reason: string;
+    source: string;
+    isolatedAt: number;
+    expiresAt: number;
+  } | null;
+}
+
+export interface BalancerAttackModeResponse {
+  status: string;
+  protection_enabled?: boolean;
+  summary?: Record<string, number>;
+  nodes?: BalancerProtectionNode[];
+  released?: boolean;
+  node?: BalancerProtectionNode;
 }
 
 export interface UpdateBalancerGroupsPayload {
@@ -69,6 +105,10 @@ export interface UpdateBalancerGroupsPayload {
   hidden_groups?: string[];
   hidden_nodes?: string[];
   probe_interval?: string;
+  probe_sampling?: number;
+  probe_timeout?: string;
+  probe_connectivity_url?: string;
+  probe_http_method?: string;
   fastest_probe_url?: string;
   node_stats_stale_sec?: number;
   sticky_enabled?: boolean;
@@ -85,6 +125,14 @@ export interface UpdateBalancerGroupsPayload {
   auto_drain_release_successes?: number;
   auto_drain_load_threshold?: number;
   auto_drain_score_penalty?: number;
+  protection_enabled?: boolean;
+  protection_failures?: number;
+  protection_release_successes?: number;
+  protection_isolation_ttl_sec?: number;
+  protection_latency_threshold_ms?: number;
+  protection_min_available_nodes?: number;
+  emergency_fallback_enabled?: boolean;
+  emergency_fallback_max_nodes?: number;
   balancer_load_weight?: number;
   balancer_latency_weight?: number;
   balancer_max_latency_ms?: number;
@@ -176,6 +224,27 @@ export const adminBalancerApi = {
   removeQuarantine: async (node: string): Promise<BalancerQuarantineResponse> => {
     const response = await apiClient.delete(
       `/cabinet/admin/balancer/quarantine/${encodeURIComponent(node)}`,
+    );
+    return response.data;
+  },
+
+  getAttackMode: async (): Promise<BalancerAttackModeResponse> => {
+    const response = await apiClient.get('/cabinet/admin/balancer/attack-mode');
+    return response.data;
+  },
+
+  enableAttackMode: async (node: string, ttlSec = 300): Promise<BalancerAttackModeResponse> => {
+    const response = await apiClient.post('/cabinet/admin/balancer/attack-mode', {
+      node,
+      reason: 'manual_ddos',
+      ttl_sec: ttlSec,
+    });
+    return response.data;
+  },
+
+  disableAttackMode: async (node: string): Promise<BalancerAttackModeResponse> => {
+    const response = await apiClient.delete(
+      `/cabinet/admin/balancer/attack-mode/${encodeURIComponent(node)}`,
     );
     return response.data;
   },
