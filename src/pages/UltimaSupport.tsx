@@ -948,7 +948,7 @@ export function UltimaSupport() {
             <button
               type="button"
               onClick={openCreateTicket}
-              className="ultima-btn-pill ultima-btn-secondary px-3 py-1.5 text-[12px] leading-none"
+              className="ultima-btn-pill ultima-btn-secondary px-3 py-1.5 text-[12px] leading-none lg:hidden"
             >
               {t('support.newTicket')}
             </button>

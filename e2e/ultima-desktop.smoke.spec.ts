@@ -1398,6 +1398,7 @@ test.describe('Ultima desktop workspace', () => {
     await expect(page.getByTestId('ultima-ticket-workspace')).toBeVisible();
     await expect(page.locator('.ultima-desktop-metrics')).toHaveCount(0);
     await expect(page.locator('.ultima-desktop-context')).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Новый тикет' })).toHaveCount(1);
     await expectNoHorizontalOverflow(page);
 
     await page.goto('/ultima/devices');
