@@ -107,7 +107,9 @@ test('keeps the themed startup cover visible and resolves a relative brand logo 
     .poll(() => logo.evaluate((image: HTMLImageElement) => image.naturalWidth))
     .toBeGreaterThan(0);
   await expect(page.getByTestId('app-startup-loader')).toHaveCount(0);
-  await expect(page.locator('img[alt="Ultimteam VPN"]')).toBeVisible();
+  const authLogo = page.locator('img[alt="Ultimteam VPN"]');
+  await expect(authLogo).toBeVisible();
+  await expect.poll(() => authLogo.evaluate((image) => getComputedStyle(image).opacity)).toBe('1');
 
   expect(requestedPaths).toContain('/cabinet/branding/logo');
 });

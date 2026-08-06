@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState, type SyntheticEvent } from 'react';
+import { useBrandLogoImage } from '@/hooks/useBrandLogoImage';
 import { cn } from '@/lib/utils';
 
 type LogoShape = 'square' | 'wide' | 'tall';
@@ -57,29 +58,33 @@ export function UltimaAuthBrandMark({
   className,
 }: UltimaAuthBrandMarkProps) {
   const [logoShape, setLogoShape] = useState<LogoShape>('square');
-  const [logoLoaded, setLogoLoaded] = useState(false);
-  const [logoFailed, setLogoFailed] = useState(false);
+  const {
+    isLoaded: logoLoaded,
+    hasError: logoFailed,
+    handleLoad: markLogoLoaded,
+    handleError: handleLogoError,
+  } = useBrandLogoImage(showBrandLogo ? logoUrl : null);
 
   useEffect(() => {
     setLogoShape('square');
-    setLogoLoaded(false);
-    setLogoFailed(false);
   }, [logoUrl, showBrandLogo]);
 
-  const handleLogoLoad = useCallback((event: SyntheticEvent<HTMLImageElement>) => {
-    const { naturalWidth, naturalHeight } = event.currentTarget;
+  const handleLogoLoad = useCallback(
+    (event: SyntheticEvent<HTMLImageElement>) => {
+      const { naturalWidth, naturalHeight } = event.currentTarget;
 
-    if (naturalWidth > naturalHeight * 1.2) {
-      setLogoShape('wide');
-    } else if (naturalHeight > naturalWidth * 1.2) {
-      setLogoShape('tall');
-    } else {
-      setLogoShape('square');
-    }
+      if (naturalWidth > naturalHeight * 1.2) {
+        setLogoShape('wide');
+      } else if (naturalHeight > naturalWidth * 1.2) {
+        setLogoShape('tall');
+      } else {
+        setLogoShape('square');
+      }
 
-    setLogoLoaded(true);
-    setLogoFailed(false);
-  }, []);
+      markLogoLoaded(event);
+    },
+    [markLogoLoaded],
+  );
 
   const shouldRenderImage = Boolean(showBrandLogo && logoUrl && !logoFailed);
   const dimensionClassName = shouldRenderImage
@@ -117,10 +122,7 @@ export function UltimaAuthBrandMark({
             logoLoaded ? 'opacity-100' : 'opacity-0',
           )}
           onLoad={handleLogoLoad}
-          onError={() => {
-            setLogoFailed(true);
-            setLogoLoaded(false);
-          }}
+          onError={handleLogoError}
         />
       ) : null}
     </div>
