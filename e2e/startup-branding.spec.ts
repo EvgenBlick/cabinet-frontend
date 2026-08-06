@@ -1,9 +1,6 @@
 import { expect, test, type Page, type Route } from '@playwright/test';
 
-const ONE_PIXEL_PNG = Buffer.from(
-  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=',
-  'base64',
-);
+const WIDE_LOGO_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="240" height="80"></svg>';
 
 const THEME_CONFIG = {
   themePresetId: 'emerald-classic',
@@ -42,8 +39,8 @@ async function mockPublicStartupApi(page: Page, requestedPaths: string[]) {
     if (path === '/cabinet/branding/logo') {
       await route.fulfill({
         status: 200,
-        contentType: 'image/png',
-        body: ONE_PIXEL_PNG,
+        contentType: 'image/svg+xml',
+        body: WIDE_LOGO_SVG,
       });
       return;
     }
@@ -110,6 +107,14 @@ test('keeps the themed startup cover visible and resolves a relative brand logo 
   const authLogo = page.locator('img[alt="Ultimteam VPN"]');
   await expect(authLogo).toBeVisible();
   await expect.poll(() => authLogo.evaluate((image) => getComputedStyle(image).opacity)).toBe('1');
+  await expect
+    .poll(() =>
+      authLogo.evaluate((image) => {
+        const rect = image.getBoundingClientRect();
+        return rect.width > rect.height;
+      }),
+    )
+    .toBe(true);
 
   expect(requestedPaths).toContain('/cabinet/branding/logo');
 });

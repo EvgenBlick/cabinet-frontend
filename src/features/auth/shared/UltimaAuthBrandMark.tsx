@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type SyntheticEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type SyntheticEvent } from 'react';
 import { useBrandLogoImage } from '@/hooks/useBrandLogoImage';
 import { cn } from '@/lib/utils';
 
@@ -57,6 +57,7 @@ export function UltimaAuthBrandMark({
   variant = 'hero',
   className,
 }: UltimaAuthBrandMarkProps) {
+  const logoRef = useRef<HTMLImageElement>(null);
   const [logoShape, setLogoShape] = useState<LogoShape>('square');
   const {
     isLoaded: logoLoaded,
@@ -65,14 +66,9 @@ export function UltimaAuthBrandMark({
     handleError: handleLogoError,
   } = useBrandLogoImage(showBrandLogo ? logoUrl : null);
 
-  useEffect(() => {
-    setLogoShape('square');
-  }, [logoUrl, showBrandLogo]);
-
-  const handleLogoLoad = useCallback(
-    (event: SyntheticEvent<HTMLImageElement>) => {
-      const { naturalWidth, naturalHeight } = event.currentTarget;
-
+  const syncLogoShape = useCallback((image: HTMLImageElement) => {
+    const { naturalWidth, naturalHeight } = image;
+    if (naturalWidth > 0 && naturalHeight > 0) {
       if (naturalWidth > naturalHeight * 1.2) {
         setLogoShape('wide');
       } else if (naturalHeight > naturalWidth * 1.2) {
@@ -80,10 +76,28 @@ export function UltimaAuthBrandMark({
       } else {
         setLogoShape('square');
       }
+    }
+  }, []);
+
+  useEffect(() => {
+    const image = logoRef.current;
+    if (!showBrandLogo || !image) {
+      setLogoShape('square');
+      return;
+    }
+
+    if (image.complete) {
+      syncLogoShape(image);
+    }
+  }, [logoUrl, showBrandLogo, syncLogoShape]);
+
+  const handleLogoLoad = useCallback(
+    (event: SyntheticEvent<HTMLImageElement>) => {
+      syncLogoShape(event.currentTarget);
 
       markLogoLoaded(event);
     },
-    [markLogoLoaded],
+    [markLogoLoaded, syncLogoShape],
   );
 
   const shouldRenderImage = Boolean(showBrandLogo && logoUrl && !logoFailed);
@@ -115,6 +129,7 @@ export function UltimaAuthBrandMark({
 
       {shouldRenderImage ? (
         <img
+          ref={logoRef}
           src={logoUrl ?? undefined}
           alt={appName || 'Logo'}
           className={cn(
