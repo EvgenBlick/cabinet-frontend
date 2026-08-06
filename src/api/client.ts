@@ -85,11 +85,41 @@ function isAuthEndpoint(url: string | undefined): boolean {
   return AUTH_ENDPOINTS.some((endpoint) => url.includes(endpoint));
 }
 
+const PUBLIC_GET_ENDPOINTS = new Set([
+  '/cabinet/branding',
+  '/cabinet/branding/logo',
+  '/cabinet/branding/animation',
+  '/cabinet/branding/animation-config',
+  '/cabinet/branding/fullscreen',
+  '/cabinet/branding/email-auth',
+  '/cabinet/branding/lite-mode',
+  '/cabinet/branding/ultima-mode',
+  '/cabinet/branding/ultima-account-linking-mode',
+  '/cabinet/branding/gift-enabled',
+  '/cabinet/branding/analytics',
+  '/cabinet/branding/ultima-theme-config',
+  '/cabinet/branding/colors',
+  '/cabinet/branding/themes',
+]);
+
+function isPublicGetEndpoint(config: Pick<InternalAxiosRequestConfig, 'method' | 'url'>): boolean {
+  if (config.method?.toUpperCase() !== 'GET' || !config.url) return false;
+
+  try {
+    const origin = typeof window === 'undefined' ? 'http://localhost' : window.location.origin;
+    const path = new URL(config.url, origin).pathname.replace(/^\/api(?=\/)/, '');
+    return PUBLIC_GET_ENDPOINTS.has(path);
+  } catch {
+    const path = config.url.split('?')[0].replace(/^\/api(?=\/)/, '');
+    return PUBLIC_GET_ENDPOINTS.has(path);
+  }
+}
+
 // Request interceptor - add auth token with expiration check
 apiClient.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {
   // Skip token refresh and Bearer header for auth endpoints
   // These endpoints authenticate via init_data/credentials, not Bearer tokens
-  if (!isAuthEndpoint(config.url)) {
+  if (!isAuthEndpoint(config.url) && !isPublicGetEndpoint(config)) {
     let token = tokenStorage.getAccessToken();
 
     if (token && isTokenExpired(token)) {
@@ -219,7 +249,7 @@ apiClient.interceptors.response.use(
     // Если получили 401 и ещё не пробовали refresh (на случай если проверка exp не сработала)
     if (error.response?.status === 401 && !originalRequest._retry) {
       // Never refresh/redirect on auth endpoints; UI handles these errors.
-      if (isAuthEndpoint(originalRequest.url)) {
+      if (isAuthEndpoint(originalRequest.url) || isPublicGetEndpoint(originalRequest)) {
         // Пробрасываем ошибку в компонент для показа сообщения пользователю
         return Promise.reject(error);
       }

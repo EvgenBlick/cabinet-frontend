@@ -52,13 +52,12 @@ const syncStaticStartupLogo = async (branding: BrandingInfo) => {
 const warmBranding = async (queryClient: QueryClient) => {
   const branding = await queryClient.ensureQueryData({
     queryKey: ['branding'],
-    queryFn: async () => {
-      const data = await brandingApi.getBranding();
-      setCachedBranding(data);
-      return data;
-    },
+    queryFn: brandingApi.getBranding,
     staleTime: 60_000,
+    retry: 2,
+    retryDelay: (attempt) => Math.min(180 * 2 ** attempt, 720),
   });
+  setCachedBranding(branding);
   await preloadLogo(branding);
   await syncStaticStartupLogo(branding);
 };
@@ -97,6 +96,7 @@ const warmAppShell = async (queryClient: QueryClient) => {
 
 const runStartup = async (queryClient: QueryClient) => {
   const startedAt = performance.now();
+  const shellWarmupPromise = warmAppShell(queryClient);
 
   try {
     await useAuthStore.getState().initialize();
@@ -110,7 +110,7 @@ const runStartup = async (queryClient: QueryClient) => {
     // The login page remains available if restoring or Telegram auth fails.
   }
 
-  await warmAppShell(queryClient);
+  await shellWarmupPromise;
 
   if (useAuthStore.getState().isAuthenticated) {
     await Promise.allSettled([

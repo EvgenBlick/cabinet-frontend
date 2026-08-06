@@ -31,7 +31,13 @@ const THEME_CONFIG = {
   homeUseBrandLogo: false,
 };
 
-async function mockPublicStartupApi(page: Page, requestedPaths: string[]) {
+async function mockPublicStartupApi(
+  page: Page,
+  requestedPaths: string[],
+  options: { failFirstBrandingRequest?: boolean } = {},
+) {
+  let brandingRequestCount = 0;
+
   await page.route('**/api/**', async (route: Route) => {
     const path = new URL(route.request().url()).pathname.replace(/^\/api/, '');
     requestedPaths.push(path);
@@ -45,6 +51,11 @@ async function mockPublicStartupApi(page: Page, requestedPaths: string[]) {
       return;
     }
     if (path === '/cabinet/branding') {
+      brandingRequestCount += 1;
+      if (options.failFirstBrandingRequest && brandingRequestCount === 1) {
+        await route.fulfill({ status: 503, json: { detail: 'temporary startup failure' } });
+        return;
+      }
       await new Promise((resolve) => setTimeout(resolve, 1_200));
       await route.fulfill({
         status: 200,
@@ -119,4 +130,36 @@ test('keeps the themed startup cover visible and resolves a relative brand logo 
     .toBe(true);
 
   expect(requestedPaths).toContain('/cabinet/branding/logo');
+});
+
+test('retries cold branding without caching a logo-less network fallback', async ({ page }) => {
+  const requestedPaths: string[] = [];
+  await mockPublicStartupApi(page, requestedPaths, { failFirstBrandingRequest: true });
+  await page.addInitScript((themeConfig) => {
+    localStorage.clear();
+    sessionStorage.clear();
+    localStorage.setItem('cabinet_ultima_mode', 'true');
+    localStorage.setItem('cabinet_ultima_theme_config', JSON.stringify(themeConfig));
+  }, THEME_CONFIG);
+
+  await page.goto('/login');
+
+  await expect
+    .poll(() =>
+      page.locator('html').evaluate((element) => element.classList.contains('startup-logo-ready')),
+    )
+    .toBe(true);
+  await expect(page.locator('#app-startup-overlay')).toHaveCount(0);
+  expect(requestedPaths.filter((path) => path === '/cabinet/branding')).toHaveLength(2);
+  expect(requestedPaths).toContain('/cabinet/branding/logo');
+
+  const cachedBranding = await page.evaluate(() => {
+    const raw = localStorage.getItem('cabinet_branding');
+    return raw ? JSON.parse(raw) : null;
+  });
+  expect(cachedBranding).toMatchObject({
+    name: 'Ultimteam VPN',
+    has_custom_logo: true,
+    logo_url: '/cabinet/branding/logo',
+  });
 });

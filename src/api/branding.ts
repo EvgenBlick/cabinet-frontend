@@ -286,19 +286,15 @@ export const brandingApi = {
       // Cache the branding data for offline access
       setCachedBranding(response.data);
       return response.data;
-    } catch {
+    } catch (error) {
       // If network fails, use cached branding
       const cached = getCachedBranding();
       if (cached) {
         return cached;
       }
-      // Return minimal fallback if no cache
-      return {
-        name: import.meta.env.VITE_APP_NAME || 'Cabinet',
-        logo_url: null,
-        logo_letter: import.meta.env.VITE_APP_LOGO || 'V',
-        has_custom_logo: false,
-      };
+      // Keep transient network failures out of persistent branding storage.
+      // Components already provide their own neutral text/letter fallback.
+      throw error;
     }
   },
 
