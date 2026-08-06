@@ -19,6 +19,7 @@ import { isInTelegramWebApp } from './hooks/useTelegramSDK';
 import { getCachedUltimaMode } from './hooks/useUltimaMode';
 import { useUltimaThemeConfig } from './features/ultima/theme';
 import { isUltimaTopLevelPath, ULTIMA_TOP_LEVEL_PATHS } from './features/ultima/navigation';
+import { AppStartupGate } from './components/app/AppStartupGate';
 
 const TWEMOJI_OPTIONS = { className: 'twemoji', folder: 'svg', ext: '.svg' } as const;
 
@@ -144,7 +145,11 @@ export function AppWithNavigator() {
             <TooltipProvider>
               <ToastProvider>
                 <WebSocketProvider>
-                  <Twemoji options={TWEMOJI_OPTIONS}>{ready ? <App /> : null}</Twemoji>
+                  <Twemoji options={TWEMOJI_OPTIONS}>
+                    <AppStartupGate isLocaleReady={ready}>
+                      <App />
+                    </AppStartupGate>
+                  </Twemoji>
                 </WebSocketProvider>
               </ToastProvider>
             </TooltipProvider>

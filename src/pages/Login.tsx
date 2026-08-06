@@ -14,9 +14,12 @@ import { useUltimaAuthBranding } from '@/features/auth/shared/useUltimaAuthBrand
 import { useUltimaMode } from '@/hooks/useUltimaMode';
 import { ShieldCheck } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { Navigate } from 'react-router';
+import { useAuthStore } from '@/store/auth';
 
 export default function Login() {
   const { t } = useTranslation();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const { isUltimaMode, isUltimaModeReady } = useUltimaMode();
   const { showUltimaBrandLogo } = useUltimaAuthBranding(isUltimaMode);
   const {
@@ -56,6 +59,7 @@ export default function Login() {
     setPassword,
     setConfirmPassword,
     handleLogoLoad,
+    handleLogoError,
     handleBackToLogin,
     handleRetryTelegramAuth,
     handleOAuthLogin,
@@ -64,6 +68,10 @@ export default function Login() {
     handleEmailSubmit,
     handleShowForgotPassword,
   } = useLoginPage();
+
+  if (isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
 
   if (!isUltimaModeReady) {
     return <PageLoader variant="ultima" />;
@@ -235,6 +243,7 @@ export default function Login() {
             appName={appName}
             logoUrl={logoUrl}
             onLogoLoad={handleLogoLoad}
+            onLogoError={handleLogoError}
             referralCode={referralCode}
             isEmailAuthEnabled={isEmailAuthEnabled}
           />

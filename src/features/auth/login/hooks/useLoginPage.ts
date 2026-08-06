@@ -152,6 +152,11 @@ export function useLoginPage() {
     setLogoLoaded(true);
   }, []);
 
+  const handleLogoError = useCallback(() => {
+    setLogoShape('square');
+    setLogoLoaded(false);
+  }, []);
+
   useEffect(() => {
     document.title = appName || 'VPN';
   }, [appName]);
@@ -439,6 +444,7 @@ export function useLoginPage() {
     setPassword,
     setConfirmPassword,
     handleLogoLoad,
+    handleLogoError,
     handleBackToLogin,
     handleRetryTelegramAuth,
     handleOAuthLogin,

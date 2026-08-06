@@ -562,6 +562,7 @@ export function AppShell({ children }: AppShellProps) {
                     desktopLogoLoaded ? 'opacity-100' : 'opacity-0',
                   )}
                   onLoad={handleDesktopLogoLoad}
+                  onError={() => setDesktopLogoLoaded(false)}
                 />
               )}
             </div>

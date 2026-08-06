@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, type SyntheticEvent } from 'react';
-import { getLogoBlobUrl, isLogoPreloaded } from '@/api/branding';
+import { isLogoPreloaded } from '@/api/branding';
 
 const loadedBrandLogoUrls = new Set<string>();
 
@@ -8,7 +8,7 @@ const isBrandLogoLoaded = (logoUrl: string | null): boolean => {
     return false;
   }
 
-  return loadedBrandLogoUrls.has(logoUrl) || getLogoBlobUrl() === logoUrl || isLogoPreloaded();
+  return loadedBrandLogoUrls.has(logoUrl) || isLogoPreloaded();
 };
 
 export function useBrandLogoImage(logoUrl: string | null) {

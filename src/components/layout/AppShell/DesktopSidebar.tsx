@@ -158,6 +158,7 @@ export function DesktopSidebar({
                   logoLoaded ? 'opacity-100' : 'opacity-0',
                 )}
                 onLoad={handleLogoLoad}
+                onError={() => setLogoLoaded(false)}
               />
             )}
           </div>

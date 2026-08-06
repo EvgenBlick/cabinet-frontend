@@ -92,12 +92,8 @@ if (!alreadyInitialized) {
   }
 }
 
-// Preload logo from cache — defer to idle time so it doesn't compete with LCP
-if ('requestIdleCallback' in window) {
-  requestIdleCallback(() => initLogoPreload());
-} else {
-  setTimeout(initLogoPreload, 100);
-}
+// The brand mark is part of the first viewport, so warm it before route content appears.
+void initLogoPreload();
 
 const queryClient = new QueryClient({
   defaultOptions: {

@@ -1018,10 +1018,18 @@ export function UltimaDashboard() {
         <span
           aria-hidden
           className={cn(
-            'absolute inset-[3px] rounded-full border border-white/10 bg-white/[0.06] transition-opacity duration-200',
-            showBrandLogoOnHome && isHomeLogoLoaded ? 'opacity-0' : 'animate-pulse opacity-100',
+            'absolute inset-[3px] flex items-center justify-center rounded-full border border-white/10 bg-white/[0.06] transition-opacity duration-200',
+            showBrandLogoOnHome && isHomeLogoLoaded ? 'opacity-0' : 'opacity-100',
           )}
-        />
+        >
+          <ShieldCheck
+            className={cn(
+              'h-12 w-12 text-white/85',
+              showBrandLogoOnHome && !isHomeLogoLoaded && 'animate-pulse',
+            )}
+            strokeWidth={1.6}
+          />
+        </span>
       </span>
     );
   }, [

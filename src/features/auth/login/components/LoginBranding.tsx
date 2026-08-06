@@ -10,6 +10,7 @@ interface LoginBrandingProps {
   appName: string;
   logoUrl: string | null;
   onLogoLoad: (event: SyntheticEvent<HTMLImageElement>) => void;
+  onLogoError: () => void;
   referralCode: string;
   isEmailAuthEnabled: boolean;
 }
@@ -22,6 +23,7 @@ export function LoginBranding({
   appName,
   logoUrl,
   onLogoLoad,
+  onLogoError,
   referralCode,
   isEmailAuthEnabled,
 }: LoginBrandingProps) {
@@ -51,6 +53,7 @@ export function LoginBranding({
             alt={appName || 'Logo'}
             className={`absolute h-full w-full object-contain transition-opacity duration-200 ${logoLoaded ? 'opacity-100' : 'opacity-0'}`}
             onLoad={onLogoLoad}
+            onError={onLogoError}
           />
         )}
       </div>

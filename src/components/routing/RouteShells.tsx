@@ -72,7 +72,7 @@ export function AdminRoute({ children }: { children: React.ReactNode }) {
 export function LazyPage({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   return (
-    <Suspense fallback={<PageLoader variant={resolveLoaderVariant(location.pathname)} />}>
+    <Suspense fallback={<PageLoader variant={resolveLoaderVariant(location.pathname)} contained />}>
       {children}
     </Suspense>
   );

@@ -119,17 +119,27 @@ const parseCachedBranding = (raw: string | null): BrandingInfo | null => {
   }
 };
 
-// In-memory blob URL cache to avoid exposing backend URL
-let _logoBlobUrl: string | null = null;
+// Keep the public logo URL stable for the whole session. Switching an image
+// from the HTTP URL to a blob URL after the first render caused visible logo
+// flashes when React re-rendered a header or a dashboard scene.
+let _preloadedLogoUrl: string | null = null;
+let _logoPreloadPromise: Promise<void> | null = null;
+
+const resolveLogoUrl = (branding: BrandingInfo): string | null => {
+  if (!branding.has_custom_logo || !branding.logo_url) {
+    return null;
+  }
+  return `${import.meta.env.VITE_API_URL || ''}${branding.logo_url}`;
+};
 
 // Check if logo was already preloaded in this session
 export const isLogoPreloaded = (): boolean => {
   try {
-    if (_logoBlobUrl) return true;
     const cached = getCachedBranding();
     if (!cached?.has_custom_logo || !cached?.logo_url) {
       return false;
     }
+    if (_preloadedLogoUrl === resolveLogoUrl(cached)) return true;
     const preloaded = sessionStorage.getItem(LOGO_PRELOADED_KEY);
     return preloaded === cached.logo_url;
   } catch {
@@ -182,47 +192,48 @@ export const setCachedBranding = (branding: BrandingInfo) => {
   }
 };
 
-// Preload logo image as blob to hide backend URL
+// Warm the browser image cache before branded surfaces are revealed.
 export const preloadLogo = async (branding: BrandingInfo): Promise<void> => {
-  if (!branding.has_custom_logo || !branding.logo_url) {
+  const logoUrl = resolveLogoUrl(branding);
+  if (!logoUrl || !branding.logo_url) {
     return;
   }
 
-  // Check if already preloaded in this session
-  if (_logoBlobUrl) {
+  if (_preloadedLogoUrl === logoUrl) {
     return;
   }
 
-  const preloaded = sessionStorage.getItem(LOGO_PRELOADED_KEY);
-  if (preloaded === branding.logo_url && _logoBlobUrl) {
-    return;
+  if (_logoPreloadPromise) {
+    await _logoPreloadPromise;
+    if (_preloadedLogoUrl === logoUrl) return;
   }
 
-  try {
-    const logoUrl = `${import.meta.env.VITE_API_URL || ''}${branding.logo_url}`;
-    const response = await fetch(logoUrl);
-    if (!response.ok) return;
+  _logoPreloadPromise = new Promise<void>((resolve) => {
+    const image = new Image();
+    image.decoding = 'async';
+    image.onload = () => {
+      _preloadedLogoUrl = logoUrl;
+      try {
+        sessionStorage.setItem(LOGO_PRELOADED_KEY, branding.logo_url!);
+      } catch {
+        // Storage is optional; the browser cache still keeps the image warm.
+      }
+      resolve();
+    };
+    image.onerror = () => resolve();
+    image.src = logoUrl;
+  }).finally(() => {
+    _logoPreloadPromise = null;
+  });
 
-    const blob = await response.blob();
-    // Revoke previous blob URL if exists
-    if (_logoBlobUrl) {
-      URL.revokeObjectURL(_logoBlobUrl);
-    }
-    _logoBlobUrl = URL.createObjectURL(blob);
-    sessionStorage.setItem(LOGO_PRELOADED_KEY, branding.logo_url);
-  } catch {
-    // Fetch failed, logo will use letter fallback
-  }
+  await _logoPreloadPromise;
 };
 
-// Get the blob URL for the logo (safe, doesn't expose backend)
-export const getLogoBlobUrl = (): string | null => _logoBlobUrl;
-
 // Initialize logo preload from cache on page load
-export const initLogoPreload = () => {
+export const initLogoPreload = async () => {
   const cached = getCachedBranding();
   if (cached) {
-    preloadLogo(cached);
+    await preloadLogo(cached);
   }
 };
 
@@ -275,11 +286,7 @@ export const brandingApi = {
         'Content-Type': 'multipart/form-data',
       },
     });
-    // Invalidate cached blob so it gets re-fetched
-    if (_logoBlobUrl) {
-      URL.revokeObjectURL(_logoBlobUrl);
-      _logoBlobUrl = null;
-    }
+    _preloadedLogoUrl = null;
     sessionStorage.removeItem(LOGO_PRELOADED_KEY);
     return response.data;
   },
@@ -287,25 +294,14 @@ export const brandingApi = {
   // Delete custom logo (admin only)
   deleteLogo: async (): Promise<BrandingInfo> => {
     const response = await apiClient.delete<BrandingInfo>('/cabinet/branding/logo');
-    if (_logoBlobUrl) {
-      URL.revokeObjectURL(_logoBlobUrl);
-      _logoBlobUrl = null;
-    }
+    _preloadedLogoUrl = null;
     sessionStorage.removeItem(LOGO_PRELOADED_KEY);
     return response.data;
   },
 
-  // Get logo URL - prefers blob URL (hides backend), falls back to direct URL for offline
+  // Use one stable URL so an already visible logo never remounts mid-render.
   getLogoUrl: (branding: BrandingInfo): string | null => {
-    // Prefer blob URL if available (hides backend URL)
-    if (_logoBlobUrl) {
-      return _logoBlobUrl;
-    }
-    // Fallback to direct URL for offline/reload scenarios
-    if (branding.has_custom_logo && branding.logo_url) {
-      return `${import.meta.env.VITE_API_URL || ''}${branding.logo_url}`;
-    }
-    return null;
+    return resolveLogoUrl(branding);
   },
 
   // Get animation enabled (public, no auth required)
