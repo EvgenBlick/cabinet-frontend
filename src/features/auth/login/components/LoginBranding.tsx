@@ -57,7 +57,6 @@ export function LoginBranding({
           />
         )}
       </div>
-      {appName && <h1 className="text-3xl font-bold text-dark-50 sm:text-4xl">{appName}</h1>}
 
       {referralCode && isEmailAuthEnabled && (
         <div className="mt-3 rounded-xl border border-accent-500/30 bg-accent-500/10 p-2.5">

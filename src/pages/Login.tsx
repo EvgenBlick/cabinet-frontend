@@ -180,10 +180,7 @@ export default function Login() {
               showBrandLogo={showUltimaBrandLogo}
               className="mb-4 lg:mb-6"
             />
-            <h1 className="text-[34px] font-semibold leading-none text-white lg:text-[48px]">
-              {appName}
-            </h1>
-            <p className="mt-3 max-w-[34ch] text-[14px] leading-6 text-white/60 lg:text-[16px]">
+            <p className="max-w-[34ch] text-[14px] leading-6 text-white/60 lg:text-[16px]">
               {authMode === 'register'
                 ? t(
                     'auth.registerPageIntro',

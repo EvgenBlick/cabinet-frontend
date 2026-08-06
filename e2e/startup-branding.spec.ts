@@ -118,6 +118,7 @@ test('keeps the themed startup cover visible and resolves a relative brand logo 
   await expect(startupOverlay).toHaveCount(0);
   const authLogo = page.locator('img[alt="Ultimteam VPN"]');
   await expect(authLogo).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Ultimteam VPN' })).toHaveCount(0);
   await expect(authLogo).toHaveAttribute('src', '/api/cabinet/branding/logo');
   await expect.poll(() => authLogo.evaluate((image) => getComputedStyle(image).opacity)).toBe('1');
   await expect
@@ -150,6 +151,7 @@ test('retries cold branding without caching a logo-less network fallback', async
     )
     .toBe(true);
   await expect(page.locator('#app-startup-overlay')).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: 'Ultimteam VPN' })).toHaveCount(0);
   expect(requestedPaths.filter((path) => path === '/cabinet/branding')).toHaveLength(2);
   expect(requestedPaths).toContain('/cabinet/branding/logo');
 
