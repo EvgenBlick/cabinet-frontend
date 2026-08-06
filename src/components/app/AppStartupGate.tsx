@@ -1,18 +1,16 @@
 import { useEffect, useState } from 'react';
 import { useQueryClient, type QueryClient } from '@tanstack/react-query';
-import { brandingApi, preloadLogo, setCachedBranding } from '@/api/branding';
+import { brandingApi, preloadLogo, setCachedBranding, type BrandingInfo } from '@/api/branding';
 import { subscriptionApi } from '@/api/subscription';
-import PageLoader from '@/components/common/PageLoader';
 import { setCachedLiteMode } from '@/hooks/useLiteMode';
 import { getTelegramInitData, isInTelegramWebApp } from '@/hooks/useTelegramSDK';
-import { getCachedUltimaMode, setCachedUltimaMode } from '@/hooks/useUltimaMode';
-import { cn } from '@/lib/utils';
+import { setCachedUltimaMode } from '@/hooks/useUltimaMode';
 import { useAuthStore } from '@/store/auth';
 
 let startupPromise: Promise<void> | null = null;
 const TELEGRAM_MIN_STARTUP_MS = 620;
 const WEB_MIN_STARTUP_MS = 260;
-const CONTENT_SETTLE_MS = 140;
+const CONTENT_SETTLE_MS = 120;
 const OVERLAY_FADE_MS = 420;
 
 const shouldAttemptTelegramAuth = () => {
@@ -29,6 +27,28 @@ const shouldAttemptTelegramAuth = () => {
 const wait = (durationMs: number) =>
   new Promise<void>((resolve) => window.setTimeout(resolve, durationMs));
 
+const syncStaticStartupLogo = async (branding: BrandingInfo) => {
+  const image = document.getElementById('app-startup-brand-image') as HTMLImageElement | null;
+  const mark = document.querySelector<HTMLElement>('#app-startup-overlay .startup-loader-mark');
+  const logoUrl = brandingApi.getLogoUrl(branding);
+  if (!image || !mark || !logoUrl) return;
+
+  if (image.src !== logoUrl) {
+    image.src = logoUrl;
+  }
+
+  try {
+    await image.decode();
+  } catch {
+    if (!image.complete || image.naturalWidth === 0) return;
+  }
+
+  if (image.naturalWidth > 0) {
+    mark.classList.add('has-brand-logo');
+    document.documentElement.classList.add('startup-logo-ready');
+  }
+};
+
 const warmBranding = async (queryClient: QueryClient) => {
   const branding = await queryClient.ensureQueryData({
     queryKey: ['branding'],
@@ -40,6 +60,7 @@ const warmBranding = async (queryClient: QueryClient) => {
     staleTime: 60_000,
   });
   await preloadLogo(branding);
+  await syncStaticStartupLogo(branding);
 };
 
 const warmAppShell = async (queryClient: QueryClient) => {
@@ -121,8 +142,6 @@ export function AppStartupGate({
   const authIsLoading = useAuthStore((state) => state.isLoading);
   const [isStarting, setIsStarting] = useState(true);
   const [isContentMounted, setIsContentMounted] = useState(false);
-  const [isOverlayLeaving, setIsOverlayLeaving] = useState(false);
-  const [isOverlayVisible, setIsOverlayVisible] = useState(true);
 
   useEffect(() => {
     let active = true;
@@ -152,36 +171,33 @@ export function AppStartupGate({
     if (!isBootstrapReady) return;
 
     setIsContentMounted(true);
-    const revealTimer = window.setTimeout(() => {
-      setIsOverlayLeaving(true);
-    }, CONTENT_SETTLE_MS);
-    const hideTimer = window.setTimeout(() => {
-      setIsOverlayVisible(false);
-    }, CONTENT_SETTLE_MS + OVERLAY_FADE_MS);
-
-    return () => {
-      window.clearTimeout(revealTimer);
-      window.clearTimeout(hideTimer);
-    };
   }, [isBootstrapReady]);
 
-  const loaderVariant = getCachedUltimaMode() === false ? 'dark' : 'ultima';
+  useEffect(() => {
+    if (!isContentMounted) return;
 
-  return (
-    <>
-      {isContentMounted ? children : null}
-      {isOverlayVisible ? (
-        <div
-          className={cn(
-            'fixed inset-0 z-[10000] transition-[opacity,filter] ease-out',
-            isOverlayLeaving ? 'pointer-events-none opacity-0 blur-sm' : 'opacity-100 blur-0',
-          )}
-          style={{ transitionDuration: `${OVERLAY_FADE_MS}ms` }}
-          aria-hidden={isOverlayLeaving}
-        >
-          <PageLoader variant={loaderVariant} />
-        </div>
-      ) : null}
-    </>
-  );
+    let revealTimer = 0;
+    let removeTimer = 0;
+    let secondFrame = 0;
+    const firstFrame = window.requestAnimationFrame(() => {
+      secondFrame = window.requestAnimationFrame(() => {
+        document.documentElement.classList.add('app-content-mounted');
+        revealTimer = window.setTimeout(() => {
+          document.documentElement.classList.add('app-ready');
+          removeTimer = window.setTimeout(() => {
+            document.getElementById('app-startup-overlay')?.remove();
+          }, OVERLAY_FADE_MS);
+        }, CONTENT_SETTLE_MS);
+      });
+    });
+
+    return () => {
+      window.cancelAnimationFrame(firstFrame);
+      window.cancelAnimationFrame(secondFrame);
+      window.clearTimeout(revealTimer);
+      window.clearTimeout(removeTimer);
+    };
+  }, [isContentMounted]);
+
+  return isContentMounted ? children : null;
 }

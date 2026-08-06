@@ -21,7 +21,6 @@ import {
   Wrench,
 } from 'lucide-react';
 import { balanceApi } from '@/api/balance';
-import { brandingApi, getCachedUltimaThemeConfig } from '@/api/branding';
 import { infoApi } from '@/api/info';
 import { notificationsApi } from '@/api/notifications';
 import { promoApi } from '@/api/promo';
@@ -97,7 +96,8 @@ export function UltimaDashboard() {
   const queryClient = useQueryClient();
   const { t, i18n } = useTranslation();
   const { currencySymbol } = useCurrency();
-  const { hasCustomLogo, logoUrl, hasCachedBranding, isBrandingLoading } = useBranding();
+  const { logoLetter, hasCustomLogo, logoUrl, hasCachedBranding, isBrandingLoading } =
+    useBranding();
   const haptic = useHaptic();
   const isAdmin = useAuthStore((state) => state.isAdmin);
   const user = useAuthStore((state) => state.user);
@@ -121,7 +121,6 @@ export function UltimaDashboard() {
   const [isReminderHidden, setIsReminderHidden] = useState(false);
   const [isTrialGuideVisible, setIsTrialGuideVisible] = useState(false);
   const [promoMessage, setPromoMessage] = useState<string | null>(null);
-  const hasCachedThemeConfig = useMemo(() => getCachedUltimaThemeConfig() !== null, []);
 
   const {
     data: subscriptionResponse,
@@ -170,16 +169,8 @@ export function UltimaDashboard() {
     staleTime: 30000,
     placeholderData: (previousData) => previousData,
   });
-  const { data: ultimaThemeConfig } = useQuery({
-    queryKey: ['ultima-theme-config'],
-    queryFn: brandingApi.getUltimaThemeConfig,
-    initialData: getCachedUltimaThemeConfig() ?? undefined,
-    staleTime: 60000,
-    placeholderData: (previousData) => previousData,
-  });
   const {
     isLoaded: isHomeLogoLoaded,
-    hasError: hasHomeLogoLoadError,
     handleLoad: handleHomeLogoLoad,
     handleError: handleHomeLogoError,
   } = useBrandLogoImage(logoUrl);
@@ -892,14 +883,9 @@ export function UltimaDashboard() {
     hasAnySubscription && dashboardDevicesData === undefined && !isDashboardDevicesError;
   const isDashboardDevicesUnavailable =
     hasAnySubscription && dashboardDevicesData === undefined && isDashboardDevicesError;
-  const showBrandLogoOnHome = Boolean(
-    ultimaThemeConfig?.homeUseBrandLogo && hasCustomLogo && logoUrl && !hasHomeLogoLoadError,
-  );
-  const isHomeLogoDecisionPending =
-    (!hasCachedThemeConfig && !ultimaThemeConfig) || (!hasCachedBranding && isBrandingLoading);
-  const shouldReserveHomeLogoSlot =
-    !hasHomeLogoLoadError &&
-    (Boolean(ultimaThemeConfig?.homeUseBrandLogo) || isHomeLogoDecisionPending);
+  const showBrandLogoOnHome = Boolean(hasCustomLogo && logoUrl);
+  const isHomeLogoDecisionPending = !hasCachedBranding && isBrandingLoading;
+  const shouldReserveHomeLogoSlot = showBrandLogoOnHome || isHomeLogoDecisionPending;
 
   const suggestedPrimaryActionKind = getUltimaNextAction({
     hasAnySubscription,
@@ -1003,6 +989,7 @@ export function UltimaDashboard() {
       >
         {showBrandLogoOnHome ? (
           <img
+            data-testid="ultima-home-brand-logo"
             src={logoUrl ?? undefined}
             alt="project-logo"
             className={cn(
@@ -1022,13 +1009,7 @@ export function UltimaDashboard() {
             showBrandLogoOnHome && isHomeLogoLoaded ? 'opacity-0' : 'opacity-100',
           )}
         >
-          <ShieldCheck
-            className={cn(
-              'h-12 w-12 text-white/85',
-              showBrandLogoOnHome && !isHomeLogoLoaded && 'animate-pulse',
-            )}
-            strokeWidth={1.6}
-          />
+          <span className="text-2xl font-semibold text-white/70">{logoLetter}</span>
         </span>
       </span>
     );
@@ -1036,6 +1017,7 @@ export function UltimaDashboard() {
     handleHomeLogoError,
     handleHomeLogoLoad,
     isHomeLogoLoaded,
+    logoLetter,
     logoUrl,
     shouldReserveHomeLogoSlot,
     showBrandLogoOnHome,

@@ -25,7 +25,6 @@ export default function PageLoader({ variant = 'dark', contained = false }: Page
     staleTime: 5 * 60 * 1000,
     enabled: !contained,
   });
-  const appName = branding?.name || cachedBranding?.name || import.meta.env.VITE_APP_NAME || 'VPN';
   const logoUrl = branding ? brandingApi.getLogoUrl(branding) : null;
   const { isLoaded, hasError, handleLoad, handleError } = useBrandLogoImage(logoUrl);
   const showLogo = Boolean(branding?.has_custom_logo && logoUrl && !hasError);
@@ -105,10 +104,6 @@ export default function PageLoader({ variant = 'dark', contained = false }: Page
             ) : null}
           </div>
 
-          <p className="mt-5 max-w-full truncate text-xl font-semibold text-white">{appName}</p>
-          <p className="mt-2 text-sm text-white/55">
-            {t('common.preparingCabinet', 'Подготавливаем кабинет')}
-          </p>
           <div className="mt-5 flex items-center gap-2" aria-hidden>
             {[0, 1, 2].map((step) => (
               <span

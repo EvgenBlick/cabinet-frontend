@@ -2318,6 +2318,30 @@ html.ultima-frames-enabled .ultima-shell [class*='border-[#66ebc9]'] {
   }
 }
 
+.guest-support-input {
+  width: 100%;
+  min-height: 3rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.75rem;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 0 0.875rem;
+  color: #fff;
+  font-size: 0.875rem;
+  outline: none;
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease;
+}
+
+.guest-support-input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.guest-support-input:focus {
+  border-color: color-mix(in srgb, var(--ultima-color-primary) 48%, transparent);
+  background: rgba(0, 0, 0, 0.26);
+}
+
 @media (min-width: 1024px) and (max-height: 900px) {
   .ultima-shell {
     padding-top: 10px;

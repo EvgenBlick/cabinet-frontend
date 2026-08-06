@@ -94,18 +94,20 @@ test('keeps the themed startup cover visible and resolves a relative brand logo 
 
   await page.goto('/login');
 
-  await expect(page.getByTestId('app-startup-loader')).toBeVisible();
+  const startupOverlay = page.locator('#app-startup-overlay');
+  await expect(startupOverlay).toBeVisible();
+  await expect(startupOverlay.locator('svg')).toHaveCount(0);
   await expect(page.getByRole('heading', { name: 'Вход в личный кабинет' })).toHaveCount(0);
 
-  const logo = page.locator('img[alt="Ultimteam VPN"]').first();
-  await expect(logo).toBeVisible();
-  await expect(logo).toHaveAttribute('src', '/api/cabinet/branding/logo');
   await expect
-    .poll(() => logo.evaluate((image: HTMLImageElement) => image.naturalWidth))
-    .toBeGreaterThan(0);
-  await expect(page.getByTestId('app-startup-loader')).toHaveCount(0);
+    .poll(() =>
+      page.locator('html').evaluate((element) => element.classList.contains('startup-logo-ready')),
+    )
+    .toBe(true);
+  await expect(startupOverlay).toHaveCount(0);
   const authLogo = page.locator('img[alt="Ultimteam VPN"]');
   await expect(authLogo).toBeVisible();
+  await expect(authLogo).toHaveAttribute('src', '/api/cabinet/branding/logo');
   await expect.poll(() => authLogo.evaluate((image) => getComputedStyle(image).opacity)).toBe('1');
   await expect
     .poll(() =>

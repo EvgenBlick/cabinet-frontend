@@ -105,6 +105,7 @@ export const DEFAULT_ULTIMA_THEME_CONFIG: UltimaThemeConfig = {
 
 const BRANDING_CACHE_KEY = 'cabinet_branding';
 const LOGO_PRELOADED_KEY = 'cabinet_logo_preloaded';
+const STARTUP_LOGO_CACHE_KEY = 'cabinet_startup_logo_url';
 export const ULTIMA_THEME_CONFIG_CACHE_KEY = 'cabinet_ultima_theme_config';
 
 const parseCachedBranding = (raw: string | null): BrandingInfo | null => {
@@ -211,6 +212,12 @@ export const setCachedBranding = (branding: BrandingInfo) => {
 
   try {
     localStorage.setItem(BRANDING_CACHE_KEY, serialized);
+    const logoUrl = resolveLogoUrl(branding);
+    if (logoUrl) {
+      localStorage.setItem(STARTUP_LOGO_CACHE_KEY, logoUrl);
+    } else {
+      localStorage.removeItem(STARTUP_LOGO_CACHE_KEY);
+    }
   } catch {
     // localStorage not available
   }

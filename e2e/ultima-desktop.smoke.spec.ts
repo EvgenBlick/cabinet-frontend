@@ -28,7 +28,7 @@ const THEME_CONFIG = {
   successWaveMs: 0,
   itemEnterMs: 0,
   framesEnabled: false,
-  homeUseBrandLogo: false,
+  homeUseBrandLogo: true,
 };
 
 const USER = {
@@ -1242,6 +1242,11 @@ test.describe('Ultima desktop workspace', () => {
 
     const overview = page.getByTestId('ultima-home-overview');
     await expect(overview).toBeVisible();
+    const homeLogo = page.getByTestId('ultima-home-brand-logo');
+    await expect(homeLogo).toBeVisible();
+    await expect
+      .poll(() => homeLogo.evaluate((image) => getComputedStyle(image).opacity))
+      .toBe('1');
     await expect(overview).toContainText('Обычный');
     await expect(page.getByTestId('ultima-home-traffic')).toContainText('82 ГБ');
     await expect(page.getByTestId('ultima-plan-device-count')).toContainText('1/3');
@@ -1390,6 +1395,10 @@ test.describe('Ultima desktop workspace', () => {
     await page.locator('[data-ultima-nav-target="support"]').click();
     await expect(page).toHaveURL(/\/support$/);
     await expect(page.locator('h1').first()).toBeVisible();
+    await expect(page.getByTestId('ultima-ticket-workspace')).toBeVisible();
+    await expect(page.locator('.ultima-desktop-metrics')).toHaveCount(0);
+    await expect(page.locator('.ultima-desktop-context')).toHaveCount(0);
+    await expectNoHorizontalOverflow(page);
 
     await page.goto('/ultima/devices');
     await expect(page.locator('h1').first()).toBeVisible();

@@ -1,8 +1,11 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Headphones, LockKeyhole, Send, ShieldCheck, Wifi } from 'lucide-react';
+import { ArrowLeft, Headphones, LockKeyhole, MessageCircle, Plus, Send, Wifi } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { guestSupportApi, type GuestSupportIdentity } from '../api/tickets';
+import { useBranding } from '@/hooks/useBranding';
+import { useBrandLogoImage } from '@/hooks/useBrandLogoImage';
+import { ultimaPaneSurfaceStyle, ultimaSurfaceStyle } from '@/features/ultima/surfaces';
 
 const STORAGE_KEY = 'ultima-guest-support';
 
@@ -17,12 +20,20 @@ function readIdentity(): GuestSupportIdentity | null {
 
 function errorText(error: unknown): string {
   const value = error as { response?: { data?: { detail?: string } } };
-  return value.response?.data?.detail || 'Не удалось отправить сообщение. Попробуйте ещё раз.';
+  return (
+    value.response?.data?.detail ||
+    'Не удалось отправить сообщение. Проверьте соединение и попробуйте еще раз.'
+  );
 }
+
+const surfaceStyle: CSSProperties = ultimaSurfaceStyle;
+const paneStyle: CSSProperties = ultimaPaneSurfaceStyle;
 
 export default function GuestSupport() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { appName, logoLetter, hasCustomLogo, logoUrl } = useBranding();
+  const brandLogo = useBrandLogoImage(hasCustomLogo ? logoUrl : null);
   const [identity, setIdentity] = useState<GuestSupportIdentity | null>(() => readIdentity());
   const [name, setName] = useState('');
   const [contact, setContact] = useState('');
@@ -89,7 +100,7 @@ export default function GuestSupport() {
             refreshConversation();
           }
         } catch {
-          // Ignore malformed frames; the next valid event still refreshes the conversation.
+          // The next valid event will refresh the conversation.
         }
       };
       socket.onclose = (event) => {
@@ -101,10 +112,12 @@ export default function GuestSupport() {
         }
       };
     };
+
     connect();
     const ping = setInterval(() => {
       if (socket?.readyState === WebSocket.OPEN) socket.send(JSON.stringify({ type: 'ping' }));
     }, 25000);
+
     return () => {
       stopped = true;
       clearInterval(ping);
@@ -148,159 +161,205 @@ export default function GuestSupport() {
     setReply('');
     setError('');
   };
+
   return (
-    <main className="min-h-screen bg-dark-950 px-4 py-5 text-dark-100 sm:px-6 sm:py-8">
-      <div className="mx-auto flex min-h-[calc(100vh-2.5rem)] max-w-4xl flex-col sm:min-h-[calc(100vh-4rem)]">
-        <header className="mb-5 flex items-center justify-between border-b border-dark-800 pb-4">
+    <main
+      className="ultima-shell min-h-[100dvh] overflow-y-auto px-4 py-4 text-white sm:px-6 sm:py-6"
+      data-testid="guest-support-page"
+    >
+      <div className="ultima-shell-aura" />
+      <div className="relative z-[1] mx-auto flex min-h-[calc(100dvh-2rem)] max-w-5xl flex-col sm:min-h-[calc(100dvh-3rem)]">
+        <header className="mb-4 flex min-h-12 items-center justify-between border-b border-white/[0.08] pb-4">
           <button
             type="button"
             onClick={() => navigate('/login')}
-            className="flex h-10 w-10 items-center justify-center rounded-lg border border-dark-700 text-dark-300 hover:bg-dark-800"
+            className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/[0.10] bg-white/[0.04] text-white/75 transition hover:bg-white/[0.08] hover:text-white"
             aria-label="Вернуться ко входу"
           >
             <ArrowLeft className="h-5 w-5" />
           </button>
-          <div className="text-center">
-            <div className="text-base font-semibold">Поддержка Ultimteam</div>
-            <div className="mt-0.5 flex items-center justify-center gap-1.5 text-xs text-dark-400">
-              {identity ? (
-                <>
-                  <span
-                    className={`h-1.5 w-1.5 rounded-full ${live ? 'bg-emerald-400' : 'bg-amber-400'}`}
-                  />
-                  {live ? 'Онлайн' : 'Подключение'}
-                </>
+          <div className="flex min-w-0 items-center gap-3 px-3">
+            <div className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-white/[0.10] bg-white/[0.05]">
+              {hasCustomLogo && logoUrl && !brandLogo.hasError ? (
+                <img
+                  src={logoUrl}
+                  alt=""
+                  className="h-full w-full object-contain p-1.5 transition-opacity duration-200"
+                  style={{ opacity: brandLogo.isLoaded ? 1 : 0 }}
+                  onLoad={brandLogo.handleLoad}
+                  onError={brandLogo.handleError}
+                />
               ) : (
-                'Без регистрации'
+                <span className="text-sm font-semibold text-white/90">{logoLetter}</span>
               )}
             </div>
+            <div className="min-w-0">
+              <div className="truncate text-sm font-semibold sm:text-base">{appName}</div>
+              <div className="mt-0.5 flex items-center gap-1.5 text-[11px] text-white/50">
+                {identity ? (
+                  <>
+                    <span
+                      className={`h-1.5 w-1.5 rounded-full ${live ? 'bg-emerald-400' : 'bg-amber-400'}`}
+                    />
+                    {live ? 'Онлайн' : 'Подключение'}
+                  </>
+                ) : (
+                  'Поддержка без регистрации'
+                )}
+              </div>
+            </div>
           </div>
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent-500/15 text-accent-400">
+          <div
+            className="flex h-11 w-11 items-center justify-center rounded-xl border"
+            style={{
+              borderColor: 'color-mix(in srgb, var(--ultima-color-primary) 30%, transparent)',
+              background: 'color-mix(in srgb, var(--ultima-color-primary) 12%, transparent)',
+              color: 'color-mix(in srgb, var(--ultima-color-primary) 72%, white)',
+            }}
+          >
             <Headphones className="h-5 w-5" />
           </div>
         </header>
 
         {!identity ? (
-          <section className="mx-auto grid w-full max-w-3xl flex-1 content-center gap-6 lg:grid-cols-[0.8fr_1.2fr]">
-            <div className="self-center">
-              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-accent-500 text-dark-950">
-                <ShieldCheck className="h-6 w-6" />
+          <section className="mx-auto grid w-full max-w-4xl flex-1 content-center gap-5 lg:grid-cols-[0.78fr_1.22fr] lg:gap-8">
+            <div className="self-center py-3 lg:py-0">
+              <div
+                className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl border"
+                style={{
+                  borderColor: 'color-mix(in srgb, var(--ultima-color-primary) 34%, transparent)',
+                  background: 'color-mix(in srgb, var(--ultima-color-primary) 14%, transparent)',
+                  color: 'color-mix(in srgb, var(--ultima-color-primary) 74%, white)',
+                }}
+              >
+                <MessageCircle className="h-6 w-6" />
               </div>
-              <h1 className="text-3xl font-semibold leading-tight">Напишите нам прямо сейчас</h1>
-              <p className="mt-3 text-sm leading-6 text-dark-400">
-                Аккаунт не нужен. Диалог сохранится на этом устройстве, а ответ появится без
-                обновления страницы.
+              <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-white/45">
+                Онлайн-поддержка
               </p>
-              <div className="mt-5 flex items-center gap-2 text-xs text-dark-500">
+              <h1 className="mt-2 max-w-md text-3xl font-semibold leading-[1.08] sm:text-4xl">
+                Опишите вопрос, ответ появится здесь
+              </h1>
+              <p className="mt-3 max-w-md text-sm leading-6 text-white/55">
+                Регистрация не нужна. Диалог сохранится на этом устройстве и обновится без
+                перезагрузки страницы.
+              </p>
+              <div className="text-white/42 mt-5 flex items-center gap-2 text-xs">
                 <LockKeyhole className="h-4 w-4" />
-                Доступ к переписке защищён отдельным ключом
+                Доступ к переписке защищен отдельным ключом
               </div>
             </div>
 
             <form
-              className="space-y-4 rounded-lg border border-dark-700 bg-dark-900 p-5 shadow-xl"
+              className="space-y-4 rounded-[24px] border p-4 shadow-[0_24px_70px_rgba(0,0,0,0.34)] backdrop-blur-xl sm:p-5 lg:rounded-lg"
+              style={surfaceStyle}
               onSubmit={(event) => {
                 event.preventDefault();
                 setError('');
                 createMutation.mutate();
               }}
             >
-              <label className="block">
-                <span className="mb-1.5 block text-xs font-medium text-dark-300">
-                  Как к вам обращаться
-                </span>
+              <GuestField label="Как к вам обращаться">
                 <input
-                  className="input w-full"
+                  className="guest-support-input"
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={(event) => setName(event.target.value)}
                   maxLength={120}
                   required
                 />
-              </label>
-              <label className="block">
-                <span className="mb-1.5 block text-xs font-medium text-dark-300">
-                  Почта или Telegram <span className="text-dark-500">необязательно</span>
-                </span>
+              </GuestField>
+              <GuestField label="Почта или Telegram" hint="необязательно">
                 <input
-                  className="input w-full"
+                  className="guest-support-input"
                   value={contact}
-                  onChange={(e) => setContact(e.target.value)}
+                  onChange={(event) => setContact(event.target.value)}
                   maxLength={255}
                   placeholder="name@example.com или @username"
                 />
-              </label>
-              <label className="block">
-                <span className="mb-1.5 block text-xs font-medium text-dark-300">Тема</span>
+              </GuestField>
+              <GuestField label="Тема">
                 <input
-                  className="input w-full"
+                  className="guest-support-input"
                   value={title}
-                  onChange={(e) => setTitle(e.target.value)}
+                  onChange={(event) => setTitle(event.target.value)}
                   minLength={3}
                   maxLength={255}
                   required
                 />
-              </label>
-              <label className="block">
-                <span className="mb-1.5 block text-xs font-medium text-dark-300">Сообщение</span>
+              </GuestField>
+              <GuestField label="Сообщение">
                 <textarea
-                  className="input min-h-32 w-full resize-none"
+                  className="guest-support-input min-h-32 resize-none py-3"
                   value={initialMessage}
-                  onChange={(e) => setInitialMessage(e.target.value)}
+                  onChange={(event) => setInitialMessage(event.target.value)}
                   minLength={10}
                   maxLength={4000}
                   placeholder="Опишите проблему и что уже пробовали сделать"
                   required
                 />
-              </label>
-              {error && (
-                <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-300">{error}</p>
-              )}
+              </GuestField>
+              {error ? (
+                <p className="rounded-xl border border-red-400/20 bg-red-500/10 px-3 py-2 text-sm text-red-200">
+                  {error}
+                </p>
+              ) : null}
               <button
-                className="flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-accent-500 font-semibold text-dark-950 hover:bg-accent-400 disabled:opacity-50"
+                className="ultima-btn-pill ultima-btn-primary flex h-12 w-full items-center justify-center gap-2 text-sm font-semibold disabled:opacity-50"
                 disabled={createMutation.isPending}
               >
                 <Send className="h-4 w-4" />
-                {createMutation.isPending ? 'Создаём диалог…' : 'Начать чат'}
+                {createMutation.isPending ? 'Создаем диалог…' : 'Начать чат'}
               </button>
             </form>
           </section>
         ) : (
-          <section className="mx-auto flex w-full max-w-3xl flex-1 flex-col overflow-hidden rounded-lg border border-dark-700 bg-dark-900 shadow-xl">
-            <div className="flex items-center justify-between border-b border-dark-800 px-4 py-3 sm:px-5">
+          <section
+            className="mx-auto flex w-full max-w-4xl flex-1 flex-col overflow-hidden rounded-[24px] border shadow-[0_24px_70px_rgba(0,0,0,0.34)] backdrop-blur-xl lg:rounded-lg"
+            style={surfaceStyle}
+          >
+            <div className="flex items-center justify-between gap-3 border-b border-white/[0.08] px-4 py-3.5 sm:px-5">
               <div className="min-w-0">
-                <div className="truncate font-semibold">{ticket?.title || 'Загрузка диалога…'}</div>
-                <div className="mt-0.5 text-xs text-dark-500">Обращение #{identity.ticketId}</div>
+                <div className="truncate font-semibold">{ticket?.title || 'Загружаем диалог…'}</div>
+                <div className="mt-0.5 text-xs text-white/40">Обращение #{identity.ticketId}</div>
               </div>
-              <div className="flex items-center gap-1.5 text-xs text-dark-400">
-                <Wifi className="h-3.5 w-3.5" /> Сообщения сразу
+              <div className="flex shrink-0 items-center gap-1.5 text-xs text-white/50">
+                <Wifi className="h-3.5 w-3.5" /> Онлайн
               </div>
             </div>
 
-            <div className="min-h-80 flex-1 space-y-3 overflow-y-auto px-4 py-5 sm:px-5">
-              {ticketQuery.isLoading && (
-                <div className="text-center text-sm text-dark-500">Загружаем переписку…</div>
-              )}
-              {ticketQuery.error && !ticketQuery.isLoading && (
-                <div className="rounded-lg bg-red-500/10 px-3 py-2 text-center text-sm text-red-300">
+            <div
+              className="ultima-scrollbar min-h-80 flex-1 space-y-3 overflow-y-auto px-4 py-5 sm:px-5"
+              style={paneStyle}
+            >
+              {ticketQuery.isLoading ? (
+                <div className="text-center text-sm text-white/45">Загружаем переписку…</div>
+              ) : null}
+              {ticketQuery.error && !ticketQuery.isLoading ? (
+                <div className="rounded-xl border border-red-400/20 bg-red-500/10 px-3 py-2 text-center text-sm text-red-200">
                   {errorText(ticketQuery.error)}
                 </div>
-              )}
+              ) : null}
               {ticket?.messages.map((message) => (
                 <div
                   key={message.id}
                   className={`flex ${message.is_from_admin ? 'justify-start' : 'justify-end'}`}
                 >
                   <div
-                    className={`max-w-[86%] rounded-lg px-3.5 py-2.5 ${message.is_from_admin ? 'bg-dark-800 text-dark-100' : 'bg-accent-500 text-dark-950'}`}
+                    className={`max-w-[86%] rounded-2xl border px-3.5 py-2.5 ${message.is_from_admin ? 'border-white/[0.08] bg-white/[0.055] text-white' : 'border-transparent text-[color:var(--ultima-color-primary-text)]'}`}
+                    style={
+                      message.is_from_admin
+                        ? undefined
+                        : { background: 'var(--ultima-color-primary)' }
+                    }
                   >
                     <div
-                      className={`mb-1 text-[11px] font-medium ${message.is_from_admin ? 'text-accent-400' : 'text-dark-800/70'}`}
+                      className={`mb-1 text-[11px] font-medium ${message.is_from_admin ? 'text-[color:color-mix(in_srgb,var(--ultima-color-primary)_70%,white)]' : 'opacity-65'}`}
                     >
                       {message.is_from_admin ? 'Поддержка' : 'Вы'}
                     </div>
                     <p className="whitespace-pre-wrap text-sm leading-5">{message.message_text}</p>
                     <div
-                      className={`mt-1 text-right text-[10px] ${message.is_from_admin ? 'text-dark-500' : 'text-dark-800/60'}`}
+                      className={`mt-1 text-right text-[10px] ${message.is_from_admin ? 'text-white/35' : 'opacity-55'}`}
                     >
                       {new Date(message.created_at).toLocaleTimeString([], {
                         hour: '2-digit',
@@ -314,35 +373,36 @@ export default function GuestSupport() {
             </div>
 
             {ticket?.status === 'closed' ? (
-              <div className="flex items-center justify-between gap-3 border-t border-dark-800 p-4">
-                <span className="text-sm text-dark-400">Диалог завершён поддержкой</span>
+              <div className="flex items-center justify-between gap-3 border-t border-white/[0.08] p-4">
+                <span className="text-sm text-white/50">Диалог завершен поддержкой</span>
                 <button
                   type="button"
                   onClick={startNewConversation}
-                  className="rounded-lg bg-accent-500 px-3 py-2 text-xs font-semibold text-dark-950"
+                  className="ultima-btn-pill ultima-btn-primary flex items-center gap-1.5 px-3 py-2 text-xs font-semibold"
                 >
+                  <Plus className="h-3.5 w-3.5" />
                   Новое обращение
                 </button>
               </div>
             ) : ticket?.is_reply_blocked ? (
-              <div className="border-t border-dark-800 p-4 text-center text-sm text-dark-400">
+              <div className="border-t border-white/[0.08] p-4 text-center text-sm text-white/50">
                 Ответы в этом обращении временно недоступны
               </div>
             ) : (
               <form
-                className="border-t border-dark-800 p-3 sm:p-4"
+                className="border-t border-white/[0.08] p-3 sm:p-4"
                 onSubmit={(event) => {
                   event.preventDefault();
                   if (reply.trim()) replyMutation.mutate();
                 }}
               >
-                {error && <p className="mb-2 text-sm text-red-300">{error}</p>}
+                {error ? <p className="mb-2 text-sm text-red-200">{error}</p> : null}
                 <div className="flex items-end gap-2">
                   <textarea
-                    className="input max-h-36 min-h-11 flex-1 resize-none"
+                    className="guest-support-input max-h-36 min-h-11 flex-1 resize-none py-3"
                     rows={1}
                     value={reply}
-                    onChange={(e) => setReply(e.target.value)}
+                    onChange={(event) => setReply(event.target.value)}
                     placeholder="Сообщение поддержке"
                     maxLength={4000}
                     onKeyDown={(event) => {
@@ -354,7 +414,7 @@ export default function GuestSupport() {
                   />
                   <button
                     type="submit"
-                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-accent-500 text-dark-950 disabled:opacity-50"
+                    className="ultima-btn-pill ultima-btn-primary flex h-11 w-11 shrink-0 items-center justify-center disabled:opacity-50"
                     disabled={!reply.trim() || replyMutation.isPending}
                     aria-label="Отправить"
                   >
@@ -367,5 +427,24 @@ export default function GuestSupport() {
         )}
       </div>
     </main>
+  );
+}
+
+function GuestField({
+  label,
+  hint,
+  children,
+}: {
+  label: string;
+  hint?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <label className="block">
+      <span className="mb-1.5 block text-xs font-medium text-white/65">
+        {label} {hint ? <span className="text-white/35">{hint}</span> : null}
+      </span>
+      {children}
+    </label>
   );
 }

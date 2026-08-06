@@ -10,14 +10,18 @@ import {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useSearchParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
+import {
+  Headphones,
+  Image as ImageIcon,
+  MessageCircleMore,
+  Send as SendIcon,
+  X as CloseIcon,
+} from 'lucide-react';
 import { infoApi } from '@/api/info';
 import { ticketsApi } from '@/api/tickets';
 import type { TicketMediaType } from '@/api/tickets';
 import { subscriptionApi } from '@/api/subscription';
-import {
-  UltimaDesktopPanel,
-  UltimaDesktopSectionLayout,
-} from '@/components/ultima/desktop/UltimaDesktopSectionLayout';
+import { UltimaDesktopSectionLayout } from '@/components/ultima/desktop/UltimaDesktopSectionLayout';
 import {
   ultimaPaneClassName,
   ultimaPaneSurfaceStyle,
@@ -29,32 +33,6 @@ import { UltimaBottomNav } from '@/components/ultima/UltimaBottomNav';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import type { Ticket } from '@/types';
 import { trackAnalyticsEvent } from '@/utils/analyticsEvents';
-
-const SendIcon = () => (
-  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      d="M6 12 3.269 3.126A59.768 59.768 0 0 1 21.485 12 59.77 59.77 0 0 1 3.27 20.876L6 12zm0 0h7.5"
-    />
-  </svg>
-);
-
-const ImageIcon = () => (
-  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      d="M2.25 15.75 7.41 10.59a2.25 2.25 0 0 1 3.18 0l5.16 5.16m-1.5-1.5 1.41-1.41a2.25 2.25 0 0 1 3.18 0l2.91 2.91m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.01"
-    />
-  </svg>
-);
-
-const CloseIcon = () => (
-  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-  </svg>
-);
 
 const TICKETS_BATCH_SIZE = 5;
 const MOBILE_TICKET_LIST_EXPANDED_HEIGHT = 'max-h-[34vh]';
@@ -162,7 +140,7 @@ function AttachmentPreview({
         />
       ) : (
         <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-white/[0.06] text-white/60">
-          <ImageIcon />
+          <ImageIcon className="h-4 w-4" />
         </div>
       )}
       <div className="min-w-0 flex-1">
@@ -183,7 +161,7 @@ function AttachmentPreview({
         className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-white/70"
         aria-label="remove-attachment"
       >
-        <CloseIcon />
+        <CloseIcon className="h-4 w-4" />
       </button>
     </div>
   );
@@ -240,7 +218,7 @@ function MessageMedia({ message }: { message: Ticket['last_message'] }) {
               onClick={() => setShowFullImage(false)}
               aria-label="close-image"
             >
-              <CloseIcon />
+              <CloseIcon className="h-5 w-5" />
             </button>
             <img
               src={mediaUrl}
@@ -260,7 +238,7 @@ function MessageMedia({ message }: { message: Ticket['last_message'] }) {
       rel="noopener noreferrer"
       className="mt-2 inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.05] px-3 py-2 text-[12px] text-white/75"
     >
-      <ImageIcon />
+      <ImageIcon className="h-4 w-4" />
       {message.media_caption || 'Открыть вложение'}
     </a>
   );
@@ -565,22 +543,6 @@ export function UltimaSupport() {
     };
   }, [supportConfig, t, openLink, openTelegramLink]);
 
-  const supportChannelValue = useMemo(() => {
-    if (supportConfig?.tickets_enabled && supportConfig.support_type === 'both') {
-      return t('support.desktopCombinedChannel', { defaultValue: 'Тикеты + Telegram' });
-    }
-
-    if (supportConfig?.tickets_enabled) {
-      return t('support.desktopTicketsChannel', { defaultValue: 'Тикеты' });
-    }
-
-    if (supportConfig?.support_type === 'url') {
-      return t('support.desktopWebChannel', { defaultValue: 'Сайт' });
-    }
-
-    return 'Telegram';
-  }, [supportConfig?.support_type, supportConfig?.tickets_enabled, t]);
-
   const supportChannelHint = useMemo(() => {
     if (supportConfig?.support_type === 'url' && supportConfig.support_url) {
       return supportConfig.support_url;
@@ -777,10 +739,7 @@ export function UltimaSupport() {
   };
 
   const renderSelfHelpActions = (className = '') => (
-    <section
-      className={`${ultimaPaneClassName} p-3 ${className}`}
-      style={ULTIMA_SUPPORT_PANE_STYLE}
-    >
+    <div className={className}>
       <div className="mb-2 flex items-end justify-between gap-3">
         <div className="min-w-0">
           <p className="text-white/86 text-[12px] font-semibold">{t('support.selfHelpTitle')}</p>
@@ -795,7 +754,7 @@ export function UltimaSupport() {
             key={action.key}
             type="button"
             onClick={() => navigate(action.to)}
-            className="rounded-2xl border border-white/10 bg-white/[0.045] px-3 py-2.5 text-left transition hover:border-white/20 hover:bg-white/[0.075]"
+            className="rounded-xl border border-white/10 bg-white/[0.045] px-3 py-2.5 text-left transition hover:border-white/20 hover:bg-white/[0.075] lg:rounded-lg"
           >
             <span className="block truncate text-[12px] font-medium text-white/90">
               {action.title}
@@ -809,7 +768,7 @@ export function UltimaSupport() {
           </button>
         ))}
       </div>
-    </section>
+    </div>
   );
 
   const bottomNav = <UltimaBottomNav active="support" onProfileClick={openProfileFast} />;
@@ -833,17 +792,49 @@ export function UltimaSupport() {
     </section>
   ) : showCreate ? (
     <section
-      className={`${ultimaPanelClassName} space-y-3 p-4`}
+      className={`${ultimaPanelClassName} space-y-4 p-4 sm:p-5`}
       style={ULTIMA_SUPPORT_SECTION_STYLE}
+      data-testid="ultima-ticket-create"
     >
-      {renderSelfHelpActions()}
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-3">
+          <span
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border"
+            style={{
+              borderColor: 'color-mix(in srgb, var(--ultima-color-primary) 30%, transparent)',
+              background: 'color-mix(in srgb, var(--ultima-color-primary) 12%, transparent)',
+              color: 'color-mix(in srgb, var(--ultima-color-primary) 72%, white)',
+            }}
+          >
+            <MessageCircleMore className="h-5 w-5" />
+          </span>
+          <div className="min-w-0">
+            <h2 className="text-base font-semibold text-white">{t('support.newTicket')}</h2>
+            <p className="mt-0.5 text-xs leading-5 text-white/50">
+              {t('support.messagePlaceholder')}
+            </p>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={() => {
+            clearCreateAttachment();
+            setShowCreate(false);
+          }}
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-white/60 transition hover:bg-white/[0.08] hover:text-white"
+          aria-label={t('common.cancel')}
+        >
+          <CloseIcon className="h-4 w-4" />
+        </button>
+      </div>
+      {renderSelfHelpActions('border-y border-white/[0.08] py-3')}
       <div className="flex flex-wrap gap-2">
         {quickSupportTopics.map((topic) => (
           <button
             key={topic.key}
             type="button"
             onClick={() => applyQuickTopic(topic)}
-            className="rounded-full border border-emerald-200/[0.15] bg-emerald-950/[0.35] px-3 py-1.5 text-[12px] font-medium text-emerald-50/[0.78] transition hover:border-emerald-200/30 hover:bg-emerald-900/40"
+            className="rounded-full border border-white/[0.10] bg-white/[0.04] px-3 py-1.5 text-[12px] font-medium text-white/70 transition hover:border-white/20 hover:bg-white/[0.08]"
           >
             {topic.label}
           </button>
@@ -853,14 +844,14 @@ export function UltimaSupport() {
         value={newTitle}
         onChange={(event) => setNewTitle(event.target.value)}
         placeholder={t('support.subjectPlaceholder')}
-        className="w-full rounded-2xl bg-emerald-950/30 px-4 py-2.5 text-sm text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] placeholder:text-emerald-100/[0.35]"
+        className="w-full rounded-xl border border-white/[0.08] bg-black/20 px-4 py-3 text-sm text-white outline-none placeholder:text-white/30 focus:border-[color:color-mix(in_srgb,var(--ultima-color-primary)_48%,transparent)] lg:rounded-lg"
         maxLength={255}
       />
       <textarea
         value={newMessage}
         onChange={(event) => setNewMessage(event.target.value)}
         placeholder={t('support.messagePlaceholder')}
-        className="min-h-[160px] w-full rounded-2xl bg-emerald-950/30 px-4 py-3 text-sm text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] placeholder:text-emerald-100/[0.35]"
+        className="min-h-[150px] w-full resize-none rounded-xl border border-white/[0.08] bg-black/20 px-4 py-3 text-sm text-white outline-none placeholder:text-white/30 focus:border-[color:color-mix(in_srgb,var(--ultima-color-primary)_48%,transparent)] lg:rounded-lg"
         maxLength={4000}
       />
       <input
@@ -880,10 +871,10 @@ export function UltimaSupport() {
         <button
           type="button"
           onClick={() => createFileInputRef.current?.click()}
-          className="ultima-btn-pill ultima-btn-secondary px-3 py-2.5 text-sm"
+          className="ultima-btn-pill ultima-btn-secondary flex h-11 w-11 items-center justify-center p-0 text-sm"
           aria-label="attach-screenshot"
         >
-          <ImageIcon />
+          <ImageIcon className="h-4 w-4" />
         </button>
         <button
           type="button"
@@ -896,18 +887,8 @@ export function UltimaSupport() {
           }
           className="ultima-btn-pill ultima-btn-primary flex flex-1 items-center justify-center gap-2 px-4 py-2.5 text-sm disabled:opacity-60"
         >
-          <SendIcon />
+          <SendIcon className="h-4 w-4" />
           {t('support.send')}
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            clearCreateAttachment();
-            setShowCreate(false);
-          }}
-          className="ultima-btn-pill ultima-btn-secondary px-4 py-2.5 text-sm"
-        >
-          {t('common.cancel')}
         </button>
       </div>
     </section>
@@ -939,8 +920,9 @@ export function UltimaSupport() {
       ) : null}
 
       <section
-        className={`${ultimaPanelClassName} flex min-h-0 flex-1 flex-col gap-3 p-4 lg:rounded-[28px] lg:p-5`}
+        className={`${ultimaPanelClassName} flex min-h-0 flex-1 flex-col gap-3 p-4 lg:p-5`}
         style={ULTIMA_SUPPORT_SECTION_STYLE}
+        data-testid="ultima-ticket-workspace"
       >
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="min-w-0">
@@ -1082,8 +1064,8 @@ export function UltimaSupport() {
                         key={msg.id}
                         className={`rounded-xl px-3 py-2 text-sm lg:px-3.5 lg:py-2.5 ${
                           msg.is_from_admin
-                            ? 'bg-emerald-500/10 text-emerald-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]'
-                            : 'bg-emerald-950/[0.35] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]'
+                            ? 'border border-[color:color-mix(in_srgb,var(--ultima-color-primary)_20%,transparent)] bg-[color:color-mix(in_srgb,var(--ultima-color-primary)_10%,transparent)] text-white'
+                            : 'border border-white/[0.07] bg-white/[0.045] text-white'
                         }`}
                       >
                         <div className="mb-1 flex items-center justify-between gap-2">
@@ -1128,13 +1110,13 @@ export function UltimaSupport() {
                         className="ultima-btn-pill ultima-btn-secondary rounded-xl px-3 text-sm lg:h-11"
                         aria-label="attach-reply-screenshot"
                       >
-                        <ImageIcon />
+                        <ImageIcon className="h-4 w-4" />
                       </button>
                       <input
                         value={replyMessage}
                         onChange={(event) => setReplyMessage(event.target.value)}
                         placeholder={t('support.replyPlaceholder')}
-                        className="w-full rounded-xl bg-emerald-950/[0.35] px-3 py-2 text-sm text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] placeholder:text-emerald-100/[0.35] lg:h-11 lg:text-[14px]"
+                        className="w-full rounded-xl border border-white/[0.08] bg-black/20 px-3 py-2 text-sm text-white outline-none placeholder:text-white/30 focus:border-[color:color-mix(in_srgb,var(--ultima-color-primary)_48%,transparent)] lg:h-11 lg:text-[14px]"
                         maxLength={4000}
                       />
                       <button
@@ -1148,7 +1130,7 @@ export function UltimaSupport() {
                         className="ultima-btn-pill ultima-btn-primary rounded-xl px-3 text-sm disabled:opacity-60 lg:h-11 lg:px-4"
                         aria-label="send-reply"
                       >
-                        <SendIcon />
+                        <SendIcon className="h-4 w-4" />
                       </button>
                     </div>
                   </div>
@@ -1170,7 +1152,7 @@ export function UltimaSupport() {
       <div className="ultima-shell ultima-shell-wide ultima-flat-frames ultima-shell-profile-desktop ultima-shell-muted-aura">
         <div className="ultima-shell-aura" />
         <UltimaDesktopSectionLayout
-          icon={<SendIcon />}
+          icon={<Headphones className="h-5 w-5" />}
           eyebrow={t('nav.support', { defaultValue: 'Поддержка' })}
           title={t('support.title')}
           subtitle={
@@ -1183,31 +1165,6 @@ export function UltimaSupport() {
                     'Здесь можно открыть новый тикет, прочитать ответы и быстро вернуться к нужному диалогу.',
                 })
           }
-          metrics={[
-            {
-              label: t('support.recentTickets', { defaultValue: 'Активные' }),
-              value: String(ticketBuckets.recent.length),
-              hint: t('support.desktopRecentHint', {
-                defaultValue: 'Открытые, отвеченные и недавно обновленные тикеты.',
-              }),
-            },
-            {
-              label: t('support.showOldTickets', { defaultValue: 'Архив' }),
-              value: String(ticketBuckets.old.length),
-              hint: t('support.desktopArchiveHint', {
-                defaultValue: 'Старые запросы остаются доступны из этого окна.',
-              }),
-            },
-            {
-              label: t('support.selectedTicket', { defaultValue: 'Диалог' }),
-              value: selectedTicket ? t('support.desktopOpened', { defaultValue: 'Открыт' }) : '—',
-              hint:
-                selectedTicket?.title ||
-                t('support.desktopSelectionHint', {
-                  defaultValue: 'Выберите тикет или откройте внешний канал поддержки.',
-                }),
-            },
-          ]}
           heroActions={
             !ticketsDisabled ? (
               <>
@@ -1230,56 +1187,8 @@ export function UltimaSupport() {
               </>
             ) : undefined
           }
-          aside={
-            <UltimaDesktopPanel
-              title={t('support.supportDesk', { defaultValue: 'Связь и диалог' })}
-              subtitle={t('support.supportDeskHint', {
-                defaultValue:
-                  'Внешний канал поддержки и текущий выбранный тикет собраны в одном месте.',
-              })}
-            >
-              <div className="space-y-3">
-                <div className="rounded-[22px] border border-white/10 bg-white/[0.04] px-4 py-3">
-                  <div className="text-[11px] uppercase tracking-[0.2em] text-white/[0.42]">
-                    {t('support.desktopChannelLabel', { defaultValue: 'Канал связи' })}
-                  </div>
-                  <div className="mt-2 text-sm font-medium text-white/90">
-                    {supportChannelValue}
-                  </div>
-                  <div className="mt-1 text-xs leading-[1.5] text-white/60">
-                    {supportChannelHint}
-                  </div>
-                  {supportContact ? (
-                    <button
-                      type="button"
-                      onClick={() => supportContact.action()}
-                      className="ultima-btn-pill ultima-btn-secondary mt-4 w-full px-4 py-2.5 text-sm"
-                    >
-                      {supportContact.label}
-                    </button>
-                  ) : null}
-                </div>
-
-                <div className="rounded-[22px] border border-white/10 bg-white/[0.04] px-4 py-3">
-                  <div className="text-[11px] uppercase tracking-[0.2em] text-white/[0.42]">
-                    {t('support.selectedTicket', { defaultValue: 'Выбранный тикет' })}
-                  </div>
-                  <div className="mt-2 text-sm font-medium text-white/90">
-                    {selectedTicket?.title ||
-                      t('support.selectTicket', { defaultValue: 'Выберите тикет из списка' })}
-                  </div>
-                  <div className="mt-1 text-xs leading-[1.5] text-white/60">
-                    {selectedTicket
-                      ? formatDate(selectedTicket.updated_at)
-                      : t('support.desktopSelectionHint', {
-                          defaultValue: 'После выбора справа откроется вся переписка.',
-                        })}
-                  </div>
-                </div>
-              </div>
-            </UltimaDesktopPanel>
-          }
           bottomNav={bottomNav}
+          contentClassName="max-w-[1500px]"
         >
           {supportContent}
         </UltimaDesktopSectionLayout>
