@@ -31,7 +31,7 @@ const THEME_CONFIG = {
   successWaveMs: 900,
   itemEnterMs: 240,
   framesEnabled: false,
-  homeUseBrandLogo: true,
+  homeUseBrandLogo: false,
 };
 
 async function mockPublicStartupApi(page: Page, requestedPaths: string[]) {
@@ -107,6 +107,7 @@ test('keeps the themed startup cover visible and resolves a relative brand logo 
     .poll(() => logo.evaluate((image: HTMLImageElement) => image.naturalWidth))
     .toBeGreaterThan(0);
   await expect(page.getByTestId('app-startup-loader')).toHaveCount(0);
+  await expect(page.locator('img[alt="Ultimteam VPN"]')).toBeVisible();
 
   expect(requestedPaths).toContain('/cabinet/branding/logo');
 });
