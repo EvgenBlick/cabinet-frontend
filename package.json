@@ -2,7 +2,7 @@
   "name": "cabinet-frontend",
   "private": true,
   "version": "1.14.0",
-  "description": "Ultimteam VPN cabinet frontend",
+  "description": "Ultimteam VPN frontend",
   "license": "AGPL-3.0",
   "type": "module",
   "scripts": {

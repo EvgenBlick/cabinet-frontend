@@ -1272,6 +1272,8 @@ test.describe('Ultima desktop workspace', () => {
     await expect(page.getByTestId('ultima-device-home-cta-title')).toHaveCount(1);
     await expect(page.getByTestId('ultima-device-home-cta-title')).toContainText('Подключить');
     await expect(page.getByRole('button', { name: 'Связаться с поддержкой' })).toHaveCount(1);
+    await expect(page.getByText('VPN кабинет', { exact: true })).toHaveCount(0);
+    await expect(page.getByText('VPN Cabinet', { exact: true })).toHaveCount(0);
     await expectNoHorizontalOverflow(page);
   });
 
