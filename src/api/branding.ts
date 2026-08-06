@@ -129,7 +129,31 @@ const resolveLogoUrl = (branding: BrandingInfo): string | null => {
   if (!branding.has_custom_logo || !branding.logo_url) {
     return null;
   }
-  return `${import.meta.env.VITE_API_URL || ''}${branding.logo_url}`;
+
+  const rawLogoUrl = branding.logo_url.trim();
+  if (/^(?:https?:|data:|blob:)/i.test(rawLogoUrl)) {
+    return rawLogoUrl;
+  }
+
+  const apiBaseUrl = String(apiClient.defaults.baseURL || '/api').replace(/\/+$/, '');
+  const logoPath = rawLogoUrl.startsWith('/') ? rawLogoUrl : `/${rawLogoUrl}`;
+
+  if (/^https?:\/\//i.test(apiBaseUrl)) {
+    const parsedApiBase = new URL(apiBaseUrl);
+    if (logoPath === parsedApiBase.pathname || logoPath.startsWith(`${parsedApiBase.pathname}/`)) {
+      return new URL(logoPath, parsedApiBase.origin).toString();
+    }
+    return new URL(
+      `${parsedApiBase.pathname.replace(/\/+$/, '')}/${logoPath.replace(/^\/+/, '')}`,
+      parsedApiBase.origin,
+    ).toString();
+  }
+
+  if (logoPath === apiBaseUrl || logoPath.startsWith(`${apiBaseUrl}/`)) {
+    return logoPath;
+  }
+
+  return `${apiBaseUrl}${logoPath}`;
 };
 
 // Check if logo was already preloaded in this session
@@ -141,7 +165,7 @@ export const isLogoPreloaded = (): boolean => {
     }
     if (_preloadedLogoUrl === resolveLogoUrl(cached)) return true;
     const preloaded = sessionStorage.getItem(LOGO_PRELOADED_KEY);
-    return preloaded === cached.logo_url;
+    return preloaded === resolveLogoUrl(cached);
   } catch {
     return false;
   }
@@ -214,7 +238,7 @@ export const preloadLogo = async (branding: BrandingInfo): Promise<void> => {
     image.onload = () => {
       _preloadedLogoUrl = logoUrl;
       try {
-        sessionStorage.setItem(LOGO_PRELOADED_KEY, branding.logo_url!);
+        sessionStorage.setItem(LOGO_PRELOADED_KEY, logoUrl);
       } catch {
         // Storage is optional; the browser cache still keeps the image warm.
       }

@@ -127,7 +127,7 @@ export function useLoginPage() {
   const oauthProviders = Array.isArray(oauthData?.providers) ? oauthData.providers : [];
 
   const botUsername = import.meta.env.VITE_TELEGRAM_BOT_USERNAME || '';
-  const appName = branding ? branding.name : import.meta.env.VITE_APP_NAME || 'VPN';
+  const appName = branding?.name || import.meta.env.VITE_APP_NAME || 'VPN';
   const appLogo = branding?.logo_letter || import.meta.env.VITE_APP_LOGO || 'V';
   const logoUrl = branding ? brandingApi.getLogoUrl(branding) : null;
 

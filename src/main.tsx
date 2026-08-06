@@ -151,7 +151,7 @@ const renderApp = () => {
     document.documentElement.classList.add('app-ready');
     window.setTimeout(() => {
       document.getElementById('app-startup-overlay')?.remove();
-    }, 260);
+    }, 420);
   });
 };
 

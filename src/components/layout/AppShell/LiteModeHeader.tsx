@@ -146,7 +146,7 @@ export function LiteModeHeader({
     staleTime: 30000,
   });
 
-  const appName = branding ? branding.name : FALLBACK_NAME;
+  const appName = branding?.name || FALLBACK_NAME;
   const logoLetter = branding?.logo_letter || FALLBACK_LOGO;
   const hasCustomLogo = branding?.has_custom_logo || false;
   const logoUrl = branding ? brandingApi.getLogoUrl(branding) : null;
