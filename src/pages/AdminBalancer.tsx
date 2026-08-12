@@ -14,6 +14,7 @@ type GroupDraft = {
   id: string;
   name: string;
   patterns: string;
+  description?: string;
 };
 
 const DEFAULT_FASTEST_GROUP_NAME = '🏁 🇪🇺 Самые быстрые';
@@ -305,10 +306,12 @@ function ChecklistCard({
 }
 
 function groupsToDraft(groupsData: BalancerGroupsResponse): GroupDraft[] {
+  const descriptions = groupsData.group_descriptions || {};
   return Object.entries(groupsData.groups).map(([name, patterns], idx) => ({
     id: `${idx}-${name}`,
     name,
     patterns: patterns.join('\n'),
+    description: descriptions[name] || '',
   }));
 }
 
@@ -1375,8 +1378,17 @@ export default function AdminBalancer() {
     const normalizedFastestName = fastestGroupName.trim() || DEFAULT_FASTEST_GROUP_NAME;
     const nextAdvanced = buildAdvancedPayload(advancedSettings, groupsData);
 
+    const group_descriptions: Record<string, string> = {};
+    for (const item of groupsDraft) {
+      const name = item.name.trim();
+      if (name && item.description && item.description.trim()) {
+        group_descriptions[name] = item.description.trim();
+      }
+    }
+
     await saveGroupsMutation.mutateAsync({
       groups,
+      group_descriptions,
       fastest_group: fastestEnabled,
       fastest_group_name: normalizedFastestName,
       fastest_exclude_groups: filteredExclude,
@@ -1913,6 +1925,17 @@ export default function AdminBalancer() {
                         {t('admin.balancer.actions.groupNamesUnique', 'Group names must be unique')}
                       </p>
                     )}
+                    <div className="mt-2">
+                      <label className="mb-1 block text-xs text-dark-400">
+                        {t('admin.balancer.groups.groupDescription', 'Group description')}
+                      </label>
+                      <input
+                        value={group.description || ''}
+                        onChange={(event) => updateGroup(group.id, { description: event.target.value })}
+                        placeholder={t('admin.balancer.groups.groupDescriptionPlaceholder', 'Custom description for clients')}
+                        className="w-full rounded-lg border border-dark-600 bg-dark-900/70 px-3 py-2 text-sm text-dark-100 outline-none placeholder:text-dark-500 focus:border-accent-500"
+                      />
+                    </div>
                   </div>
                   <div>
                     <div className="mb-1 flex items-center justify-between text-xs text-dark-400">
