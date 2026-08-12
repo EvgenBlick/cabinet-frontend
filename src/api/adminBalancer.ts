@@ -84,6 +84,18 @@ export interface BalancerProtectionNode {
   } | null;
 }
 
+export interface NodeHealthMetrics {
+  nodeName: string;
+  lastRttMs: number | null;
+  avgRttMs: number | null;
+  jitterMs: number;
+  lossPercent: number;
+  rstCount: number;
+  throttled: boolean;
+  partialBlock: boolean;
+  lastCheckAt: number | null;
+}
+
 export interface BalancerAttackModeResponse {
   status: string;
   protection_enabled?: boolean;
@@ -246,6 +258,11 @@ export const adminBalancerApi = {
     const response = await apiClient.delete(
       `/cabinet/admin/balancer/attack-mode/${encodeURIComponent(node)}`,
     );
+    return response.data;
+  },
+
+  getHealthMetrics: async (): Promise<Record<string, NodeHealthMetrics>> => {
+    const response = await apiClient.get('/cabinet/admin/balancer/health-metrics');
     return response.data;
   },
 };
