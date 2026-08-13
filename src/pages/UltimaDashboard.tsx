@@ -1236,191 +1236,197 @@ export function UltimaDashboard() {
       : t('subscription.unlimited', { defaultValue: 'Безлимит' });
   const mobileDaysValue =
     daysLeft === null ? '—' : trafficNumberFormatter.format(Math.max(daysLeft, 0));
-  // Calculate circular gauge stroke
-  const strokeDashoffset = 380 - (380 * (100 - subscriptionTrafficPercent)) / 100;
-
   const mobileOverviewCard = (
-    <div className="flex flex-col gap-3.5">
-      {/* 1. Apple-style Dynamic Island Status Header */}
-      <div className="flex items-center justify-between rounded-full border border-white/[0.1] bg-black/40 px-4 py-2 shadow-[0_4px_20px_rgba(0,0,0,0.4)] backdrop-blur-2xl">
-        <div className="flex items-center gap-2.5">
-          <div className="relative flex h-7 w-7 items-center justify-center rounded-full border border-white/20 bg-gradient-to-br from-white/20 to-white/5 text-[12px] font-black text-white shadow-inner">
-            {user?.first_name ? user.first_name[0].toUpperCase() : 'S'}
-          </div>
-          <span className="text-[13px] font-bold tracking-tight text-white">
-            {user?.first_name || 'Пользователь'}
-          </span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-300">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
-            <span>ONLINE</span>
-          </div>
+    <div className="relative flex min-h-[75vh] flex-col justify-between px-1 py-1">
+      {/* Golden Constellations Background Layer */}
+      <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden opacity-40">
+        <svg className="h-full w-full" viewBox="0 0 390 600" fill="none">
+          {/* Constellation lines */}
+          <line
+            x1="280"
+            y1="120"
+            x2="340"
+            y2="135"
+            stroke="#b89358"
+            strokeWidth="0.75"
+            strokeDasharray="2 2"
+          />
+          <line
+            x1="340"
+            y1="135"
+            x2="320"
+            y2="170"
+            stroke="#b89358"
+            strokeWidth="0.75"
+            strokeDasharray="2 2"
+          />
+          <line x1="320" y1="170" x2="360" y2="190" stroke="#b89358" strokeWidth="0.75" />
+          <circle cx="280" cy="120" r="2" fill="#d4b37f" />
+          <circle cx="340" cy="135" r="2.5" fill="#d4b37f" />
+          <circle cx="320" cy="170" r="1.5" fill="#d4b37f" />
+          <circle cx="360" cy="190" r="2" fill="#d4b37f" />
+
+          <line
+            x1="60"
+            y1="360"
+            x2="90"
+            y2="390"
+            stroke="#b89358"
+            strokeWidth="0.75"
+            strokeDasharray="2 2"
+          />
+          <line x1="90" y1="390" x2="110" y2="420" stroke="#b89358" strokeWidth="0.75" />
+          <circle cx="60" cy="360" r="2" fill="#d4b37f" />
+          <circle cx="90" cy="390" r="2.5" fill="#d4b37f" />
+          <circle cx="110" cy="420" r="1.5" fill="#d4b37f" />
+        </svg>
+      </div>
+
+      {/* 1. Top Brushed Steel Header */}
+      <div className="relative z-10 flex items-center justify-between rounded-2xl border-b border-white/[0.08] bg-gradient-to-b from-[#2a2d32]/90 to-[#181a1d]/80 px-3 py-2.5 shadow-md backdrop-blur-md">
+        <div className="flex items-center gap-3">
           <button
             type="button"
-            onClick={() => navigate('/balance')}
-            className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 text-[11px] font-bold text-white transition-all hover:bg-white/10 active:scale-95"
+            onClick={() => navigate(-1)}
+            className="text-[#a0a5ad] transition-colors hover:text-white"
           >
-            <span>{user?.balance_rubles ?? 0} ₽</span>
+            <ChevronRight className="h-5 w-5 rotate-180" strokeWidth={2.2} />
           </button>
+          <span className="text-[17px] font-bold tracking-wide text-[#d6dadf] drop-shadow-sm">
+            SamuraiService
+          </span>
+        </div>
+        <div className="flex items-center gap-2.5">
+          <button
+            type="button"
+            onClick={() => navigate('/notifications')}
+            className="p-1 text-[#9ea4ad] transition-colors hover:text-white"
+          >
+            <div className="relative">
+              <span className="text-lg">🔔</span>
+            </div>
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate('/profile')}
+            className="p-1 text-[#9ea4ad] transition-colors hover:text-white"
+          >
+            <div className="flex h-7 w-7 items-center justify-center rounded-full border border-white/20 bg-white/5 text-[12px] text-white">
+              👤
+            </div>
+          </button>
+          {isAdmin && (
+            <button
+              type="button"
+              onClick={() => navigate('/admin')}
+              className="flex items-center gap-1 rounded-full border border-[#b89358]/40 bg-[#b89358]/10 px-2.5 py-1 text-[11px] font-medium text-[#d4b37f] shadow-sm backdrop-blur-md"
+            >
+              <ShieldCheck className="h-3.5 w-3.5 text-[#d4b37f]" />
+              <span>Админка</span>
+            </button>
+          )}
         </div>
       </div>
 
-      {/* 2. Tesla Central Power & Traffic Reactor Gauge */}
-      <section
-        data-testid="ultima-home-overview"
-        className="relative flex flex-col items-center justify-center overflow-hidden rounded-[36px] border border-white/[0.12] p-5 shadow-[0_25px_60px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.15)] backdrop-blur-3xl transition-all"
-        style={{
-          background:
-            'radial-gradient(circle at 50% 30%, color-mix(in srgb, var(--ultima-color-surface) 95%, rgba(255,255,255,0.06)) 0%, #000 100%)',
-        }}
-      >
-        {/* Tesla Ambient Lighting */}
+      {/* 2. Hero Centerpiece: Circular Bronze Medallion with Samurai Mask */}
+      <div className="relative z-10 my-auto flex flex-col items-center justify-center py-4 text-center">
         <div
-          className="pointer-events-none absolute -top-10 h-44 w-44 animate-pulse rounded-full opacity-35 blur-3xl"
-          style={{ background: 'var(--ultima-color-aura, #1bd29f)' }}
-        />
+          onClick={handleShieldTap}
+          className="group relative flex h-60 w-60 cursor-pointer items-center justify-center rounded-full transition-transform active:scale-95"
+        >
+          {/* Subtle Ambient Bronze Glow */}
+          <div className="pointer-events-none absolute inset-0 animate-pulse rounded-full bg-[#b89358]/15 blur-2xl transition-opacity group-hover:opacity-100" />
 
-        {/* Circular Speedometer / Reactor Ring */}
-        <div className="relative my-2 flex items-center justify-center">
-          <svg className="h-44 w-44 -rotate-90 transform" viewBox="0 0 140 140">
-            {/* Background Ring */}
-            <circle
-              cx="70"
-              cy="70"
-              r="60"
-              fill="transparent"
-              stroke="rgba(255, 255, 255, 0.06)"
-              strokeWidth="7"
-            />
-            {/* Active Luminous Progress Arc */}
-            <circle
-              cx="70"
-              cy="70"
-              r="60"
-              fill="transparent"
-              stroke="url(#teslaGradient)"
-              strokeWidth="7"
-              strokeDasharray="377"
-              strokeDashoffset={strokeDashoffset}
-              strokeLinecap="round"
-              className="transition-all duration-1000 ease-out"
-              style={{
-                filter:
-                  'drop-shadow(0 0 8px color-mix(in srgb, var(--ultima-color-primary, #1bd29f) 70%, transparent))',
-              }}
-            />
-            <defs>
-              <linearGradient id="teslaGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#00F2FE" />
-                <stop offset="50%" stopColor="var(--ultima-color-primary, #1bd29f)" />
-                <stop offset="100%" stopColor="#10b981" />
-              </linearGradient>
-            </defs>
-          </svg>
+          {/* Outer Thin Bronze Ring */}
+          <div className="absolute inset-0 rounded-full border-[2.5px] border-[#b89358]/80 shadow-[0_0_20px_rgba(184,147,88,0.3),inset_0_0_15px_rgba(0,0,0,0.9)]" />
 
-          {/* Central Reactor Core Content */}
-          <div className="absolute flex flex-col items-center justify-center text-center">
-            {renderShieldButton(
-              'h-[52px] w-[52px] mb-1 transform transition-transform active:scale-95',
-            )}
-            <span className="text-[26px] font-black leading-none tracking-tight text-white">
-              {mobileTrafficValue.replace(' ГБ', '')}
-            </span>
-            <span className="mt-1 text-[9px] font-extrabold uppercase tracking-widest text-white/50">
-              ГБ ОСТАЛОСЬ
-            </span>
+          {/* 3D Bronze Samurai Kabuto Mask Image */}
+          <div className="relative z-10 flex h-48 w-48 items-center justify-center overflow-hidden rounded-full border border-[#b89358]/30 bg-black/50 shadow-[inset_0_0_20px_rgba(0,0,0,0.8)]">
+            <img
+              src="/samurai_bronze_mask.png"
+              alt="Samurai Emblem"
+              className="h-full w-full object-cover drop-shadow-[0_8px_16px_rgba(0,0,0,0.9)] filter transition-transform duration-300 group-hover:scale-105"
+            />
+          </div>
+
+          {/* Floating Tap Digits / Particles */}
+          <span
+            aria-hidden
+            data-ultima-transient-visual
+            className="pointer-events-none absolute inset-0 z-30 overflow-visible"
+          >
+            {shieldDigits.map((digit) => {
+              const style = {
+                left: digit.x,
+                top: digit.y,
+                fontSize: `${digit.size}px`,
+                ['--ultima-digit-drift-x']: `${digit.driftX}px`,
+                ['--ultima-digit-drift-y']: `${digit.driftY}px`,
+                ['--ultima-digit-duration']: `${digit.duration}ms`,
+                ['--ultima-digit-opacity']: `${digit.opacity}`,
+                ['--ultima-digit-rotate-start']: `${digit.startRotate}deg`,
+                ['--ultima-digit-rotate-end']: `${digit.endRotate}deg`,
+                ['--ultima-digit-scale']: `${digit.scale}`,
+              } as CSSProperties;
+
+              return (
+                <span
+                  key={digit.id}
+                  className="ultima-float-number absolute -translate-x-1/2 -translate-y-1/2"
+                  style={style}
+                >
+                  {digit.value}
+                </span>
+              );
+            })}
+          </span>
+        </div>
+
+        {/* 3. Subscription Status Info Row */}
+        <div className="mt-4 flex w-full items-end justify-between px-2">
+          <div className="text-left">
+            <h2 className="text-[23px] font-medium tracking-tight text-[#c8aa76]">{expiryLabel}</h2>
+            <p className="mt-0.5 text-[13px] font-normal text-[#8c8d91]">
+              устройств всего: {connectedDevicesCount || 1}
+            </p>
+          </div>
+          <div className="flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-950/40 px-3 py-1 text-[12px] font-normal text-[#96ab8f] backdrop-blur-md">
+            <span className="h-2 w-2 rounded-full bg-[#34d399] shadow-[0_0_8px_#34d399]" />
+            <span>{statusLabel}</span>
           </div>
         </div>
+      </div>
 
-        {/* Plan & Expiry Pill */}
-        <div className="mt-1 flex flex-col items-center">
-          <span className="text-[17px] font-black tracking-tight text-white">
-            {subscriptionPlanName}
+      {/* 4. Brushed Titanium Action Cards */}
+      <div className="relative z-10 flex flex-col gap-2.5 pb-2">
+        {/* Button 1: Buy Subscription */}
+        <button
+          type="button"
+          onClick={openSubscriptionPurchase}
+          className="flex min-h-[52px] w-full items-center justify-between rounded-xl border border-white/[0.08] bg-gradient-to-b from-[#2a2d33] to-[#1a1c20] px-4 py-3 shadow-[0_4px_12px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.08)] transition-all hover:brightness-110 active:scale-[0.99]"
+        >
+          <div className="flex items-center gap-3 text-[#c8aa76]">
+            <Globe2 className="h-5 w-5 text-[#c8aa76]" strokeWidth={1.8} />
+            <span className="text-[14px] font-medium text-[#c8aa76]">Купить подписку</span>
+          </div>
+          <span className="text-[13px] font-normal text-[#8c8d91]">
+            {purchaseFromLabel || 'от 132 ₽'}
           </span>
-          <span className="mt-0.5 text-[11px] font-medium text-white/50">
-            {expiryLabel} · {mobileDaysValue} дней
-          </span>
-        </div>
-      </section>
+        </button>
 
-      {/* 3. Tesla 2x2 Precision Bento Matrix */}
-      <div className="grid grid-cols-2 gap-2.5">
-        {/* Tile 1: Server Node */}
+        {/* Button 2: Setup & Configure */}
         <button
           type="button"
           onClick={() => openConnection()}
-          className="flex flex-col justify-between rounded-[24px] border border-white/[0.08] bg-black/40 p-3.5 text-left shadow-md backdrop-blur-2xl transition-all hover:border-white/[0.18] hover:bg-white/[0.04] active:scale-95"
+          className="flex min-h-[52px] w-full items-center justify-between rounded-xl border border-white/[0.08] bg-gradient-to-b from-[#2a2d33] to-[#1a1c20] px-4 py-3 shadow-[0_4px_12px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.08)] transition-all hover:brightness-110 active:scale-[0.99]"
         >
-          <div className="flex items-center justify-between">
-            <span className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 text-[11px] font-black text-white">
-              <span>🇳🇱</span>
-              <span className="text-[10px] tracking-wider text-white/80">NL</span>
-            </span>
-            <span className="flex items-center gap-1 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2 py-0.5 text-[9px] font-bold text-emerald-300">
-              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
-              <span>24 ms</span>
-            </span>
+          <div className="flex items-center gap-3 text-[#c8aa76]">
+            <Wrench className="h-5 w-5 text-[#c8aa76]" strokeWidth={1.8} />
+            <span className="text-[14px] font-medium text-[#c8aa76]">Установка и настройка</span>
           </div>
-          <div className="mt-3">
-            <span className="block text-[13px] font-black text-white">Нидерланды LTE</span>
-            <span className="text-[10px] font-medium text-white/50">Сервер активен</span>
-          </div>
-        </button>
-
-        {/* Tile 2: Connected Devices */}
-        <button
-          type="button"
-          onClick={() => openDevices(false, 'bento')}
-          className="flex flex-col justify-between rounded-[24px] border border-white/[0.08] bg-black/40 p-3.5 text-left shadow-md backdrop-blur-2xl transition-all hover:border-white/[0.18] hover:bg-white/[0.04] active:scale-95"
-        >
-          <div className="flex items-center justify-between text-cyan-400">
-            <MonitorSmartphone className="h-5 w-5" strokeWidth={2.2} />
-            <span className="rounded-full border border-cyan-400/30 bg-cyan-500/10 px-2 py-0.5 text-[9px] font-bold text-cyan-300">
-              {connectedDevicesCount}/{dashboardDeviceLimit}
-            </span>
-          </div>
-          <div className="mt-3">
-            <span className="block text-[13px] font-black text-white">Устройства</span>
-            <span className="text-[10px] font-medium text-white/50">iPhone, Mac...</span>
-          </div>
-        </button>
-
-        {/* Tile 3: Top-Up / Balance */}
-        <button
-          type="button"
-          onClick={() => navigate('/balance')}
-          className="flex flex-col justify-between rounded-[24px] border border-white/[0.08] bg-black/40 p-3.5 text-left shadow-md backdrop-blur-2xl transition-all hover:border-white/[0.18] hover:bg-white/[0.04] active:scale-95"
-        >
-          <div className="flex items-center justify-between text-emerald-400">
-            <Wallet className="h-5 w-5" strokeWidth={2.2} />
-            <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[9px] font-bold text-white/70">
-              Баланс
-            </span>
-          </div>
-          <div className="mt-3">
-            <span className="block text-[13px] font-black text-white">
-              {user?.balance_rubles ?? 0} ₽
-            </span>
-            <span className="text-[10px] font-medium text-emerald-400/80">+ Пополнить</span>
-          </div>
-        </button>
-
-        {/* Tile 4: Referral & Rewards */}
-        <button
-          type="button"
-          onClick={openReferral}
-          className="flex flex-col justify-between rounded-[24px] border border-white/[0.08] bg-black/40 p-3.5 text-left shadow-md backdrop-blur-2xl transition-all hover:border-white/[0.18] hover:bg-white/[0.04] active:scale-95"
-        >
-          <div className="flex items-center justify-between text-indigo-400">
-            <Gift className="h-5 w-5" strokeWidth={2.2} />
-            <span className="rounded-full border border-indigo-400/30 bg-indigo-500/10 px-2 py-0.5 text-[9px] font-bold text-indigo-300">
-              +15%
-            </span>
-          </div>
-          <div className="mt-3">
-            <span className="block text-[13px] font-black text-white">Рефералы</span>
-            <span className="text-[10px] font-medium text-white/50">Пригласить друзей</span>
+          <div className="flex items-center gap-2">
+            <span className="h-4 w-4 rounded-sm bg-[#0505F3] shadow-[0_0_8px_#0505F3]" />
+            <span className="font-mono text-[12px] text-[#8c8d91]">#0505F3</span>
           </div>
         </button>
       </div>
@@ -1585,174 +1591,9 @@ export function UltimaDashboard() {
       <div className="ultima-shell-inner ultima-shell-mobile-docked lg:max-w-[680px] lg:justify-between">
         <section
           data-testid="ultima-dashboard-scroll-region"
-          className="ultima-scrollbar flex min-h-0 flex-1 flex-col overflow-y-auto pb-[clamp(14px,2.8vh,24px)] pr-1 pt-[clamp(12px,2.4vh,22px)] lg:flex-none lg:overflow-visible lg:pb-2 lg:pr-0 lg:pt-8"
+          className="ultima-scrollbar flex min-h-0 flex-1 flex-col overflow-y-auto pb-2 pr-1 pt-1 lg:flex-none lg:overflow-visible lg:pb-2 lg:pr-0 lg:pt-8"
         >
           {mobileOverviewCard}
-
-          {promoMessage && !showPromoCard && (
-            <div
-              aria-live="polite"
-              className="mx-auto mb-4 max-w-full rounded-full border border-emerald-200/[0.22] bg-emerald-300/[0.12] px-3.5 py-2 text-center text-[12px] font-medium leading-snug text-emerald-50/95 shadow-[0_10px_22px_rgba(5,30,24,0.2)] backdrop-blur-md"
-            >
-              {promoMessage}
-            </div>
-          )}
-
-          {pendingTopUp?.paymentUrl ? (
-            <UltimaPendingPaymentCard source="dashboard_mobile" className="mb-4" />
-          ) : null}
-
-          {mobileTrafficWarning}
-
-          {!shouldShowTrafficWarning ? (
-            showReferralEntry || hasAnySubscription ? (
-              <section
-                data-testid="ultima-home-quick-actions"
-                className="relative mb-4 overflow-hidden rounded-[28px] border border-white/[0.1] p-4 shadow-[0_16px_36px_rgba(0,0,0,0.25),inset_0_1px_1px_rgba(255,255,255,0.08)] backdrop-blur-2xl transition-all"
-                style={{
-                  background:
-                    'linear-gradient(160deg, color-mix(in srgb, var(--ultima-color-surface) 80%, rgba(255,255,255,0.02)), color-mix(in srgb, var(--ultima-color-secondary) 70%, #000))',
-                }}
-              >
-                <div className="mb-2 px-1">
-                  <h2 className="text-[14px] font-bold tracking-tight text-white/[0.95]">
-                    {t('ultima.home.quickActions', { defaultValue: 'Быстрые действия' })}
-                  </h2>
-                  <p className="mt-0.5 text-[11px] font-medium leading-snug text-white/[0.5]">
-                    {t('ultima.home.quickActionsHint', {
-                      defaultValue: 'Приглашения и подключение устройств',
-                    })}
-                  </p>
-                </div>
-                <div className="mt-2.5 flex flex-col gap-2">
-                  {showReferralEntry ? (
-                    <UltimaReferralCta
-                      commissionPercent={referralCommissionPercent}
-                      onClick={openReferral}
-                      variant="inline"
-                      title={referralInviteTitle}
-                      description={referralInviteDescription}
-                      badgeLabel={referralInviteBadgeLabel}
-                    />
-                  ) : null}
-                  {renderDevicesHomeCta('inline')}
-                </div>
-              </section>
-            ) : null
-          ) : null}
-
-          {showPromoCard && (
-            <div
-              className="mb-4 rounded-2xl border p-3.5 backdrop-blur-md"
-              style={{
-                borderColor:
-                  'color-mix(in srgb, var(--ultima-color-surface-border) 30%, transparent)',
-                background: 'color-mix(in srgb, var(--ultima-color-surface) 38%, transparent)',
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08), 0 10px 24px rgba(3,14,24,0.22)',
-              }}
-            >
-              <p
-                className="text-[15px] font-semibold leading-tight"
-                style={{
-                  color: 'color-mix(in srgb, var(--ultima-color-secondary-text) 94%, #fff)',
-                }}
-              >
-                {activeDiscount?.is_active && (activeDiscount.discount_percent ?? 0) > 0
-                  ? t('promo.offers.discountActiveTitle', {
-                      percent: activeDiscount.discount_percent,
-                    })
-                  : t('promo.offers.specialOffer', { defaultValue: 'Спецпредложение' })}
-              </p>
-              <p className="mt-1 text-[13px] leading-snug text-white/70">
-                {activeDiscount?.is_active && (activeDiscount.discount_percent ?? 0) > 0
-                  ? t('promo.useNow', {
-                      defaultValue: 'Скидка уже активна. Можно использовать сейчас.',
-                    })
-                  : t('promo.offers.activateDiscountHint', {
-                      defaultValue: 'Активируйте предложение, чтобы получить выгоду.',
-                    })}
-              </p>
-              {promoMessage && (
-                <p className="mt-1.5 text-[12px] text-white/[0.85]">{promoMessage}</p>
-              )}
-              <div className="mt-2.5 flex flex-col gap-2 min-[360px]:flex-row">
-                {firstPromoOffer && (
-                  <button
-                    type="button"
-                    onClick={() => claimOfferMutation.mutate(firstPromoOffer.id)}
-                    disabled={claimOfferMutation.isPending}
-                    className="ultima-btn-pill ultima-btn-secondary flex-1 px-4 py-2.5 text-[14px] disabled:opacity-60"
-                  >
-                    {t('promo.activate', { defaultValue: 'Активировать' })}
-                  </button>
-                )}
-                <button
-                  type="button"
-                  onClick={() => navigate('/subscription')}
-                  className="ultima-btn-pill ultima-btn-primary flex-1 px-4 py-2.5 text-[14px]"
-                >
-                  {t('promo.useNow', { defaultValue: 'Использовать' })}
-                </button>
-              </div>
-            </div>
-          )}
-
-          {showTrialSetupCard && (
-            <div>
-              <UltimaTrialGuide
-                variant="inline"
-                expiryDateLabel={trialExpiryDateLabel}
-                daysLeft={daysLeft}
-                trafficLimitGb={subscription?.traffic_limit_gb ?? 0}
-                deviceLimit={subscription?.device_limit ?? 0}
-                onPrimaryAction={handleTrialGuideStart}
-                onStatClick={openSubscriptionInfo}
-              />
-            </div>
-          )}
-        </section>
-
-        <section className="ultima-mobile-dock-footer lg:mt-0">
-          <button
-            type="button"
-            onClick={handlePrimaryAction}
-            data-testid="ultima-primary-cta"
-            className="ultima-btn-pill ultima-btn-primary mb-3 flex w-full items-center gap-3 px-4 py-3 text-left text-[15px] min-[360px]:px-5 min-[360px]:text-[16px]"
-          >
-            <span className="flex min-w-0 flex-1 items-center gap-2.5">
-              <PrimaryCtaIcon />
-              <span className="min-w-0 break-words leading-tight">{primaryCtaLabel}</span>
-            </span>
-            <span className="shrink-0 whitespace-nowrap text-[15px] text-white/90 min-[360px]:text-[16px]">
-              {primaryCtaMeta}
-            </span>
-          </button>
-
-          <div className="relative mb-3">
-            {showConnectionCtaHighlight && (
-              <>
-                <span className="ultima-cta-highlight pointer-events-none absolute inset-[-2px] rounded-[999px]" />
-                <span className="ultima-cta-highlight ultima-cta-highlight-delay pointer-events-none absolute inset-[-5px] rounded-[999px]" />
-              </>
-            )}
-            {primaryActionKind !== 'setup' ? (
-              <button
-                type="button"
-                onClick={() => openConnection()}
-                className="ultima-btn-pill ultima-btn-secondary relative flex w-full items-center gap-3 px-4 py-3 text-left text-[15px] min-[360px]:px-5 min-[360px]:text-[16px]"
-              >
-                <span className="flex min-w-0 flex-1 items-center gap-2.5">
-                  <Wrench className="h-5 w-5" strokeWidth={1.8} />
-                  <span className="min-w-0 break-words leading-tight">
-                    {t('lite.connectAndSetup', { defaultValue: 'Установка и настройка' })}
-                  </span>
-                </span>
-                <span className="shrink-0 text-white/70">
-                  <Smartphone className="h-5 w-5" strokeWidth={1.8} />
-                </span>
-              </button>
-            ) : null}
-          </div>
         </section>
       </div>
 

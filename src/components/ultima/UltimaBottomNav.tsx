@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
-import { Headphones, LayoutDashboard, Newspaper, Settings2, UserRound } from 'lucide-react';
+import { LayoutGrid, Settings, ShieldCheck, Sparkles, User } from 'lucide-react';
 import type { UltimaBottomNavTab } from '@/features/ultima/navigation';
 
 type UltimaBottomNavProps = {
@@ -16,97 +16,60 @@ export function UltimaBottomNav({
   active,
   onHomeClick,
   onConnectionClick,
-  onNewsClick,
   onProfileClick,
   onSupportClick,
 }: UltimaBottomNavProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  const navLabels: Record<UltimaBottomNavTab, string> = {
-    home: t('nav.dashboard', { defaultValue: 'Главная' }),
-    connection: t('lite.connect', { defaultValue: 'Подключиться' }),
-    news: t('nav.info', { defaultValue: 'Информация' }),
-    profile: t('nav.profile', { defaultValue: 'Профиль' }),
-    support: t('nav.support', { defaultValue: 'Поддержка' }),
-  };
-
   const getButtonClassName = (isActive: boolean) =>
     isActive
-      ? 'relative flex h-11 items-center justify-center rounded-full border border-emerald-400/40 bg-emerald-500/20 text-emerald-300 shadow-[0_0_16px_rgba(16,185,129,0.25),inset_0_1px_1px_rgba(255,255,255,0.2)] transition-all duration-200 active:scale-95 lg:h-11 lg:rounded-[8px] xl:justify-start xl:gap-3 xl:px-3'
-      : 'relative flex h-11 items-center justify-center rounded-full text-white/50 transition-all duration-200 hover:bg-white/[0.06] hover:text-white/80 active:scale-95 lg:h-11 lg:rounded-[8px] xl:justify-start xl:gap-3 xl:px-3';
+      ? 'relative flex h-11 flex-1 items-center justify-center text-[#d4b37f] transition-all'
+      : 'relative flex h-11 flex-1 items-center justify-center text-[#7e838c] transition-all hover:text-[#c8aa76]';
 
   return (
-    <nav className="ultima-bottom-nav mx-auto grid grid-cols-5 items-center gap-1.5 rounded-full border border-white/[0.1] bg-black/40 p-1.5 shadow-[0_16px_40px_rgba(0,0,0,0.6),inset_0_1px_1px_rgba(255,255,255,0.12)] backdrop-blur-2xl lg:grid-cols-1 lg:gap-1.5 lg:rounded-[8px] lg:p-0 lg:shadow-none lg:backdrop-blur-none">
+    <nav className="ultima-bottom-nav mx-auto flex items-center justify-around rounded-2xl border-t border-white/[0.08] bg-gradient-to-b from-[#2b2e34]/95 to-[#16181b]/95 p-1 shadow-[0_-4px_24px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-2xl">
+      {/* 1. Dashboard (Grid) */}
       <button
         type="button"
-        data-ultima-nav-btn="1"
-        data-ultima-nav-target="home"
-        className={getButtonClassName(active === 'home')}
         onClick={onHomeClick ?? (() => navigate('/'))}
-        aria-label={navLabels.home}
-        title={navLabels.home}
+        className={getButtonClassName(active === 'home')}
+        aria-label="Главная"
       >
-        <LayoutDashboard className="h-5 w-5 shrink-0" strokeWidth={active === 'home' ? 2.2 : 1.8} />
-        <span className="hidden min-w-0 truncate text-sm font-medium xl:inline">
-          {navLabels.home}
-        </span>
+        <LayoutGrid className="h-6 w-6 stroke-[1.8] drop-shadow-sm" />
       </button>
+
+      {/* 2. Connection / Settings (Gear) */}
       <button
         type="button"
-        data-ultima-nav-btn="1"
-        data-ultima-nav-target="connection"
-        className={getButtonClassName(active === 'connection')}
         onClick={onConnectionClick ?? (() => navigate('/connection'))}
-        aria-label={navLabels.connection}
-        title={navLabels.connection}
+        className={getButtonClassName(active === 'connection')}
+        aria-label="Настройки"
       >
-        <Settings2 className="h-5 w-5 shrink-0" strokeWidth={active === 'connection' ? 2.2 : 1.8} />
-        <span className="hidden min-w-0 truncate text-sm font-medium xl:inline">
-          {navLabels.connection}
-        </span>
+        <Settings className="h-6 w-6 stroke-[1.8] drop-shadow-sm" />
       </button>
+
+      {/* 3. Profile (User) */}
       <button
         type="button"
-        data-ultima-nav-btn="1"
-        data-ultima-nav-target="news"
-        className={getButtonClassName(active === 'news')}
-        onClick={onNewsClick ?? (() => navigate('/ultima/news'))}
-        aria-label={navLabels.news}
-        title={navLabels.news}
-      >
-        <Newspaper className="h-5 w-5 shrink-0" strokeWidth={active === 'news' ? 2.2 : 1.8} />
-        <span className="hidden min-w-0 truncate text-sm font-medium xl:inline">
-          {navLabels.news}
-        </span>
-      </button>
-      <button
-        type="button"
-        data-ultima-nav-btn="1"
-        data-ultima-nav-target="profile"
-        className={getButtonClassName(active === 'profile')}
         onClick={onProfileClick ?? (() => navigate('/profile'))}
-        aria-label={navLabels.profile}
-        title={navLabels.profile}
+        className={getButtonClassName(active === 'profile')}
+        aria-label="Профиль"
       >
-        <UserRound className="h-5 w-5 shrink-0" strokeWidth={active === 'profile' ? 2.2 : 1.8} />
-        <span className="hidden min-w-0 truncate text-sm font-medium xl:inline">
-          {navLabels.profile}
-        </span>
+        <User className="h-6 w-6 stroke-[1.8] drop-shadow-sm" />
       </button>
+
+      {/* 4. Support / Security (Shield with Sparkle) */}
       <button
         type="button"
-        data-ultima-nav-btn="1"
-        data-ultima-nav-target="support"
-        className={getButtonClassName(active === 'support')}
         onClick={onSupportClick ?? (() => navigate('/support'))}
-        aria-label={navLabels.support}
-        title={navLabels.support}
+        className={getButtonClassName(active === 'support')}
+        aria-label="Поддержка"
       >
-        <Headphones className="h-5 w-5 shrink-0" strokeWidth={active === 'support' ? 2.2 : 1.8} />
-        <span className="hidden min-w-0 truncate text-sm font-medium xl:inline">
-          {navLabels.support}
-        </span>
+        <div className="relative flex items-center justify-center">
+          <ShieldCheck className="h-6 w-6 stroke-[1.8] drop-shadow-sm" />
+          <Sparkles className="absolute -right-1.5 -top-1.5 h-3.5 w-3.5 fill-[#d4b37f] text-[#d4b37f]" />
+        </div>
       </button>
     </nav>
   );
