@@ -205,7 +205,7 @@ export function UltimaProfile() {
     return fullName || user?.username?.trim() || t('profile.ultima.fallbackName');
   }, [t, user?.first_name, user?.last_name, user?.username]);
   const accountHandle = user?.username ? `@${user.username}` : user?.email || userLabel;
-  const identityCount = linkedIdentities?.identities.length ?? 1;
+  const identityCount = linkedIdentities?.identities?.length ?? 1;
   const hasBackupAccess = identityCount > 1;
   const identityCountLabel = linkedIdentitiesLoading
     ? null

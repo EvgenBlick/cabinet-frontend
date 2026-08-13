@@ -33,48 +33,21 @@ export function UltimaBottomNav({
 
   const getButtonClassName = (isActive: boolean) =>
     isActive
-      ? 'flex h-10 items-center justify-center rounded-[15px] border transition-colors duration-150 active:scale-[0.985] lg:h-11 lg:rounded-[8px] xl:justify-start xl:gap-3 xl:px-3'
-      : 'flex h-10 items-center justify-center rounded-[15px] transition-colors duration-150 hover:bg-white/[0.07] active:scale-[0.985] lg:h-11 lg:rounded-[8px] xl:justify-start xl:gap-3 xl:px-3';
-
-  const getButtonStyle = (isActive: boolean) => {
-    return {
-      ...(isActive
-        ? {
-            backgroundColor: 'var(--ultima-color-nav-active)',
-            borderColor: 'color-mix(in srgb, var(--ultima-color-ring) 28%, transparent)',
-            color: 'var(--ultima-color-primary-text)',
-            boxShadow:
-              '0 6px 16px color-mix(in srgb, var(--ultima-color-nav-active) 22%, transparent), inset 0 1px 0 rgba(255,255,255,0.16)',
-          }
-        : {
-            color: 'color-mix(in srgb, var(--ultima-color-nav-text) 78%, transparent)',
-          }),
-    };
-  };
+      ? 'relative flex h-11 items-center justify-center rounded-full border border-emerald-400/40 bg-emerald-500/20 text-emerald-300 shadow-[0_0_16px_rgba(16,185,129,0.25),inset_0_1px_1px_rgba(255,255,255,0.2)] transition-all duration-200 active:scale-95 lg:h-11 lg:rounded-[8px] xl:justify-start xl:gap-3 xl:px-3'
+      : 'relative flex h-11 items-center justify-center rounded-full text-white/50 transition-all duration-200 hover:bg-white/[0.06] hover:text-white/80 active:scale-95 lg:h-11 lg:rounded-[8px] xl:justify-start xl:gap-3 xl:px-3';
 
   return (
-    <nav
-      className="ultima-bottom-nav grid grid-cols-5 items-center gap-1 rounded-[20px] p-1 shadow-[0_14px_34px_rgba(3,9,18,0.45),inset_0_1px_0_rgba(255,255,255,0.1)] backdrop-blur-xl lg:grid-cols-1 lg:gap-1.5 lg:rounded-[8px] lg:p-0 lg:shadow-none lg:backdrop-blur-none"
-      style={{
-        background: `linear-gradient(
-          180deg,
-          color-mix(in srgb, var(--ultima-color-nav-bg) 76%, transparent),
-          color-mix(in srgb, var(--ultima-color-nav-bg) 92%, #000)
-        )`,
-        color: 'var(--ultima-color-nav-text)',
-      }}
-    >
+    <nav className="ultima-bottom-nav mx-auto grid grid-cols-5 items-center gap-1.5 rounded-full border border-white/[0.1] bg-black/40 p-1.5 shadow-[0_16px_40px_rgba(0,0,0,0.6),inset_0_1px_1px_rgba(255,255,255,0.12)] backdrop-blur-2xl lg:grid-cols-1 lg:gap-1.5 lg:rounded-[8px] lg:p-0 lg:shadow-none lg:backdrop-blur-none">
       <button
         type="button"
         data-ultima-nav-btn="1"
         data-ultima-nav-target="home"
         className={getButtonClassName(active === 'home')}
-        style={getButtonStyle(active === 'home')}
         onClick={onHomeClick ?? (() => navigate('/'))}
         aria-label={navLabels.home}
         title={navLabels.home}
       >
-        <LayoutDashboard className="h-5 w-5 shrink-0" strokeWidth={1.8} />
+        <LayoutDashboard className="h-5 w-5 shrink-0" strokeWidth={active === 'home' ? 2.2 : 1.8} />
         <span className="hidden min-w-0 truncate text-sm font-medium xl:inline">
           {navLabels.home}
         </span>
@@ -84,12 +57,11 @@ export function UltimaBottomNav({
         data-ultima-nav-btn="1"
         data-ultima-nav-target="connection"
         className={getButtonClassName(active === 'connection')}
-        style={getButtonStyle(active === 'connection')}
         onClick={onConnectionClick ?? (() => navigate('/connection'))}
         aria-label={navLabels.connection}
         title={navLabels.connection}
       >
-        <Settings2 className="h-5 w-5 shrink-0" strokeWidth={1.8} />
+        <Settings2 className="h-5 w-5 shrink-0" strokeWidth={active === 'connection' ? 2.2 : 1.8} />
         <span className="hidden min-w-0 truncate text-sm font-medium xl:inline">
           {navLabels.connection}
         </span>
@@ -99,12 +71,11 @@ export function UltimaBottomNav({
         data-ultima-nav-btn="1"
         data-ultima-nav-target="news"
         className={getButtonClassName(active === 'news')}
-        style={getButtonStyle(active === 'news')}
         onClick={onNewsClick ?? (() => navigate('/ultima/news'))}
         aria-label={navLabels.news}
         title={navLabels.news}
       >
-        <Newspaper className="h-5 w-5 shrink-0" strokeWidth={1.8} />
+        <Newspaper className="h-5 w-5 shrink-0" strokeWidth={active === 'news' ? 2.2 : 1.8} />
         <span className="hidden min-w-0 truncate text-sm font-medium xl:inline">
           {navLabels.news}
         </span>
@@ -114,12 +85,11 @@ export function UltimaBottomNav({
         data-ultima-nav-btn="1"
         data-ultima-nav-target="profile"
         className={getButtonClassName(active === 'profile')}
-        style={getButtonStyle(active === 'profile')}
         onClick={onProfileClick ?? (() => navigate('/profile'))}
         aria-label={navLabels.profile}
         title={navLabels.profile}
       >
-        <UserRound className="h-5 w-5 shrink-0" strokeWidth={1.8} />
+        <UserRound className="h-5 w-5 shrink-0" strokeWidth={active === 'profile' ? 2.2 : 1.8} />
         <span className="hidden min-w-0 truncate text-sm font-medium xl:inline">
           {navLabels.profile}
         </span>
@@ -129,12 +99,11 @@ export function UltimaBottomNav({
         data-ultima-nav-btn="1"
         data-ultima-nav-target="support"
         className={getButtonClassName(active === 'support')}
-        style={getButtonStyle(active === 'support')}
         onClick={onSupportClick ?? (() => navigate('/support'))}
         aria-label={navLabels.support}
         title={navLabels.support}
       >
-        <Headphones className="h-5 w-5 shrink-0" strokeWidth={1.8} />
+        <Headphones className="h-5 w-5 shrink-0" strokeWidth={active === 'support' ? 2.2 : 1.8} />
         <span className="hidden min-w-0 truncate text-sm font-medium xl:inline">
           {navLabels.support}
         </span>

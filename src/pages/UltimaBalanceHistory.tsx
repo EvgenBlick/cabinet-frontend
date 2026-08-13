@@ -182,8 +182,8 @@ export function UltimaBalanceHistory() {
           <p className="mt-0.5 text-xs text-white/[0.42]">
             {transactions
               ? t('balance.operationsTotal', {
-                  count: transactions.total,
-                  defaultValue: `Всего: ${transactions.total}`,
+                  count: transactions.total ?? 0,
+                  defaultValue: `Всего: ${transactions.total ?? 0}`,
                 })
               : t('common.loading')}
           </p>

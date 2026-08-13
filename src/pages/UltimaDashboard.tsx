@@ -13,11 +13,13 @@ import {
 import {
   CalendarDays,
   ChevronRight,
+  Gift,
   Globe2,
   Gauge,
   MonitorSmartphone,
   ShieldCheck,
   Smartphone,
+  Wallet,
   Wrench,
 } from 'lucide-react';
 import { balanceApi } from '@/api/balance';
@@ -315,10 +317,15 @@ export function UltimaDashboard() {
     return `от ${Math.round(minTariff / 100)} ${currencySymbol}`;
   }, [purchaseOptions, currencySymbol]);
 
+  const subEndDate =
+    subscription?.end_date ||
+    ((subscription as unknown as Record<string, unknown>)?.expires_at as string | undefined);
+
   const expiryLabel = (() => {
-    if (!subscription?.end_date) return t('subscription.notActive');
-    const date = new Date(subscription.end_date);
-    if (Number.isNaN(date.getTime())) return t('subscription.notActive');
+    if (!subEndDate) return t('subscription.notActive', { defaultValue: 'Не активна' });
+    const date = new Date(subEndDate);
+    if (Number.isNaN(date.getTime()))
+      return t('subscription.notActive', { defaultValue: 'Не активна' });
     const formatted = date.toLocaleDateString(i18n.language || 'ru-RU', {
       day: 'numeric',
       month: 'long',
@@ -330,9 +337,10 @@ export function UltimaDashboard() {
     return formatted;
   })();
   const trialExpiryDateLabel = (() => {
-    if (!subscription?.end_date) return t('subscription.notActive');
-    const date = new Date(subscription.end_date);
-    if (Number.isNaN(date.getTime())) return t('subscription.notActive');
+    if (!subEndDate) return t('subscription.notActive', { defaultValue: 'Не активна' });
+    const date = new Date(subEndDate);
+    if (Number.isNaN(date.getTime()))
+      return t('subscription.notActive', { defaultValue: 'Не активна' });
     const formatted = date.toLocaleDateString(i18n.language || 'ru-RU', {
       day: 'numeric',
       month: 'long',
@@ -1142,31 +1150,25 @@ export function UltimaDashboard() {
         disabled={isDashboardDevicesPending}
         aria-busy={isDashboardDevicesPending}
         className={cn(
-          'group relative w-full overflow-hidden text-left transition hover:bg-white/[0.04] disabled:cursor-wait',
+          'w-full text-left transition-all active:scale-[0.98]',
           variant === 'inline'
-            ? 'min-h-[64px] border-b border-white/[0.07] px-1 py-3 last:border-b-0'
-            : 'rounded-[20px] border px-3.5 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_10px_22px_rgba(3,14,24,0.16)] backdrop-blur-md',
+            ? 'rounded-[20px] border border-white/[0.08] bg-white/[0.03] p-3.5 backdrop-blur-md hover:border-white/[0.15] hover:bg-white/[0.06]'
+            : 'rounded-[22px] border border-white/[0.1] p-3.5 shadow-lg backdrop-blur-md',
         )}
         style={
           variant === 'inline'
             ? undefined
             : {
                 borderColor:
-                  'color-mix(in srgb, var(--ultima-color-surface-border) 24%, transparent)',
+                  'color-mix(in srgb, var(--ultima-color-surface-border) 28%, transparent)',
                 background:
-                  'linear-gradient(180deg, color-mix(in srgb, var(--ultima-color-surface) 42%, transparent), color-mix(in srgb, var(--ultima-color-secondary) 62%, transparent))',
+                  'linear-gradient(180deg, color-mix(in srgb, var(--ultima-color-surface) 50%, transparent), color-mix(in srgb, var(--ultima-color-secondary) 70%, transparent))',
               }
         }
       >
         <span className="relative flex min-w-0 items-center gap-3">
-          <span
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[18px] border text-white/[0.88]"
-            style={{
-              borderColor: 'color-mix(in srgb, var(--ultima-color-ring) 18%, transparent)',
-              background: 'color-mix(in srgb, var(--ultima-color-surface) 42%, transparent)',
-            }}
-          >
-            <MonitorSmartphone className="h-5 w-5" strokeWidth={1.8} />
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[16px] border border-cyan-400/30 bg-cyan-500/10 text-cyan-300 shadow-inner">
+            <MonitorSmartphone className="h-5 w-5" strokeWidth={2} />
           </span>
           {isDashboardDevicesPending ? (
             <>
@@ -1185,15 +1187,15 @@ export function UltimaDashboard() {
               <span className="min-w-0 flex-1">
                 <span
                   data-testid="ultima-device-home-cta-title"
-                  className="block text-[14px] font-semibold leading-tight text-white/[0.96]"
+                  className="block text-[14px] font-bold leading-tight text-white"
                 >
                   {devicesHomeCtaTitle}
                 </span>
-                <span className="mt-0.5 block truncate text-[11px] leading-tight text-white/[0.62]">
+                <span className="mt-0.5 block truncate text-[11px] font-medium leading-tight text-white/[0.55]">
                   {devicesHomeCtaSubtitle}
                 </span>
               </span>
-              <span className="shrink-0 rounded-full border border-white/10 px-2.5 py-1 text-[11px] font-semibold text-white/[0.86]">
+              <span className="shrink-0 rounded-full border border-cyan-400/30 bg-cyan-500/10 px-3 py-1 text-[11px] font-extrabold text-cyan-300 shadow-sm">
                 {devicesHomeCtaAction}
               </span>
             </>
@@ -1234,137 +1236,195 @@ export function UltimaDashboard() {
       : t('subscription.unlimited', { defaultValue: 'Безлимит' });
   const mobileDaysValue =
     daysLeft === null ? '—' : trafficNumberFormatter.format(Math.max(daysLeft, 0));
+  // Calculate circular gauge stroke
+  const strokeDashoffset = 380 - (380 * (100 - subscriptionTrafficPercent)) / 100;
+
   const mobileOverviewCard = (
-    <section
-      data-testid="ultima-home-overview"
-      className="mb-4 rounded-[24px] border p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.07),0_18px_38px_rgba(3,14,24,0.22)] backdrop-blur-xl"
-      style={{
-        borderColor: 'color-mix(in srgb, var(--ultima-color-surface-border) 32%, transparent)',
-        background:
-          'linear-gradient(145deg, color-mix(in srgb, var(--ultima-color-surface) 78%, transparent), color-mix(in srgb, var(--ultima-color-secondary) 68%, transparent))',
-      }}
-    >
-      <div className="flex min-w-0 items-center gap-3">
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-[9px] font-semibold uppercase text-white/[0.42]">
-              {t('ultima.currentTariff', { defaultValue: 'Ваш тариф' })}
-            </span>
-            <span
-              className={`relative inline-flex items-center gap-1.5 rounded-full border px-2 py-1 text-[9px] font-semibold uppercase ${statusTone.pill}`}
-            >
-              <span className={`h-1.5 w-1.5 rounded-full ${statusTone.dot}`} />
-              {statusLabel}
-            </span>
+    <div className="flex flex-col gap-3.5">
+      {/* 1. Apple-style Dynamic Island Status Header */}
+      <div className="flex items-center justify-between rounded-full border border-white/[0.1] bg-black/40 px-4 py-2 shadow-[0_4px_20px_rgba(0,0,0,0.4)] backdrop-blur-2xl">
+        <div className="flex items-center gap-2.5">
+          <div className="relative flex h-7 w-7 items-center justify-center rounded-full border border-white/20 bg-gradient-to-br from-white/20 to-white/5 text-[12px] font-black text-white shadow-inner">
+            {user?.first_name ? user.first_name[0].toUpperCase() : 'S'}
+          </div>
+          <span className="text-[13px] font-bold tracking-tight text-white">
+            {user?.first_name || 'Пользователь'}
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-300">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
+            <span>ONLINE</span>
           </div>
           <button
             type="button"
-            onClick={() => {
-              trackAnalyticsEvent('ultima_home_plan_open', {
-                source: 'overview',
-                days_left: daysLeft ?? null,
-              });
-              if (hasAnySubscription) {
-                openSubscriptionInfo();
-              } else {
-                openSubscriptionPurchase();
-              }
-            }}
-            className="mt-2 block max-w-full text-left"
+            onClick={() => navigate('/balance')}
+            className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 text-[11px] font-bold text-white transition-all hover:bg-white/10 active:scale-95"
           >
-            <span className="block break-words text-[25px] font-semibold leading-[1.02] text-white/[0.97]">
-              {subscriptionPlanName}
-            </span>
-            <span className="mt-1.5 block text-[12px] leading-snug text-white/[0.58]">
-              {expiryLabel}
-            </span>
+            <span>{user?.balance_rubles ?? 0} ₽</span>
           </button>
         </div>
-        {renderShieldButton('h-[104px] w-[104px] shrink-0')}
       </div>
 
-      <div className="mt-4 grid grid-cols-3 divide-x divide-white/[0.08] border-y border-white/[0.08] py-3">
-        <div data-testid="ultima-home-traffic" className="min-w-0 pr-2">
-          <div className="flex items-center gap-1.5 text-white/[0.4]">
-            <Gauge className="h-4 w-4 shrink-0" strokeWidth={1.8} />
-            <span className="truncate text-[8px] font-semibold uppercase">
-              {t('ultima.trafficRemaining', { defaultValue: 'Осталось' })}
-            </span>
-          </div>
-          <p className="mt-1.5 truncate text-[12px] font-semibold text-white/[0.92]">
-            {mobileTrafficValue}
-          </p>
-        </div>
+      {/* 2. Tesla Central Power & Traffic Reactor Gauge */}
+      <section
+        data-testid="ultima-home-overview"
+        className="relative flex flex-col items-center justify-center overflow-hidden rounded-[36px] border border-white/[0.12] p-5 shadow-[0_25px_60px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.15)] backdrop-blur-3xl transition-all"
+        style={{
+          background:
+            'radial-gradient(circle at 50% 30%, color-mix(in srgb, var(--ultima-color-surface) 95%, rgba(255,255,255,0.06)) 0%, #000 100%)',
+        }}
+      >
+        {/* Tesla Ambient Lighting */}
         <div
-          data-testid="ultima-plan-device-count"
-          aria-busy={isDashboardDevicesPending}
-          className="min-w-0 px-2"
-        >
-          <div className="flex items-center gap-1.5 text-white/[0.4]">
-            <MonitorSmartphone className="h-4 w-4 shrink-0" strokeWidth={1.8} />
-            <span className="truncate text-[8px] font-semibold uppercase">
-              {t('lite.devicesTotal', { defaultValue: 'Устройства' })}
-            </span>
-          </div>
-          {isDashboardDevicesPending ? (
-            <span
-              data-testid="ultima-plan-device-count-loading"
-              className="mt-2 block h-3 w-8 animate-pulse rounded-full bg-white/[0.1]"
-            />
-          ) : (
-            <p className="mt-1.5 truncate text-[12px] font-semibold text-white/[0.92]">
-              {isDashboardDevicesUnavailable
-                ? '—'
-                : `${connectedDevicesCount}/${dashboardDeviceLimit}`}
-            </p>
-          )}
-        </div>
-        <div data-testid="ultima-home-days" className="min-w-0 pl-2">
-          <div className="flex items-center gap-1.5 text-white/[0.4]">
-            <CalendarDays className="h-4 w-4 shrink-0" strokeWidth={1.8} />
-            <span className="truncate text-[8px] font-semibold uppercase">
-              {t('ultima.home.daysLabel', { defaultValue: 'Дней осталось' })}
-            </span>
-          </div>
-          <p className="mt-1.5 truncate text-[12px] font-semibold text-white/[0.92]">
-            {mobileDaysValue}
-          </p>
-        </div>
-      </div>
+          className="pointer-events-none absolute -top-10 h-44 w-44 animate-pulse rounded-full opacity-35 blur-3xl"
+          style={{ background: 'var(--ultima-color-aura, #1bd29f)' }}
+        />
 
-      {subscriptionTrafficLimitGb > 0 ? (
-        <div className="mt-3">
-          <div className="flex items-center justify-between gap-3 text-[10px] text-white/[0.48]">
-            <span>{subscriptionTrafficUsageLabel}</span>
-            <span>{Math.round(subscriptionTrafficPercent)}%</span>
-          </div>
-          <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-black/[0.18]">
-            <span
-              className="block h-full rounded-full transition-[width] duration-300"
+        {/* Circular Speedometer / Reactor Ring */}
+        <div className="relative my-2 flex items-center justify-center">
+          <svg className="h-44 w-44 -rotate-90 transform" viewBox="0 0 140 140">
+            {/* Background Ring */}
+            <circle
+              cx="70"
+              cy="70"
+              r="60"
+              fill="transparent"
+              stroke="rgba(255, 255, 255, 0.06)"
+              strokeWidth="7"
+            />
+            {/* Active Luminous Progress Arc */}
+            <circle
+              cx="70"
+              cy="70"
+              r="60"
+              fill="transparent"
+              stroke="url(#teslaGradient)"
+              strokeWidth="7"
+              strokeDasharray="377"
+              strokeDashoffset={strokeDashoffset}
+              strokeLinecap="round"
+              className="transition-all duration-1000 ease-out"
               style={{
-                width: `${subscriptionTrafficPercent}%`,
-                background: subscription?.metered_access_blocked
-                  ? 'rgb(251 191 36 / 0.9)'
-                  : 'var(--ultima-color-primary)',
+                filter:
+                  'drop-shadow(0 0 8px color-mix(in srgb, var(--ultima-color-primary, #1bd29f) 70%, transparent))',
               }}
             />
+            <defs>
+              <linearGradient id="teslaGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#00F2FE" />
+                <stop offset="50%" stopColor="var(--ultima-color-primary, #1bd29f)" />
+                <stop offset="100%" stopColor="#10b981" />
+              </linearGradient>
+            </defs>
+          </svg>
+
+          {/* Central Reactor Core Content */}
+          <div className="absolute flex flex-col items-center justify-center text-center">
+            {renderShieldButton(
+              'h-[52px] w-[52px] mb-1 transform transition-transform active:scale-95',
+            )}
+            <span className="text-[26px] font-black leading-none tracking-tight text-white">
+              {mobileTrafficValue.replace(' ГБ', '')}
+            </span>
+            <span className="mt-1 text-[9px] font-extrabold uppercase tracking-widest text-white/50">
+              ГБ ОСТАЛОСЬ
+            </span>
           </div>
         </div>
-      ) : null}
 
-      <button
-        type="button"
-        onClick={hasAnySubscription ? openSubscriptionInfo : openSubscriptionPurchase}
-        className="mt-3 flex min-h-[38px] w-full items-center justify-between gap-3 border-t border-white/[0.07] pt-3 text-left text-[12px] font-medium text-white/[0.72]"
-      >
-        <span>
-          {hasAnySubscription
-            ? t('subscription.details', { defaultValue: 'Детали подписки' })
-            : t('ultima.chooseTariff', { defaultValue: 'Выбрать тариф' })}
-        </span>
-        <ChevronRight className="h-4 w-4" strokeWidth={1.8} />
-      </button>
-    </section>
+        {/* Plan & Expiry Pill */}
+        <div className="mt-1 flex flex-col items-center">
+          <span className="text-[17px] font-black tracking-tight text-white">
+            {subscriptionPlanName}
+          </span>
+          <span className="mt-0.5 text-[11px] font-medium text-white/50">
+            {expiryLabel} · {mobileDaysValue} дней
+          </span>
+        </div>
+      </section>
+
+      {/* 3. Tesla 2x2 Precision Bento Matrix */}
+      <div className="grid grid-cols-2 gap-2.5">
+        {/* Tile 1: Server Node */}
+        <button
+          type="button"
+          onClick={() => openConnection()}
+          className="flex flex-col justify-between rounded-[24px] border border-white/[0.08] bg-black/40 p-3.5 text-left shadow-md backdrop-blur-2xl transition-all hover:border-white/[0.18] hover:bg-white/[0.04] active:scale-95"
+        >
+          <div className="flex items-center justify-between">
+            <span className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 text-[11px] font-black text-white">
+              <span>🇳🇱</span>
+              <span className="text-[10px] tracking-wider text-white/80">NL</span>
+            </span>
+            <span className="flex items-center gap-1 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2 py-0.5 text-[9px] font-bold text-emerald-300">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
+              <span>24 ms</span>
+            </span>
+          </div>
+          <div className="mt-3">
+            <span className="block text-[13px] font-black text-white">Нидерланды LTE</span>
+            <span className="text-[10px] font-medium text-white/50">Сервер активен</span>
+          </div>
+        </button>
+
+        {/* Tile 2: Connected Devices */}
+        <button
+          type="button"
+          onClick={() => openDevices(false, 'bento')}
+          className="flex flex-col justify-between rounded-[24px] border border-white/[0.08] bg-black/40 p-3.5 text-left shadow-md backdrop-blur-2xl transition-all hover:border-white/[0.18] hover:bg-white/[0.04] active:scale-95"
+        >
+          <div className="flex items-center justify-between text-cyan-400">
+            <MonitorSmartphone className="h-5 w-5" strokeWidth={2.2} />
+            <span className="rounded-full border border-cyan-400/30 bg-cyan-500/10 px-2 py-0.5 text-[9px] font-bold text-cyan-300">
+              {connectedDevicesCount}/{dashboardDeviceLimit}
+            </span>
+          </div>
+          <div className="mt-3">
+            <span className="block text-[13px] font-black text-white">Устройства</span>
+            <span className="text-[10px] font-medium text-white/50">iPhone, Mac...</span>
+          </div>
+        </button>
+
+        {/* Tile 3: Top-Up / Balance */}
+        <button
+          type="button"
+          onClick={() => navigate('/balance')}
+          className="flex flex-col justify-between rounded-[24px] border border-white/[0.08] bg-black/40 p-3.5 text-left shadow-md backdrop-blur-2xl transition-all hover:border-white/[0.18] hover:bg-white/[0.04] active:scale-95"
+        >
+          <div className="flex items-center justify-between text-emerald-400">
+            <Wallet className="h-5 w-5" strokeWidth={2.2} />
+            <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[9px] font-bold text-white/70">
+              Баланс
+            </span>
+          </div>
+          <div className="mt-3">
+            <span className="block text-[13px] font-black text-white">
+              {user?.balance_rubles ?? 0} ₽
+            </span>
+            <span className="text-[10px] font-medium text-emerald-400/80">+ Пополнить</span>
+          </div>
+        </button>
+
+        {/* Tile 4: Referral & Rewards */}
+        <button
+          type="button"
+          onClick={openReferral}
+          className="flex flex-col justify-between rounded-[24px] border border-white/[0.08] bg-black/40 p-3.5 text-left shadow-md backdrop-blur-2xl transition-all hover:border-white/[0.18] hover:bg-white/[0.04] active:scale-95"
+        >
+          <div className="flex items-center justify-between text-indigo-400">
+            <Gift className="h-5 w-5" strokeWidth={2.2} />
+            <span className="rounded-full border border-indigo-400/30 bg-indigo-500/10 px-2 py-0.5 text-[9px] font-bold text-indigo-300">
+              +15%
+            </span>
+          </div>
+          <div className="mt-3">
+            <span className="block text-[13px] font-black text-white">Рефералы</span>
+            <span className="text-[10px] font-medium text-white/50">Пригласить друзей</span>
+          </div>
+        </button>
+      </div>
+    </div>
   );
   const mobileTrafficWarning = shouldShowTrafficWarning ? (
     <UltimaTrafficWarningCard
@@ -1548,24 +1608,23 @@ export function UltimaDashboard() {
             showReferralEntry || hasAnySubscription ? (
               <section
                 data-testid="ultima-home-quick-actions"
-                className="mb-4 rounded-[24px] border p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_14px_30px_rgba(3,14,24,0.18)] backdrop-blur-xl"
+                className="relative mb-4 overflow-hidden rounded-[28px] border border-white/[0.1] p-4 shadow-[0_16px_36px_rgba(0,0,0,0.25),inset_0_1px_1px_rgba(255,255,255,0.08)] backdrop-blur-2xl transition-all"
                 style={{
-                  borderColor:
-                    'color-mix(in srgb, var(--ultima-color-surface-border) 24%, transparent)',
-                  background: 'color-mix(in srgb, var(--ultima-color-surface) 72%, transparent)',
+                  background:
+                    'linear-gradient(160deg, color-mix(in srgb, var(--ultima-color-surface) 80%, rgba(255,255,255,0.02)), color-mix(in srgb, var(--ultima-color-secondary) 70%, #000))',
                 }}
               >
-                <div className="mb-1">
-                  <h2 className="text-[14px] font-semibold text-white/[0.94]">
+                <div className="mb-2 px-1">
+                  <h2 className="text-[14px] font-bold tracking-tight text-white/[0.95]">
                     {t('ultima.home.quickActions', { defaultValue: 'Быстрые действия' })}
                   </h2>
-                  <p className="mt-1 text-[11px] leading-snug text-white/[0.44]">
+                  <p className="mt-0.5 text-[11px] font-medium leading-snug text-white/[0.5]">
                     {t('ultima.home.quickActionsHint', {
                       defaultValue: 'Приглашения и подключение устройств',
                     })}
                   </p>
                 </div>
-                <div className="mt-2">
+                <div className="mt-2.5 flex flex-col gap-2">
                   {showReferralEntry ? (
                     <UltimaReferralCta
                       commissionPercent={referralCommissionPercent}
