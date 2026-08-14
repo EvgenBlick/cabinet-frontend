@@ -71,7 +71,7 @@ function TelegramProviderIcon() {
 
 function ProviderIcon({ provider }: { provider: string }) {
   if (provider === 'telegram') return <TelegramProviderIcon />;
-  if (provider === 'email') return <Mail className="h-5 w-5 text-emerald-200" />;
+  if (provider === 'email') return <Mail className="h-5 w-5 text-[#d4b37f]" />;
   return <OAuthProviderIcon provider={provider} className="h-5 w-5" />;
 }
 
@@ -127,7 +127,7 @@ function Notice({ tone, children }: NoticeProps) {
     <div
       className={cn(
         'flex items-start gap-2.5 rounded-xl border px-3 py-2.5 text-sm leading-relaxed',
-        tone === 'success' && 'border-emerald-300/20 bg-emerald-300/[0.08] text-emerald-100',
+        tone === 'success' && 'border-[#d4b37f]/40/20 bg-[#d4b37f]/[0.08] text-[#d4b37f]',
         tone === 'error' && 'border-red-300/20 bg-red-400/[0.08] text-red-100',
         tone === 'waiting' && 'border-sky-300/20 bg-sky-300/[0.08] text-sky-100',
       )}
@@ -175,6 +175,9 @@ export function UltimaProviderAccountLinkingView({
   const telegramMiniAppLink = botUsername ? `https://t.me/${botUsername}/app` : '';
   const linkedCount = linkedIdentities.length;
   const hasBackupLogin = linkedCount > 1;
+  const isYandexLinked = linkedIdentities.some((i) => i.provider === 'yandex');
+  const otherOAuthProviders = availableOAuthProviders.filter((p) => p.name !== 'yandex');
+
   const busyLinking =
     telegramDirectLinkLoading ||
     directLinkProvider !== null ||
@@ -235,21 +238,22 @@ export function UltimaProviderAccountLinkingView({
           </div>
         </header>
 
-        <div className="ultima-scrollbar min-h-0 flex-1 space-y-3 overflow-y-auto pr-1 lg:overflow-visible lg:pr-0">
+        <div className="ultima-scrollbar min-h-0 flex-1 space-y-3.5 overflow-y-auto pr-1 lg:overflow-visible lg:pr-0">
+          {/* Status banner */}
           <section
             className={cn(
               'flex items-center gap-3 rounded-2xl border p-4',
               hasBackupLogin
-                ? 'border-emerald-300/20 bg-emerald-300/[0.08]'
-                : 'border-amber-200/20 bg-amber-200/[0.07]',
+                ? 'border-[#b89358]/35 bg-[#16181d]'
+                : 'border-amber-200/20 bg-[#16181d]',
             )}
           >
             <div
               className={cn(
-                'flex h-11 w-11 shrink-0 items-center justify-center rounded-xl',
+                'flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border',
                 hasBackupLogin
-                  ? 'bg-emerald-300/15 text-emerald-200'
-                  : 'bg-amber-200/10 text-amber-100',
+                  ? 'border-[#d4b37f]/30 bg-[#d4b37f]/15 text-[#d4b37f]'
+                  : 'border-amber-200/20 bg-amber-200/10 text-amber-100',
               )}
             >
               {identitiesLoading ? (
@@ -272,14 +276,108 @@ export function UltimaProviderAccountLinkingView({
                 {identitiesLoading
                   ? 'Загружаем актуальные привязки вашего профиля.'
                   : hasBackupLogin
-                    ? `Подключено ${linkedCount}. Можно войти другим способом, если один окажется недоступен.`
-                    : 'Сейчас доступ зависит от одного способа. Подключение второго не создаст новый аккаунт.'}
+                    ? `Подключено способов: ${linkedCount}. Можно войти другим способом, если один окажется недоступен.`
+                    : 'Сейчас доступ зависит от одного способа. Привяжите Яндекс ID для доступа на сайте 24/7.'}
               </p>
             </div>
-            <span className="shrink-0 rounded-lg border border-white/10 bg-black/10 px-2.5 py-1.5 text-xs font-semibold text-white/70">
+            <span className="shrink-0 rounded-lg border border-white/10 bg-black/20 px-2.5 py-1.5 text-xs font-semibold text-[#d4b37f]">
               {identitiesLoading ? '…' : linkedCount}
             </span>
           </section>
+
+          {/* НАША ГЛАВНАЯ ФИШКА: Яндекс ID Hero Block */}
+          {!isYandexLinked ? (
+            <div className="gold-animated-beam-wrapper rounded-2xl shadow-[0_12px_32px_rgba(212,179,127,0.22)]">
+              <div className="gold-animated-beam-content rounded-2xl border border-[#b89358]/45 bg-gradient-to-b from-[#1e1a14] via-[#14161a] to-[#0c0e11] p-5">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-3.5">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-[#fc3f1d]/50 bg-gradient-to-br from-[#fc3f1d]/30 to-black/80 shadow-[0_0_18px_rgba(252,63,29,0.3)]">
+                      <span className="text-[22px] font-black text-[#fc3f1d]">Я</span>
+                    </div>
+                    <div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h2 className="text-base font-bold text-white">
+                          Вход на сайте через Яндекс ID
+                        </h2>
+                        <span className="rounded-full border border-[#b89358]/60 bg-gradient-to-r from-[#d4b37f]/25 to-[#b89358]/25 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-[#d4b37f]">
+                          ★ ГЛАВНАЯ ФИШКА
+                        </span>
+                        <span className="rounded-full border border-white/10 bg-white/[0.08] px-2 py-0.5 text-[10px] font-bold text-[#f5f5f7]">
+                          24/7 WEB
+                        </span>
+                      </div>
+                      <p className="mt-1 text-xs text-white/65">
+                        Привяжите аккаунт Яндекс, чтобы иметь прямой доступ к личному кабинету на
+                        сайте
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-4 grid gap-2.5 rounded-xl border border-white/[0.07] bg-black/40 p-3.5 text-xs text-white/80">
+                  <div className="flex items-start gap-2.5">
+                    <div className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#d4b37f]/20 text-[#d4b37f]">
+                      <CheckCircle2 className="h-3.5 w-3.5" />
+                    </div>
+                    <span>
+                      <strong>Бесперебойный доступ 24/7:</strong> вход в личный кабинет на сайте в
+                      любом браузере (ПК, Mac, смартфон) без необходимости открывать Telegram.
+                    </span>
+                  </div>
+                  <div className="flex items-start gap-2.5">
+                    <div className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#d4b37f]/20 text-[#d4b37f]">
+                      <CheckCircle2 className="h-3.5 w-3.5" />
+                    </div>
+                    <span>
+                      <strong>Защита подписки и ключей:</strong> ваши конфиги, баланс и серверы
+                      останутся доступны при любых сбоях или блокировках мессенджера.
+                    </span>
+                  </div>
+                </div>
+
+                <div className="mt-4">
+                  <button
+                    type="button"
+                    onClick={() => onLinkOAuth('yandex')}
+                    disabled={busyLinking}
+                    className="btn-gold-beam w-full shadow-[0_6px_24px_rgba(212,179,127,0.35)] active:scale-[0.98] disabled:opacity-50"
+                  >
+                    <div className="btn-gold-beam-inner flex min-h-[50px] items-center justify-center gap-2.5 px-5 py-3 text-center text-sm font-bold text-[#121418]">
+                      {directLinkProvider === 'yandex' ? (
+                        <LoaderCircle className="h-5 w-5 animate-spin" />
+                      ) : (
+                        <>
+                          <span>Привязать Яндекс ID</span>
+                          <ArrowUpRight className="h-4.5 w-4.5" strokeWidth={2.5} />
+                        </>
+                      )}
+                    </div>
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="p-4.5 rounded-2xl border border-[#b89358]/40 bg-gradient-to-b from-[#1a1713] via-[#14161a] to-[#101216]">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3.5">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-[#fc3f1d]/40 bg-gradient-to-br from-[#fc3f1d]/20 to-black/80 shadow-[0_0_12px_rgba(252,63,29,0.2)]">
+                    <span className="text-[19px] font-black text-[#fc3f1d]">Я</span>
+                  </div>
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h2 className="text-sm font-bold text-white">Яндекс ID подключён</h2>
+                      <span className="rounded-full border border-[#d4b37f]/50 bg-[#d4b37f]/15 px-2 py-0.5 text-[10px] font-extrabold uppercase text-[#d4b37f]">
+                        ✓ 24/7 WEB АКТИВЕН
+                      </span>
+                    </div>
+                    <p className="mt-0.5 text-xs text-white/60">
+                      Вход на сайте доступен в любом браузере на всех ваших устройствах
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {providerLinkError ? <Notice tone="error">{providerLinkError}</Notice> : null}
           {providerLinkSuccess ? <Notice tone="success">{providerLinkSuccess}</Notice> : null}
@@ -292,13 +390,14 @@ export function UltimaProviderAccountLinkingView({
           ) : null}
 
           <div className="grid gap-3 lg:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)]">
-            <section className="rounded-2xl border border-white/10 bg-[rgba(7,18,27,0.82)] p-4 backdrop-blur-md">
+            {/* Connected Identities */}
+            <section className="rounded-2xl border border-[#5a5040]/30 bg-[#121418]/90 p-4 backdrop-blur-md">
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <h2 className="text-lg font-semibold text-white">Подключённые</h2>
                   <p className="mt-0.5 text-sm text-white/50">Через них уже можно войти</p>
                 </div>
-                <LockKeyhole className="h-5 w-5 text-emerald-200/70" />
+                <LockKeyhole className="h-5 w-5 text-[#d4b37f]" />
               </div>
 
               <div className="mt-4 divide-y divide-white/[0.08] overflow-hidden rounded-xl border border-white/[0.08] bg-white/[0.035]">
@@ -321,7 +420,7 @@ export function UltimaProviderAccountLinkingView({
                           <h3 className="text-sm font-semibold text-white">
                             {getProviderLabel(identity.provider)}
                           </h3>
-                          <span className="rounded-md bg-emerald-300/10 px-1.5 py-0.5 text-[10px] font-medium text-emerald-200">
+                          <span className="rounded-md border border-[#d4b37f]/30 bg-[#d4b37f]/15 px-1.5 py-0.5 text-[10px] font-medium text-[#d4b37f]">
                             Подключён
                           </span>
                         </div>
@@ -369,13 +468,14 @@ export function UltimaProviderAccountLinkingView({
               ) : null}
             </section>
 
-            <section className="rounded-2xl border border-white/10 bg-[rgba(7,18,27,0.82)] p-4 backdrop-blur-md">
+            {/* Other login options */}
+            <section className="rounded-2xl border border-[#5a5040]/30 bg-[#121418]/90 p-4 backdrop-blur-md">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <h2 className="text-lg font-semibold text-white">Добавить вход</h2>
-                  <p className="mt-0.5 text-sm text-white/50">Выберите удобный сервис</p>
+                  <h2 className="text-lg font-semibold text-white">Другие способы</h2>
+                  <p className="mt-0.5 text-sm text-white/50">Резервные провайдеры</p>
                 </div>
-                <Link2 className="h-5 w-5 text-emerald-200/70" />
+                <Link2 className="h-5 w-5 text-[#d4b37f]" />
               </div>
 
               <div className="mt-4 space-y-2">
@@ -384,7 +484,7 @@ export function UltimaProviderAccountLinkingView({
                     type="button"
                     onClick={onLinkTelegramDirect}
                     disabled={busyLinking}
-                    className="group flex min-h-[64px] w-full items-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.035] px-3 py-2.5 text-left transition hover:border-emerald-200/20 hover:bg-emerald-200/[0.06] disabled:cursor-wait disabled:opacity-50"
+                    className="group flex min-h-[64px] w-full items-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.035] px-3 py-2.5 text-left transition hover:border-[#d4b37f]/40 hover:bg-[#d4b37f]/[0.06] disabled:cursor-wait disabled:opacity-50"
                   >
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white/[0.07]">
                       <ProviderIcon provider="telegram" />
@@ -396,20 +496,20 @@ export function UltimaProviderAccountLinkingView({
                       </div>
                     </div>
                     {telegramDirectLinkLoading ? (
-                      <LoaderCircle className="h-4 w-4 animate-spin text-emerald-200" />
+                      <LoaderCircle className="h-4 w-4 animate-spin text-[#d4b37f]" />
                     ) : (
-                      <ArrowUpRight className="h-4 w-4 text-white/35 transition group-hover:text-emerald-200" />
+                      <ArrowUpRight className="h-4 w-4 text-white/35 transition group-hover:text-[#d4b37f]" />
                     )}
                   </button>
                 ) : null}
 
-                {availableOAuthProviders.map((provider) => (
+                {otherOAuthProviders.map((provider) => (
                   <button
                     key={provider.name}
                     type="button"
                     onClick={() => onLinkOAuth(provider.name)}
                     disabled={busyLinking}
-                    className="group flex min-h-[64px] w-full items-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.035] px-3 py-2.5 text-left transition hover:border-emerald-200/20 hover:bg-emerald-200/[0.06] disabled:cursor-wait disabled:opacity-50"
+                    className="group flex min-h-[64px] w-full items-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.035] px-3 py-2.5 text-left transition hover:border-[#d4b37f]/40 hover:bg-[#d4b37f]/[0.06] disabled:cursor-wait disabled:opacity-50"
                   >
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white/[0.07]">
                       <ProviderIcon provider={provider.name} />
@@ -423,9 +523,9 @@ export function UltimaProviderAccountLinkingView({
                       </div>
                     </div>
                     {directLinkProvider === provider.name ? (
-                      <LoaderCircle className="h-4 w-4 animate-spin text-emerald-200" />
+                      <LoaderCircle className="h-4 w-4 animate-spin text-[#d4b37f]" />
                     ) : (
-                      <ArrowUpRight className="h-4 w-4 text-white/35 transition group-hover:text-emerald-200" />
+                      <ArrowUpRight className="h-4 w-4 text-white/35 transition group-hover:text-[#d4b37f]" />
                     )}
                   </button>
                 ))}
@@ -437,7 +537,7 @@ export function UltimaProviderAccountLinkingView({
                   </div>
                 ) : !hasConnectOptions ? (
                   <div className="flex min-h-[88px] items-center gap-3 rounded-xl border border-dashed border-white/10 px-3 py-3">
-                    <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-200" />
+                    <CheckCircle2 className="h-5 w-5 shrink-0 text-[#d4b37f]" />
                     <p className="text-sm leading-relaxed text-white/55">
                       Все доступные способы входа уже подключены.
                     </p>
@@ -456,7 +556,7 @@ export function UltimaProviderAccountLinkingView({
                       href={telegramMiniAppLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium text-emerald-200 transition hover:text-emerald-100"
+                      className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium text-[#d4b37f] transition hover:text-[#d4b37f]"
                     >
                       Открыть Mini App <ArrowUpRight className="h-3.5 w-3.5" />
                     </a>
@@ -466,9 +566,10 @@ export function UltimaProviderAccountLinkingView({
             </section>
           </div>
 
-          <section className="flex flex-col gap-3 rounded-2xl border border-white/[0.08] bg-white/[0.035] p-4 sm:flex-row sm:items-center">
+          {/* Support block */}
+          <section className="flex flex-col gap-3 rounded-2xl border border-[#5a5040]/30 bg-[#121418]/80 p-4 sm:flex-row sm:items-center">
             <div className="flex min-w-0 flex-1 items-start gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/[0.06] text-white/65">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/[0.06] text-[#d4b37f]">
                 <Headphones className="h-5 w-5" />
               </div>
               <div className="min-w-0">
@@ -490,21 +591,22 @@ export function UltimaProviderAccountLinkingView({
               asChild
               size="sm"
               variant="secondary"
-              className="shrink-0 border-white/10 bg-white/[0.06] text-white hover:bg-white/10"
+              className="shrink-0 border-[#5a5040]/50 bg-[#1e2025] text-white hover:bg-white/10"
             >
               <Link to="/support">Поддержка</Link>
             </Button>
           </section>
         </div>
 
+        {/* Unlink modal */}
         {unlinkProvider && unlinkRequestToken ? (
           <div
-            className="fixed inset-0 z-[90] flex items-end justify-center bg-black/65 p-3 backdrop-blur-sm sm:items-center"
+            className="fixed inset-0 z-[90] flex items-end justify-center bg-black/75 p-3 backdrop-blur-sm sm:items-center"
             role="dialog"
             aria-modal="true"
             aria-labelledby="unlink-dialog-title"
           >
-            <div className="w-full max-w-[430px] rounded-2xl border border-white/10 bg-[#0b1c21] p-4 shadow-2xl">
+            <div className="w-full max-w-[430px] rounded-2xl border border-[#5a5040]/40 bg-[#121418] p-5 shadow-2xl">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <h2 id="unlink-dialog-title" className="text-lg font-semibold text-white">
@@ -535,7 +637,7 @@ export function UltimaProviderAccountLinkingView({
                 onChange={(event) => onUnlinkOtpCodeChange(event.target.value)}
                 placeholder="000000"
                 aria-label="Код подтверждения"
-                className="mt-4 h-14 w-full rounded-xl border border-white/10 bg-black/20 px-4 text-center text-xl font-semibold tracking-[0.35em] text-white outline-none transition placeholder:text-white/20 focus:border-emerald-200/35"
+                className="mt-4 h-14 w-full rounded-xl border border-[#5a5040]/40 bg-black/40 px-4 text-center text-xl font-semibold tracking-[0.35em] text-white outline-none transition placeholder:text-white/20 focus:border-[#d4b37f]/60"
               />
 
               {unlinkError ? (

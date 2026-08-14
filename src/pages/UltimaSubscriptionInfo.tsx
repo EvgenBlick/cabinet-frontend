@@ -56,14 +56,14 @@ function QuickAction({ icon, label, hint, onClick, primary = false, testId }: Qu
       onClick={onClick}
       className={`flex min-h-[58px] w-full items-center gap-3 rounded-[18px] border px-3.5 py-3 text-left transition-colors lg:rounded-[8px] ${
         primary
-          ? 'border-emerald-200/[0.28] bg-emerald-300/[0.12] text-white hover:bg-emerald-300/[0.17]'
+          ? 'border-[#d4b37f]/40/[0.28] bg-[#d4b37f]/[0.12] text-white hover:bg-[#d4b37f]/[0.17]'
           : 'border-white/[0.09] bg-white/[0.035] text-white hover:bg-white/[0.065]'
       }`}
     >
       <span
         className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-[13px] border lg:rounded-[6px] ${
           primary
-            ? 'border-emerald-200/[0.24] bg-emerald-300/[0.13] text-emerald-50'
+            ? 'border-[#d4b37f]/40/[0.24] bg-[#d4b37f]/[0.13] text-[#d4b37f]'
             : 'border-white/[0.09] bg-white/[0.04] text-white/[0.76]'
         }`}
       >
@@ -320,11 +320,11 @@ export function UltimaSubscriptionInfo() {
       data-testid="ultima-subscription-info-status"
       className={`inline-flex shrink-0 items-center gap-2 rounded-full border px-3 py-1.5 text-[11px] font-medium ${
         isActive
-          ? 'border-emerald-200/[0.2] bg-emerald-300/[0.11] text-emerald-50'
+          ? 'border-[#d4b37f]/40/[0.2] bg-[#d4b37f]/[0.11] text-[#d4b37f]'
           : 'border-rose-200/[0.2] bg-rose-300/[0.1] text-rose-50'
       }`}
     >
-      <span className={`h-1.5 w-1.5 rounded-full ${isActive ? 'bg-emerald-200' : 'bg-rose-200'}`} />
+      <span className={`h-1.5 w-1.5 rounded-full ${isActive ? 'bg-[#d4b37f]' : 'bg-rose-200'}`} />
       {statusLabel}
     </span>
   );
@@ -337,7 +337,7 @@ export function UltimaSubscriptionInfo() {
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-center gap-3">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] border border-white/[0.09] bg-white/[0.045] text-emerald-100 lg:rounded-[7px]">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] border border-white/[0.09] bg-white/[0.045] text-[#d4b37f] lg:rounded-[7px]">
             <Gauge className="h-5 w-5" />
           </span>
           <div className="min-w-0">
@@ -363,7 +363,7 @@ export function UltimaSubscriptionInfo() {
           <div className="mt-4 h-2 overflow-hidden rounded-full bg-black/[0.24]">
             <div
               className={`h-full rounded-full transition-[width] duration-500 ${
-                trafficProgress >= 90 ? 'bg-amber-300' : 'bg-emerald-300'
+                trafficProgress >= 90 ? 'bg-amber-300' : 'bg-[#d4b37f]'
               }`}
               style={{ width: `${trafficProgress}%` }}
             />
@@ -431,7 +431,7 @@ export function UltimaSubscriptionInfo() {
                 {t('ultima.subscriptionInfo.subscriptionLink')}
               </h2>
               {subscriptionLinkMeta ? (
-                <span className="rounded-full border border-emerald-200/[0.18] bg-emerald-300/[0.1] px-2 py-0.5 text-[9px] font-semibold uppercase text-emerald-100/[0.88]">
+                <span className="border-[#d4b37f]/40/[0.18] rounded-full border bg-[#d4b37f]/[0.1] px-2 py-0.5 text-[9px] font-semibold uppercase text-[#d4b37f]/[0.88]">
                   {subscriptionLinkMeta}
                 </span>
               ) : null}
@@ -465,7 +465,7 @@ export function UltimaSubscriptionInfo() {
                   onClick={() => selectCryptoLink(kind)}
                   className={`flex min-h-[38px] items-center justify-center gap-2 rounded-[10px] border px-3 py-2 text-[12px] font-semibold transition-colors lg:rounded-[5px] ${
                     isSelected
-                      ? 'border-emerald-200/[0.24] bg-emerald-300/[0.14] text-emerald-50'
+                      ? 'border-[#d4b37f]/40/[0.24] bg-[#d4b37f]/[0.14] text-[#d4b37f]'
                       : 'border-transparent text-white/[0.52] hover:bg-white/[0.05] hover:text-white/[0.78]'
                   }`}
                 >
@@ -734,7 +734,7 @@ export function UltimaSubscriptionInfo() {
                 </div>
 
                 <div className="mt-3 flex items-center gap-2 border-t border-white/[0.07] pt-3 text-[12px] text-white/[0.62]">
-                  <CalendarDays className="h-4 w-4 shrink-0 text-emerald-100/[0.8]" />
+                  <CalendarDays className="h-4 w-4 shrink-0 text-[#d4b37f]/[0.8]" />
                   <span>{t('ultima.subscriptionInfo.validUntil')}</span>
                   <strong className="ml-auto break-words text-right font-semibold text-white">
                     {endDateLabel}

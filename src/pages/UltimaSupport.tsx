@@ -1,1220 +1,351 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-  useEffect,
-  useCallback,
-  useMemo,
-  useRef,
-  useState,
-  type CSSProperties,
-  type MutableRefObject,
-} from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useNavigate, useSearchParams } from 'react-router';
-import { useTranslation } from 'react-i18next';
-import {
+  ChevronRight,
+  FileText,
   Headphones,
-  Image as ImageIcon,
-  MessageCircleMore,
-  Send as SendIcon,
-  X as CloseIcon,
+  HelpCircle,
+  MessageSquare,
+  Plus,
+  Smartphone,
+  Wrench,
+  X,
 } from 'lucide-react';
 import { infoApi } from '@/api/info';
 import { ticketsApi } from '@/api/tickets';
-import type { TicketMediaType } from '@/api/tickets';
-import { subscriptionApi } from '@/api/subscription';
-import { UltimaDesktopSectionLayout } from '@/components/ultima/desktop/UltimaDesktopSectionLayout';
-import {
-  ultimaPaneClassName,
-  ultimaPaneSurfaceStyle,
-  ultimaPanelClassName,
-  ultimaSurfaceStyle,
-} from '@/features/ultima/surfaces';
-import { usePlatform } from '@/platform';
 import { UltimaBottomNav } from '@/components/ultima/UltimaBottomNav';
-import { useMediaQuery } from '@/hooks/useMediaQuery';
-import type { Ticket } from '@/types';
-import { trackAnalyticsEvent } from '@/utils/analyticsEvents';
-
-const TICKETS_BATCH_SIZE = 5;
-const MOBILE_TICKET_LIST_EXPANDED_HEIGHT = 'max-h-[34vh]';
-const ULTIMA_SUPPORT_SECTION_STYLE: CSSProperties = ultimaSurfaceStyle;
-const ULTIMA_SUPPORT_PANE_STYLE: CSSProperties = ultimaPaneSurfaceStyle;
-
-type MediaAttachment = {
-  file: File;
-  preview: string;
-  uploading: boolean;
-  fileId?: string;
-  mediaType: TicketMediaType;
-  error?: string;
-};
-
-const ALLOWED_FILE_TYPES: Record<string, TicketMediaType> = {
-  'image/jpeg': 'photo',
-  'image/png': 'photo',
-  'image/gif': 'photo',
-  'image/webp': 'photo',
-  'video/mp4': 'video',
-  'video/webm': 'video',
-  'video/quicktime': 'video',
-  'application/pdf': 'document',
-  'application/msword': 'document',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'document',
-  'text/plain': 'document',
-  'application/zip': 'document',
-  'application/x-rar-compressed': 'document',
-};
-
-const ACCEPT_STRING = Object.keys(ALLOWED_FILE_TYPES).join(',');
-const MAX_FILE_SIZE = 10 * 1024 * 1024;
-
-type TicketListMode = 'active' | 'archive';
-
-const QUICK_SUPPORT_TOPICS = [
-  {
-    key: 'connection',
-    labelKey: 'support.quickConnection',
-    titleKey: 'support.quickConnectionTitle',
-    messageKey: 'support.quickConnectionMessage',
-  },
-  {
-    key: 'payment',
-    labelKey: 'support.quickPayment',
-    titleKey: 'support.quickPaymentTitle',
-    messageKey: 'support.quickPaymentMessage',
-  },
-  {
-    key: 'subscription',
-    labelKey: 'support.quickSubscription',
-    titleKey: 'support.quickSubscriptionTitle',
-    messageKey: 'support.quickSubscriptionMessage',
-  },
-] as const;
-
-const SELF_HELP_ACTIONS = [
-  {
-    key: 'setup',
-    titleKey: 'support.selfHelpSetupTitle',
-    descriptionKey: 'support.selfHelpSetupDescription',
-    actionKey: 'support.selfHelpSetupAction',
-    to: '/connection',
-  },
-  {
-    key: 'payment',
-    titleKey: 'support.selfHelpPaymentTitle',
-    descriptionKey: 'support.selfHelpPaymentDescription',
-    actionKey: 'support.selfHelpPaymentAction',
-    to: '/subscription',
-  },
-  {
-    key: 'devices',
-    titleKey: 'support.selfHelpDevicesTitle',
-    descriptionKey: 'support.selfHelpDevicesDescription',
-    actionKey: 'support.selfHelpDevicesAction',
-    to: '/ultima/devices',
-  },
-  {
-    key: 'info',
-    titleKey: 'support.selfHelpInfoTitle',
-    descriptionKey: 'support.selfHelpInfoDescription',
-    actionKey: 'support.selfHelpInfoAction',
-    to: '/ultima/info',
-  },
-] as const;
-
-function AttachmentPreview({
-  attachment,
-  onClear,
-}: {
-  attachment: MediaAttachment | null;
-  onClear: () => void;
-}) {
-  if (!attachment) return null;
-
-  return (
-    <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.045] p-2.5">
-      {attachment.preview ? (
-        <img
-          src={attachment.preview}
-          alt={attachment.file.name}
-          className="h-14 w-14 shrink-0 rounded-xl object-cover"
-        />
-      ) : (
-        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-white/[0.06] text-white/60">
-          <ImageIcon className="h-4 w-4" />
-        </div>
-      )}
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-[12px] font-medium text-white/85">{attachment.file.name}</p>
-        <p className="mt-0.5 text-[11px] text-white/[0.52]">
-          {attachment.uploading
-            ? 'Загрузка...'
-            : attachment.error
-              ? attachment.error
-              : attachment.mediaType === 'photo'
-                ? 'Скриншот прикреплен'
-                : 'Файл прикреплен'}
-        </p>
-      </div>
-      <button
-        type="button"
-        onClick={onClear}
-        className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-white/70"
-        aria-label="remove-attachment"
-      >
-        <CloseIcon className="h-4 w-4" />
-      </button>
-    </div>
-  );
-}
-
-function MessageMedia({ message }: { message: Ticket['last_message'] }) {
-  const [imageLoaded, setImageLoaded] = useState(false);
-  const [imageError, setImageError] = useState(false);
-  const [showFullImage, setShowFullImage] = useState(false);
-
-  if (!message?.has_media || !message.media_file_id) {
-    return null;
-  }
-
-  const mediaUrl = ticketsApi.getMediaUrl(message.media_file_id);
-
-  if (message.media_type === 'photo') {
-    return (
-      <>
-        <div className="mt-2">
-          {!imageLoaded && !imageError ? (
-            <div className="flex h-32 w-full animate-pulse items-center justify-center rounded-xl bg-white/[0.06]">
-              <div className="h-5 w-5 animate-spin rounded-full border-2 border-emerald-300/40 border-t-transparent" />
-            </div>
-          ) : null}
-          {imageError ? (
-            <div className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-[12px] text-white/55">
-              Изображение не загрузилось
-            </div>
-          ) : (
-            <img
-              src={mediaUrl}
-              alt={message.media_caption || 'attachment'}
-              className={`max-h-56 max-w-full cursor-pointer rounded-xl object-contain transition-opacity hover:opacity-90 ${
-                imageLoaded ? '' : 'hidden'
-              }`}
-              onLoad={() => setImageLoaded(true)}
-              onError={() => setImageError(true)}
-              onClick={() => setShowFullImage(true)}
-            />
-          )}
-          {message.media_caption ? (
-            <p className="mt-1 text-[11px] text-white/50">{message.media_caption}</p>
-          ) : null}
-        </div>
-        {showFullImage ? (
-          <div
-            className="fixed inset-0 z-[80] flex items-center justify-center bg-black/90 p-4"
-            onClick={() => setShowFullImage(false)}
-          >
-            <button
-              type="button"
-              className="absolute right-4 top-4 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white"
-              onClick={() => setShowFullImage(false)}
-              aria-label="close-image"
-            >
-              <CloseIcon className="h-5 w-5" />
-            </button>
-            <img
-              src={mediaUrl}
-              alt={message.media_caption || 'attachment'}
-              className="max-h-full max-w-full object-contain"
-            />
-          </div>
-        ) : null}
-      </>
-    );
-  }
-
-  return (
-    <a
-      href={mediaUrl}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="mt-2 inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.05] px-3 py-2 text-[12px] text-white/75"
-    >
-      <ImageIcon className="h-4 w-4" />
-      {message.media_caption || 'Открыть вложение'}
-    </a>
-  );
-}
+import { usePlatform } from '@/platform';
+import type { SupportConfig } from '@/types';
 
 export function UltimaSupport() {
-  const { t } = useTranslation();
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
   const queryClient = useQueryClient();
-  const { openTelegramLink, openLink } = usePlatform();
-  const isDesktop = useMediaQuery('(min-width: 1024px)');
+  const { openLink } = usePlatform();
 
-  const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
-  const [showCreate, setShowCreate] = useState(false);
-  const [newTitle, setNewTitle] = useState('');
-  const [newMessage, setNewMessage] = useState('');
-  const [replyMessage, setReplyMessage] = useState('');
-  const [ticketListMode, setTicketListMode] = useState<TicketListMode>('active');
-  const [mobileTicketsExpanded, setMobileTicketsExpanded] = useState(false);
-  const [visibleRecentCount, setVisibleRecentCount] = useState(TICKETS_BATCH_SIZE);
-  const [visibleOldCount, setVisibleOldCount] = useState(TICKETS_BATCH_SIZE);
-  const [createAttachment, setCreateAttachment] = useState<MediaAttachment | null>(null);
-  const [replyAttachment, setReplyAttachment] = useState<MediaAttachment | null>(null);
-  const createFileInputRef = useRef<HTMLInputElement>(null);
-  const replyFileInputRef = useRef<HTMLInputElement>(null);
-  const createPreviewRef = useRef<string | null>(null);
-  const replyPreviewRef = useRef<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'active' | 'archive'>('active');
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [ticketSubject, setTicketSubject] = useState('');
+  const [ticketMessage, setTicketMessage] = useState('');
 
-  const { data: supportConfig, isLoading: configLoading } = useQuery({
+  // 1. Support Config Query
+  const { data: supportConfig } = useQuery<SupportConfig>({
     queryKey: ['support-config'],
     queryFn: infoApi.getSupportConfig,
     staleTime: 60000,
-    placeholderData: (previousData) => previousData,
   });
 
-  const { data: tickets, isLoading: ticketsLoading } = useQuery({
+  // 2. Tickets Query
+  const { data: ticketsData } = useQuery({
     queryKey: ['tickets'],
-    queryFn: () => ticketsApi.getTickets({ per_page: 20 }),
-    enabled: supportConfig?.tickets_enabled === true,
+    queryFn: () => ticketsApi.getTickets({ per_page: 50 }),
     staleTime: 15000,
-    placeholderData: (previousData) => previousData,
   });
 
-  const selectedTicket =
-    selectedTicketId && tickets?.items?.length
-      ? tickets.items.find((ticket) => ticket.id === selectedTicketId) || null
-      : null;
-
-  const ticketBuckets = useMemo(() => {
-    const items = [...(tickets?.items ?? [])];
-    items.sort((a, b) => {
-      const aTime = new Date(a.updated_at).getTime();
-      const bTime = new Date(b.updated_at).getTime();
-      return bTime - aTime;
-    });
-
-    const cutoffMs = Date.now() - 7 * 24 * 60 * 60 * 1000;
-    const recent = items.filter((ticket) => {
-      const updated = new Date(ticket.updated_at).getTime();
-      return (
-        ticket.status === 'open' ||
-        ticket.status === 'answered' ||
-        (ticket.status !== 'closed' && Number.isFinite(updated) && updated >= cutoffMs)
-      );
-    });
-    const recentIds = new Set(recent.map((ticket) => ticket.id));
-    const old = items.filter((ticket) => !recentIds.has(ticket.id));
-    return { recent, old };
-  }, [tickets?.items]);
-
-  useEffect(() => {
-    const ticketParam = searchParams.get('ticket');
-    const ticketId = Number(ticketParam);
-
-    if (!ticketParam || !Number.isInteger(ticketId) || ticketId <= 0) {
-      if (selectedTicketId !== null) {
-        setSelectedTicketId(null);
-        setMobileTicketsExpanded(true);
-      }
-      return;
-    }
-
-    const ticketFromUrl = tickets?.items?.find((ticket) => ticket.id === ticketId);
-    if (ticketFromUrl) {
-      const isArchiveTicket = ticketBuckets.old.some((ticket) => ticket.id === ticketId);
-      setTicketListMode(isArchiveTicket ? 'archive' : 'active');
-    }
-    if (selectedTicketId !== ticketId) {
-      setSelectedTicketId(ticketId);
-    }
-    setMobileTicketsExpanded(false);
-    setShowCreate(false);
-  }, [searchParams, selectedTicketId, ticketBuckets.old, tickets?.items]);
-
-  const replaceTicketSearchParam = useCallback(
-    (ticketId: number | null) => {
-      const next = new URLSearchParams(searchParams);
-      if (ticketId) {
-        next.set('ticket', String(ticketId));
-      } else {
-        next.delete('ticket');
-      }
-      setSearchParams(next, { replace: true });
-    },
-    [searchParams, setSearchParams],
-  );
-
-  const { data: ticketDetail, isLoading: ticketLoading } = useQuery({
-    queryKey: ['ticket', selectedTicketId],
-    queryFn: () => ticketsApi.getTicket(selectedTicketId as number),
-    enabled: Boolean(selectedTicketId),
-  });
-
-  const clearCreateAttachment = () => {
-    if (createPreviewRef.current) {
-      URL.revokeObjectURL(createPreviewRef.current);
-      createPreviewRef.current = null;
-    }
-    setCreateAttachment(null);
-    if (createFileInputRef.current) {
-      createFileInputRef.current.value = '';
-    }
-  };
-
-  const clearReplyAttachment = () => {
-    if (replyPreviewRef.current) {
-      URL.revokeObjectURL(replyPreviewRef.current);
-      replyPreviewRef.current = null;
-    }
-    setReplyAttachment(null);
-    if (replyFileInputRef.current) {
-      replyFileInputRef.current.value = '';
-    }
-  };
-
-  const handleFileSelect = async (
-    file: File,
-    setAttachment: (attachment: MediaAttachment | null) => void,
-    previewRef: MutableRefObject<string | null>,
-  ) => {
-    const mediaType = ALLOWED_FILE_TYPES[file.type];
-    if (!mediaType) {
-      setAttachment({
-        file,
-        preview: '',
-        uploading: false,
-        mediaType: 'document',
-        error: t('adminTickets.invalidFileType', {
-          defaultValue: t('support.invalidFileType'),
-        }),
-      });
-      return;
-    }
-
-    if (file.size > MAX_FILE_SIZE) {
-      setAttachment({
-        file,
-        preview: '',
-        uploading: false,
-        mediaType,
-        error: t('adminTickets.fileTooLarge', { defaultValue: t('support.fileTooLarge') }),
-      });
-      return;
-    }
-
-    if (previewRef.current) {
-      URL.revokeObjectURL(previewRef.current);
-    }
-    const preview = mediaType === 'photo' ? URL.createObjectURL(file) : '';
-    previewRef.current = preview || null;
-    setAttachment({ file, preview, uploading: true, mediaType });
-
-    try {
-      const result = await ticketsApi.uploadMedia(file, mediaType);
-      setAttachment({ file, preview, uploading: false, mediaType, fileId: result.file_id });
-    } catch {
-      setAttachment({
-        file,
-        preview,
-        uploading: false,
-        mediaType,
-        error: t('adminTickets.uploadFailed', { defaultValue: t('support.uploadFailed') }),
-      });
-    }
-  };
-
-  const createMutation = useMutation({
-    mutationFn: () =>
-      ticketsApi.createTicket(
-        newTitle.trim(),
-        newMessage.trim(),
-        createAttachment?.fileId
-          ? {
-              media_type: createAttachment.mediaType,
-              media_file_id: createAttachment.fileId,
-            }
-          : undefined,
-      ),
-    onSuccess: (ticket) => {
-      trackAnalyticsEvent('ultima_support_ticket_created', {
-        ticket_id: ticket.id,
-        has_attachment: Boolean(createAttachment?.fileId),
-      });
-      queryClient.invalidateQueries({ queryKey: ['tickets'] });
-      setShowCreate(false);
-      setNewTitle('');
-      setNewMessage('');
-      clearCreateAttachment();
-      setTicketListMode('active');
-      setSelectedTicketId(ticket.id);
-      replaceTicketSearchParam(ticket.id);
-    },
-  });
-
-  const replyMutation = useMutation({
-    mutationFn: () =>
-      ticketsApi.addMessage(
-        selectedTicketId as number,
-        replyMessage.trim(),
-        replyAttachment?.fileId
-          ? {
-              media_type: replyAttachment.mediaType,
-              media_file_id: replyAttachment.fileId,
-            }
-          : undefined,
-      ),
+  // Mutations
+  const createTicketMutation = useMutation({
+    mutationFn: () => ticketsApi.createTicket(ticketSubject, ticketMessage),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['ticket', selectedTicketId] });
-      queryClient.invalidateQueries({ queryKey: ['tickets'] });
-      setReplyMessage('');
-      clearReplyAttachment();
+      void queryClient.invalidateQueries({ queryKey: ['tickets'] });
+      setShowCreateModal(false);
+      setTicketSubject('');
+      setTicketMessage('');
     },
   });
 
-  const closeMutation = useMutation({
-    mutationFn: () => ticketsApi.closeTicket(selectedTicketId as number),
-    onSuccess: (updated) => {
-      queryClient.invalidateQueries({ queryKey: ['tickets'] });
-      queryClient.setQueryData(['ticket', selectedTicketId], updated);
-    },
-  });
+  const isTicketsEnabled =
+    supportConfig?.support_type === 'tickets' || supportConfig?.support_type === 'both';
+  const supportUsername = supportConfig?.support_username || 'samuraiservice_bot';
+  const cleanUsername = supportUsername.replace(/^@/, '');
+  const telegramSupportUrl = `https://t.me/${cleanUsername}`;
 
-  const quickSupportTopics = useMemo(
-    () =>
-      QUICK_SUPPORT_TOPICS.map((topic) => ({
-        key: topic.key,
-        label: t(topic.labelKey),
-        title: t(topic.titleKey),
-        message: t(topic.messageKey),
-      })),
-    [t],
-  );
-
-  const selfHelpActions = useMemo(
-    () =>
-      SELF_HELP_ACTIONS.map((action) => ({
-        key: action.key,
-        title: t(action.titleKey),
-        description: t(action.descriptionKey),
-        action: t(action.actionKey),
-        to: action.to,
-      })),
-    [t],
-  );
-
-  const applyQuickTopic = (topic: { title: string; message: string }) => {
-    setNewTitle((current) => current.trim() || topic.title);
-    setNewMessage((current) => current.trim() || topic.message);
+  const openTelegramSupport = () => {
+    openLink(telegramSupportUrl);
   };
 
-  const openCreateTicket = () => {
-    trackAnalyticsEvent('ultima_support_new_ticket_start');
-    replaceTicketSearchParam(null);
-    clearCreateAttachment();
-    clearReplyAttachment();
-    setSelectedTicketId(null);
-    setMobileTicketsExpanded(false);
-    setShowCreate(true);
-  };
-
-  const supportContact = useMemo(() => {
-    if (!supportConfig) {
-      return null;
-    }
-
-    if (supportConfig.support_type === 'tickets') {
-      return null;
-    }
-
-    if (supportConfig.support_type === 'url' && supportConfig.support_url) {
-      return {
-        label: t('support.openSupport'),
-        action: () => openLink(supportConfig.support_url!, { tryInstantView: false }),
-      };
-    }
-    const raw = supportConfig.support_username || '@support';
-    const username = raw.startsWith('@') ? raw.slice(1) : raw;
-    return {
-      label: t('support.contactUs'),
-      action: () => openTelegramLink(`https://t.me/${username}`),
-    };
-  }, [supportConfig, t, openLink, openTelegramLink]);
-
-  const supportChannelHint = useMemo(() => {
-    if (supportConfig?.support_type === 'url' && supportConfig.support_url) {
-      return supportConfig.support_url;
-    }
-
-    if (
-      supportConfig?.support_username &&
-      (supportConfig.support_type === 'profile' || supportConfig.support_type === 'both')
-    ) {
-      return supportConfig.support_username.startsWith('@')
-        ? supportConfig.support_username
-        : `@${supportConfig.support_username}`;
-    }
-
-    return t('support.desktopChannelHint', {
-      defaultValue: 'Канал поддержки доступен из этого окна.',
-    });
-  }, [supportConfig?.support_type, supportConfig?.support_url, supportConfig?.support_username, t]);
-
-  const formatDate = (iso: string) => new Date(iso).toLocaleDateString();
-  const formatDateTime = (iso: string) =>
-    new Date(iso).toLocaleString(undefined, {
-      day: '2-digit',
-      month: '2-digit',
-      year: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-
-  const getStatusMeta = (status: string) => {
-    if (status === 'closed') {
-      return {
-        label: t('support.statusClosed', { defaultValue: 'Закрыт' }),
-        classes: 'bg-white/10 text-white/80',
-        style: undefined as CSSProperties | undefined,
-      };
-    }
-    if (status === 'answered') {
-      return {
-        label: t('support.statusAnswered', { defaultValue: 'Ответ админа' }),
-        classes: 'border text-white',
-        style: {
-          borderColor: 'color-mix(in srgb, var(--ultima-color-surface-border) 48%, transparent)',
-          background: 'color-mix(in srgb, var(--ultima-color-primary) 20%, transparent)',
-          color: 'color-mix(in srgb, var(--ultima-color-ring) 86%, #fff)',
-        } as CSSProperties,
-      };
-    }
-    return {
-      label: t('support.statusOpen', { defaultValue: 'Открыт' }),
-      classes: 'border-sky-300/[0.35] bg-sky-400/[0.15] text-sky-100',
-      style: undefined as CSSProperties | undefined,
-    };
-  };
-
-  const ticketsDisabled = Boolean(supportConfig && !supportConfig.tickets_enabled);
-  const showInlineSupportContact = Boolean(
-    !isDesktop &&
-    supportContact &&
-    supportConfig?.tickets_enabled &&
-    supportConfig.support_type === 'both',
-  );
-
-  useEffect(() => {
-    setVisibleRecentCount(TICKETS_BATCH_SIZE);
-    setVisibleOldCount(TICKETS_BATCH_SIZE);
-  }, [ticketBuckets.recent.length, ticketBuckets.old.length]);
-
-  useEffect(() => {
-    if (selectedTicketId) {
-      setMobileTicketsExpanded(false);
-    }
-  }, [selectedTicketId]);
-
-  useEffect(
-    () => () => {
-      if (createPreviewRef.current) URL.revokeObjectURL(createPreviewRef.current);
-      if (replyPreviewRef.current) URL.revokeObjectURL(replyPreviewRef.current);
-    },
-    [],
-  );
-
-  const visibleRecentTickets = useMemo(
-    () => ticketBuckets.recent.slice(0, visibleRecentCount),
-    [ticketBuckets.recent, visibleRecentCount],
-  );
-
-  const visibleOldTickets = useMemo(
-    () => ticketBuckets.old.slice(0, visibleOldCount),
-    [ticketBuckets.old, visibleOldCount],
-  );
-
-  const currentTicketBucket =
-    ticketListMode === 'archive' ? ticketBuckets.old : ticketBuckets.recent;
-  const visibleTicketList = ticketListMode === 'archive' ? visibleOldTickets : visibleRecentTickets;
-  const visibleTicketCount = ticketListMode === 'archive' ? visibleOldCount : visibleRecentCount;
-
-  const handleTicketListModeChange = (mode: TicketListMode) => {
-    setTicketListMode(mode);
-    setSelectedTicketId(null);
-    clearReplyAttachment();
-    replaceTicketSearchParam(null);
-    setShowCreate(false);
-    setMobileTicketsExpanded(true);
-  };
-
-  const handleLoadMoreTickets = () => {
-    if (ticketListMode === 'archive') {
-      setVisibleOldCount((prev) => Math.min(ticketBuckets.old.length, prev + TICKETS_BATCH_SIZE));
-      return;
-    }
-
-    setVisibleRecentCount((prev) =>
-      Math.min(ticketBuckets.recent.length, prev + TICKETS_BATCH_SIZE),
-    );
-  };
-
-  const openProfileFast = () => {
-    void queryClient.prefetchQuery({
-      queryKey: ['subscription'],
-      queryFn: subscriptionApi.getSubscription,
-      staleTime: 15000,
-    });
-    void import('./Profile');
-    navigate('/profile');
-  };
-
-  const renderTicketCard = (ticket: Ticket) => (
-    <button
-      key={ticket.id}
-      type="button"
-      onClick={() => {
-        setSelectedTicketId(ticket.id);
-        replaceTicketSearchParam(ticket.id);
-        clearReplyAttachment();
-        setMobileTicketsExpanded(false);
-      }}
-      className={`w-full rounded-2xl px-3 py-2 text-left transition lg:px-3.5 lg:py-2.5 ${
-        selectedTicketId === ticket.id
-          ? 'bg-[color:color-mix(in_srgb,var(--ultima-color-primary)_16%,transparent)] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]'
-          : 'bg-[color:color-mix(in_srgb,var(--ultima-color-secondary)_58%,transparent)] hover:bg-[color:color-mix(in_srgb,var(--ultima-color-secondary)_72%,transparent)]'
-      }`}
-    >
-      <div className="mb-1.5 flex items-start justify-between gap-2">
-        <p className="line-clamp-2 text-[14px] font-medium leading-5 text-white/95 lg:text-[15px]">
-          {ticket.title}
-        </p>
-        <span
-          className={`inline-flex shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ${getStatusMeta(ticket.status).classes}`}
-          style={getStatusMeta(ticket.status).style}
-        >
-          {getStatusMeta(ticket.status).label}
-        </span>
-      </div>
-      {ticket.last_message?.message_text ? (
-        <p className="line-clamp-2 break-words text-[12px] leading-snug text-white/[0.62]">
-          {ticket.last_message.is_from_admin
-            ? `${t('support.supportTeam', { defaultValue: 'Администратор' })}: `
-            : `${t('support.you', { defaultValue: 'Вы' })}: `}
-          {ticket.last_message.message_text}
-        </p>
-      ) : null}
-      <p className="mt-1 text-[11px] text-white/[0.48]">{formatDate(ticket.updated_at)}</p>
-    </button>
-  );
-
-  const renderTicketListTab = (mode: TicketListMode, label: string, count: number) => {
-    const active = ticketListMode === mode;
-
-    return (
-      <button
-        type="button"
-        onClick={() => handleTicketListModeChange(mode)}
-        className={`flex min-w-0 items-center justify-center gap-2 rounded-2xl border px-3 py-2 text-[12px] font-medium transition lg:text-[13px] ${
-          active
-            ? 'border-transparent text-white'
-            : 'border-white/10 bg-white/[0.04] text-white/[0.58] hover:bg-white/[0.07] hover:text-white/[0.78]'
-        }`}
-        style={
-          active
-            ? {
-                background:
-                  'linear-gradient(135deg, color-mix(in srgb, var(--ultima-color-primary) 52%, transparent), color-mix(in srgb, var(--ultima-color-secondary) 82%, transparent))',
-              }
-            : undefined
-        }
-      >
-        <span className="truncate">{label}</span>
-        <span className="shrink-0 rounded-full bg-white/10 px-2 py-0.5 text-[10px] text-white/[0.78]">
-          {count}
-        </span>
-      </button>
-    );
-  };
-
-  const renderSelfHelpActions = (className = '') => (
-    <div className={className}>
-      <div className="mb-2 flex items-end justify-between gap-3">
-        <div className="min-w-0">
-          <p className="text-white/86 text-[12px] font-semibold">{t('support.selfHelpTitle')}</p>
-          <p className="mt-0.5 line-clamp-2 text-[11px] leading-snug text-white/[0.52]">
-            {t('support.selfHelpSubtitle')}
-          </p>
-        </div>
-      </div>
-      <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
-        {selfHelpActions.map((action) => (
-          <button
-            key={action.key}
-            type="button"
-            onClick={() => navigate(action.to)}
-            className="rounded-xl border border-white/10 bg-white/[0.045] px-3 py-2.5 text-left transition hover:border-white/20 hover:bg-white/[0.075] lg:rounded-lg"
-          >
-            <span className="block truncate text-[12px] font-medium text-white/90">
-              {action.title}
-            </span>
-            <span className="mt-1 line-clamp-2 block min-h-[30px] text-[11px] leading-snug text-white/[0.55]">
-              {action.description}
-            </span>
-            <span className="mt-2 block text-[11px] font-medium text-[color:var(--ultima-color-ring)]">
-              {action.action}
-            </span>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-
-  const bottomNav = <UltimaBottomNav active="support" onProfileClick={openProfileFast} />;
-
-  const supportContent = configLoading ? (
-    <section
-      className={`${ultimaPanelClassName} flex min-h-0 flex-1 items-center justify-center p-4`}
-      style={ULTIMA_SUPPORT_SECTION_STYLE}
-    >
-      <div className="h-8 w-8 animate-spin rounded-full border-2 border-emerald-300/[0.35] border-t-transparent" />
-    </section>
-  ) : ticketsDisabled ? (
-    <section className={`${ultimaPanelClassName} p-4`} style={ULTIMA_SUPPORT_SECTION_STYLE}>
-      <button
-        type="button"
-        onClick={() => supportContact?.action()}
-        className="ultima-btn-pill ultima-btn-primary flex w-full items-center justify-center px-5 py-3 text-sm"
-      >
-        {supportContact?.label || t('support.contactUs')}
-      </button>
-    </section>
-  ) : showCreate ? (
-    <section
-      className={`${ultimaPanelClassName} space-y-4 p-4 sm:p-5`}
-      style={ULTIMA_SUPPORT_SECTION_STYLE}
-      data-testid="ultima-ticket-create"
-    >
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex min-w-0 items-center gap-3">
-          <span
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border"
-            style={{
-              borderColor: 'color-mix(in srgb, var(--ultima-color-primary) 30%, transparent)',
-              background: 'color-mix(in srgb, var(--ultima-color-primary) 12%, transparent)',
-              color: 'color-mix(in srgb, var(--ultima-color-primary) 72%, white)',
-            }}
-          >
-            <MessageCircleMore className="h-5 w-5" />
-          </span>
-          <div className="min-w-0">
-            <h2 className="text-base font-semibold text-white">{t('support.newTicket')}</h2>
-            <p className="mt-0.5 text-xs leading-5 text-white/50">
-              {t('support.messagePlaceholder')}
-            </p>
-          </div>
-        </div>
-        <button
-          type="button"
-          onClick={() => {
-            clearCreateAttachment();
-            setShowCreate(false);
-          }}
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-white/60 transition hover:bg-white/[0.08] hover:text-white"
-          aria-label={t('common.cancel')}
-        >
-          <CloseIcon className="h-4 w-4" />
-        </button>
-      </div>
-      {renderSelfHelpActions('border-y border-white/[0.08] py-3')}
-      <div className="flex flex-wrap gap-2">
-        {quickSupportTopics.map((topic) => (
-          <button
-            key={topic.key}
-            type="button"
-            onClick={() => applyQuickTopic(topic)}
-            className="rounded-full border border-white/[0.10] bg-white/[0.04] px-3 py-1.5 text-[12px] font-medium text-white/70 transition hover:border-white/20 hover:bg-white/[0.08]"
-          >
-            {topic.label}
-          </button>
-        ))}
-      </div>
-      <input
-        value={newTitle}
-        onChange={(event) => setNewTitle(event.target.value)}
-        placeholder={t('support.subjectPlaceholder')}
-        className="w-full rounded-xl border border-white/[0.08] bg-black/20 px-4 py-3 text-sm text-white outline-none placeholder:text-white/30 focus:border-[color:color-mix(in_srgb,var(--ultima-color-primary)_48%,transparent)] lg:rounded-lg"
-        maxLength={255}
-      />
-      <textarea
-        value={newMessage}
-        onChange={(event) => setNewMessage(event.target.value)}
-        placeholder={t('support.messagePlaceholder')}
-        className="min-h-[150px] w-full resize-none rounded-xl border border-white/[0.08] bg-black/20 px-4 py-3 text-sm text-white outline-none placeholder:text-white/30 focus:border-[color:color-mix(in_srgb,var(--ultima-color-primary)_48%,transparent)] lg:rounded-lg"
-        maxLength={4000}
-      />
-      <input
-        ref={createFileInputRef}
-        type="file"
-        accept={ACCEPT_STRING}
-        className="hidden"
-        onChange={(event) => {
-          const file = event.target.files?.[0];
-          if (file) {
-            void handleFileSelect(file, setCreateAttachment, createPreviewRef);
-          }
-        }}
-      />
-      <AttachmentPreview attachment={createAttachment} onClear={clearCreateAttachment} />
-      <div className="flex gap-2">
-        <button
-          type="button"
-          onClick={() => createFileInputRef.current?.click()}
-          className="ultima-btn-pill ultima-btn-secondary flex h-11 w-11 items-center justify-center p-0 text-sm"
-          aria-label="attach-screenshot"
-        >
-          <ImageIcon className="h-4 w-4" />
-        </button>
-        <button
-          type="button"
-          onClick={() => createMutation.mutate()}
-          disabled={
-            createMutation.isPending ||
-            createAttachment?.uploading ||
-            newTitle.trim().length < 3 ||
-            newMessage.trim().length < 10
-          }
-          className="ultima-btn-pill ultima-btn-primary flex flex-1 items-center justify-center gap-2 px-4 py-2.5 text-sm disabled:opacity-60"
-        >
-          <SendIcon className="h-4 w-4" />
-          {t('support.send')}
-        </button>
-      </div>
-    </section>
-  ) : (
-    <>
-      {showInlineSupportContact && supportContact ? (
-        <section
-          className={`${ultimaPanelClassName} mb-3 p-3.5`}
-          style={ULTIMA_SUPPORT_SECTION_STYLE}
-        >
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="min-w-0 flex-1">
-              <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-white/[0.56]">
-                {t('support.desktopChannelLabel', { defaultValue: 'Канал связи' })}
-              </p>
-              <p className="mt-1 break-words text-[14px] font-medium text-white/[0.88]">
-                {supportChannelHint}
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => supportContact.action()}
-              className="ultima-btn-pill ultima-btn-secondary px-4 py-2.5 text-sm"
-            >
-              {supportContact.label}
-            </button>
-          </div>
-        </section>
-      ) : null}
-
-      <section
-        className={`${ultimaPanelClassName} flex min-h-0 flex-1 flex-col gap-3 p-4 lg:p-5`}
-        style={ULTIMA_SUPPORT_SECTION_STYLE}
-        data-testid="ultima-ticket-workspace"
-      >
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="min-w-0">
-            <p className="text-[13px] leading-none text-white/70">{t('support.yourTickets')}</p>
-            {selectedTicket ? (
-              <p className="mt-1 line-clamp-1 text-[11px] text-white/45 lg:hidden">
-                {selectedTicket.title}
-              </p>
-            ) : null}
-          </div>
-          <div className="flex shrink-0 items-center gap-2">
-            {selectedTicketId && tickets?.items?.length ? (
-              <button
-                type="button"
-                onClick={() => setMobileTicketsExpanded((prev) => !prev)}
-                className="ultima-btn-pill ultima-btn-secondary px-3 py-1.5 text-[12px] leading-none lg:hidden"
-              >
-                {mobileTicketsExpanded
-                  ? t('support.collapseTickets', { defaultValue: 'Свернуть' })
-                  : t('support.showTickets', { defaultValue: 'Тикеты' })}
-              </button>
-            ) : null}
-            <button
-              type="button"
-              onClick={openCreateTicket}
-              className="ultima-btn-pill ultima-btn-secondary px-3 py-1.5 text-[12px] leading-none lg:hidden"
-            >
-              {t('support.newTicket')}
-            </button>
-          </div>
-        </div>
-
-        {tickets?.items?.length ? (
-          <div className="grid grid-cols-2 gap-2 lg:max-w-[380px]">
-            {renderTicketListTab(
-              'active',
-              t('support.activeTickets', { defaultValue: 'Активные' }),
-              ticketBuckets.recent.length,
-            )}
-            {renderTicketListTab(
-              'archive',
-              t('support.archiveTickets', { defaultValue: 'Архив' }),
-              ticketBuckets.old.length,
-            )}
-          </div>
-        ) : null}
-
-        <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 lg:grid-cols-[380px_minmax(0,1fr)] lg:gap-4">
-          <div
-            className={`${ultimaPaneClassName} ultima-scrollbar ${
-              selectedTicketId && !mobileTicketsExpanded ? 'hidden lg:block' : ''
-            } ${
-              selectedTicketId ? MOBILE_TICKET_LIST_EXPANDED_HEIGHT : 'max-h-[58dvh]'
-            } space-y-2 overflow-y-auto p-2 pr-1.5 lg:max-h-none lg:min-h-[500px] lg:p-3 lg:pr-2`}
-            style={ULTIMA_SUPPORT_PANE_STYLE}
-          >
-            {ticketsLoading ? (
-              <p className="px-2 py-1 text-[13px] text-white/70">{t('common.loading')}</p>
-            ) : tickets?.items?.length ? (
-              <>
-                <div className="space-y-2">
-                  <p className="px-1 text-[10px] uppercase tracking-[0.18em] text-white/[0.45]">
-                    {ticketListMode === 'archive'
-                      ? t('support.archiveTickets', { defaultValue: 'Архив' })
-                      : t('support.recentTickets', { defaultValue: 'Новые и активные' })}
-                  </p>
-                  {visibleTicketList.length > 0 ? (
-                    <>
-                      {visibleTicketList.map((ticket) => renderTicketCard(ticket))}
-                      {currentTicketBucket.length > visibleTicketCount ? (
-                        <button
-                          type="button"
-                          onClick={handleLoadMoreTickets}
-                          className="w-full rounded-xl border border-white/10 bg-white/[0.05] px-3 py-2 text-left text-[12px] text-white/80 transition hover:bg-white/[0.08]"
-                        >
-                          {t('support.desktopShowMoreTickets', {
-                            count: Math.min(
-                              TICKETS_BATCH_SIZE,
-                              currentTicketBucket.length - visibleTicketCount,
-                            ),
-                            defaultValue: `Показать еще ${Math.min(TICKETS_BATCH_SIZE, currentTicketBucket.length - visibleTicketCount)}`,
-                          })}
-                        </button>
-                      ) : null}
-                    </>
-                  ) : (
-                    <p className="rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-4 text-[13px] text-white/[0.58]">
-                      {ticketListMode === 'archive'
-                        ? t('support.noArchiveTickets', {
-                            defaultValue: 'В архиве пока нет тикетов',
-                          })
-                        : t('support.noActiveTickets', { defaultValue: 'Активных тикетов нет' })}
-                    </p>
-                  )}
-                </div>
-              </>
-            ) : (
-              <p className="px-2 py-2 text-[13px] text-white/60">{t('support.noTickets')}</p>
-            )}
-          </div>
-
-          <div
-            className={`${ultimaPaneClassName} ${
-              selectedTicketId ? 'flex' : 'hidden lg:flex'
-            } min-h-[58dvh] flex-1 flex-col p-3 lg:min-h-[500px] lg:p-4`}
-            style={ULTIMA_SUPPORT_PANE_STYLE}
-          >
-            {selectedTicketId && ticketDetail ? (
-              <div className="flex min-h-0 flex-1 flex-col gap-3">
-                <div className="flex items-center justify-between gap-2">
-                  <p className="line-clamp-2 break-words text-[14px] font-medium leading-snug text-white/95 lg:text-[16px]">
-                    {ticketDetail.title || selectedTicket?.title || `#${selectedTicketId}`}
-                  </p>
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`inline-flex shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ${getStatusMeta(ticketDetail.status).classes}`}
-                      style={getStatusMeta(ticketDetail.status).style}
-                    >
-                      {getStatusMeta(ticketDetail.status).label}
-                    </span>
-                    {ticketDetail.status !== 'closed' && (
-                      <button
-                        type="button"
-                        onClick={() => closeMutation.mutate()}
-                        disabled={closeMutation.isPending}
-                        className="ultima-btn-pill ultima-btn-secondary px-2.5 py-1 text-[11px] disabled:opacity-60"
-                      >
-                        {t('support.closeTicket', { defaultValue: 'Закрыть' })}
-                      </button>
-                    )}
-                  </div>
-                </div>
-                <div className="ultima-scrollbar min-h-[260px] flex-1 space-y-2 overflow-y-auto pr-1 lg:max-h-[52vh] lg:min-h-0 lg:space-y-2.5">
-                  {ticketLoading ? (
-                    <p className="text-[12px] text-white/60">{t('common.loading')}</p>
-                  ) : (
-                    ticketDetail.messages.map((msg) => (
-                      <div
-                        key={msg.id}
-                        className={`rounded-xl px-3 py-2 text-sm lg:px-3.5 lg:py-2.5 ${
-                          msg.is_from_admin
-                            ? 'border border-[color:color-mix(in_srgb,var(--ultima-color-primary)_20%,transparent)] bg-[color:color-mix(in_srgb,var(--ultima-color-primary)_10%,transparent)] text-white'
-                            : 'border border-white/[0.07] bg-white/[0.045] text-white'
-                        }`}
-                      >
-                        <div className="mb-1 flex items-center justify-between gap-2">
-                          <span className="text-[11px] font-medium text-white/[0.68]">
-                            {msg.is_from_admin
-                              ? t('support.supportTeam', { defaultValue: 'Администратор' })
-                              : t('support.you', { defaultValue: 'Вы' })}
-                          </span>
-                          <span className="text-[10px] text-white/50">
-                            {formatDateTime(msg.created_at)}
-                          </span>
-                        </div>
-                        <p>{msg.message_text}</p>
-                        <MessageMedia message={msg} />
-                      </div>
-                    ))
-                  )}
-                </div>
-
-                {ticketDetail.status !== 'closed' && !ticketDetail.is_reply_blocked && (
-                  <div className="mt-auto space-y-2 border-t border-white/10 pt-2">
-                    <input
-                      ref={replyFileInputRef}
-                      type="file"
-                      accept={ACCEPT_STRING}
-                      className="hidden"
-                      onChange={(event) => {
-                        const file = event.target.files?.[0];
-                        if (file) {
-                          void handleFileSelect(file, setReplyAttachment, replyPreviewRef);
-                        }
-                      }}
-                    />
-                    <AttachmentPreview
-                      attachment={replyAttachment}
-                      onClear={clearReplyAttachment}
-                    />
-                    <div className="flex gap-2 lg:gap-2.5">
-                      <button
-                        type="button"
-                        onClick={() => replyFileInputRef.current?.click()}
-                        className="ultima-btn-pill ultima-btn-secondary rounded-xl px-3 text-sm lg:h-11"
-                        aria-label="attach-reply-screenshot"
-                      >
-                        <ImageIcon className="h-4 w-4" />
-                      </button>
-                      <input
-                        value={replyMessage}
-                        onChange={(event) => setReplyMessage(event.target.value)}
-                        placeholder={t('support.replyPlaceholder')}
-                        className="w-full rounded-xl border border-white/[0.08] bg-black/20 px-3 py-2 text-sm text-white outline-none placeholder:text-white/30 focus:border-[color:color-mix(in_srgb,var(--ultima-color-primary)_48%,transparent)] lg:h-11 lg:text-[14px]"
-                        maxLength={4000}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => replyMutation.mutate()}
-                        disabled={
-                          replyMutation.isPending ||
-                          replyAttachment?.uploading ||
-                          (!replyMessage.trim() && !replyAttachment?.fileId)
-                        }
-                        className="ultima-btn-pill ultima-btn-primary rounded-xl px-3 text-sm disabled:opacity-60 lg:h-11 lg:px-4"
-                        aria-label="send-reply"
-                      >
-                        <SendIcon className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="flex h-full items-center justify-center text-center text-[13px] text-white/60">
-                {t('support.selectTicket', { defaultValue: 'Выберите тикет из списка' })}
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
-    </>
-  );
-
-  if (isDesktop) {
-    return (
-      <div className="ultima-shell ultima-shell-wide ultima-flat-frames ultima-shell-profile-desktop ultima-shell-muted-aura">
-        <div className="ultima-shell-aura" />
-        <UltimaDesktopSectionLayout
-          icon={<Headphones className="h-5 w-5" />}
-          eyebrow={t('nav.support', { defaultValue: 'Поддержка' })}
-          title={t('support.title')}
-          subtitle={
-            ticketsDisabled
-              ? t('support.contactSupport', {
-                  username: supportConfig?.support_username || '@support',
-                })
-              : t('support.desktopDescription', {
-                  defaultValue:
-                    'Здесь можно открыть новый тикет, прочитать ответы и быстро вернуться к нужному диалогу.',
-                })
-          }
-          heroActions={
-            !ticketsDisabled ? (
-              <>
-                <button
-                  type="button"
-                  onClick={openCreateTicket}
-                  className="ultima-btn-pill ultima-btn-primary px-5 py-3 text-sm"
-                >
-                  {t('support.newTicket')}
-                </button>
-                {supportConfig?.support_type === 'both' && supportContact ? (
-                  <button
-                    type="button"
-                    onClick={() => supportContact.action()}
-                    className="ultima-btn-pill ultima-btn-secondary px-5 py-3 text-sm"
-                  >
-                    {supportContact.label}
-                  </button>
-                ) : null}
-              </>
-            ) : undefined
-          }
-          bottomNav={bottomNav}
-          contentClassName="max-w-[1500px]"
-        >
-          {supportContent}
-        </UltimaDesktopSectionLayout>
-      </div>
-    );
-  }
+  const tickets = ticketsData?.items || [];
+  const activeTickets = tickets.filter((t) => t.status !== 'closed');
+  const archiveTickets = tickets.filter((t) => t.status === 'closed');
+  const currentTicketList = activeTab === 'active' ? activeTickets : archiveTickets;
 
   return (
-    <div className="ultima-shell ultima-shell-shared-nav-docked ultima-shell-wide ultima-flat-frames ultima-shell-muted-aura">
-      <div className="ultima-shell-inner ultima-shell-mobile-docked lg:max-w-[1100px]">
-        <section className="ultima-scrollbar flex min-h-0 flex-1 flex-col overflow-y-auto pr-1">
-          <header className="mb-4">
-            <h1 className="text-[clamp(34px,9vw,46px)] font-semibold leading-[0.92] tracking-[-0.01em] text-white">
-              {t('support.title')}
-            </h1>
-            <p className="mt-1.5 text-[16px] leading-tight text-white/60">
-              {ticketsDisabled
-                ? t('support.contactSupport', {
-                    username: supportConfig?.support_username || '@support',
-                  })
-                : t('support.yourTickets')}
-            </p>
-          </header>
+    <div className="min-h-screen px-3 pb-36 pt-3 text-white">
+      <div className="mx-auto flex max-w-[540px] flex-col gap-3.5">
+        {/* 1. Header & Title */}
+        <div className="px-1">
+          <h1 className="text-[26px] font-bold text-[#f5f5f7] drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">
+            Поддержка
+          </h1>
+          <p className="mt-0.5 text-[13px] font-medium text-[#8e929b]">
+            Связь со специалистом и ответы на частые вопросы
+          </p>
+        </div>
 
-          {supportContent}
-        </section>
+        {/* 2. Direct Support Hero Card */}
+        <div
+          className="relative overflow-hidden rounded-[26px] border border-[#5a5040]/35 p-5 shadow-[0_16px_36px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.1)]"
+          style={{
+            background:
+              'linear-gradient(180deg, rgba(22, 25, 30, 0.95) 0%, rgba(10, 12, 15, 0.98) 100%)',
+          }}
+        >
+          <div className="flex items-start gap-4">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-[#b89358]/40 bg-gradient-to-br from-[#d4b37f]/20 to-black/60 text-[#d4b37f] shadow-inner">
+              <Headphones className="h-6 w-6 stroke-[1.8]" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <h2 className="text-[16px] font-bold text-[#f5f5f7]">Служба поддержки</h2>
+              <p className="mt-1 text-[12px] leading-relaxed text-[#8e929b]">
+                Помощь с подключением устройств, настройкой протоколов и выбором серверных локаций в
+                Telegram.
+              </p>
+            </div>
+          </div>
+
+          {/* Gold CTA Action Button */}
+          <button
+            type="button"
+            onClick={openTelegramSupport}
+            className="mt-5 flex min-h-[50px] w-full items-center justify-center gap-2.5 rounded-2xl border border-[#b89358]/60 px-5 py-3 shadow-[0_8px_24px_rgba(212,179,127,0.3),inset_0_1px_0_rgba(255,255,255,0.35)] transition-all hover:brightness-110 active:scale-[0.98]"
+            style={{
+              background: 'linear-gradient(135deg, #d4b37f 0%, #b89358 100%)',
+            }}
+          >
+            <MessageSquare className="h-4 w-4 text-[#0a0c0f]" strokeWidth={2.2} />
+            <span className="text-[14px] font-bold tracking-wide text-[#0a0c0f]">
+              Написать в Telegram @{cleanUsername}
+            </span>
+          </button>
+        </div>
+
+        {/* 3. Quick Self-Help Navigation Grid */}
+        <div
+          className="relative overflow-hidden rounded-[26px] border border-[#5a5040]/35 p-5 shadow-[0_16px_36px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.1)]"
+          style={{
+            background:
+              'linear-gradient(180deg, rgba(22, 25, 30, 0.95) 0%, rgba(10, 12, 15, 0.98) 100%)',
+          }}
+        >
+          <div>
+            <h2 className="text-[15px] font-bold text-[#f5f5f7]">Разделы помощи</h2>
+            <p className="mt-0.5 text-[11px] text-[#8e929b]">Быстрый переход к руководствам</p>
+          </div>
+
+          <div className="mt-3 grid grid-cols-2 gap-2.5">
+            {/* Tile 1: FAQ & Info */}
+            <button
+              type="button"
+              onClick={() => navigate('/ultima/info')}
+              className="flex flex-col items-start rounded-2xl border border-white/[0.08] bg-black/30 p-3.5 text-left transition-all hover:border-[#b89358]/40 hover:bg-black/50 active:scale-95"
+            >
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#d4b37f]/15 text-[#d4b37f]">
+                <HelpCircle className="h-4 w-4" />
+              </div>
+              <p className="mt-2.5 text-[13px] font-bold text-[#f5f5f7]">База знаний & FAQ</p>
+              <p className="mt-0.5 text-[10px] text-[#8e929b]">Ответы на вопросы</p>
+            </button>
+
+            {/* Tile 2: Connection Setup */}
+            <button
+              type="button"
+              onClick={() => navigate('/connection')}
+              className="flex flex-col items-start rounded-2xl border border-white/[0.08] bg-black/30 p-3.5 text-left transition-all hover:border-[#b89358]/40 hover:bg-black/50 active:scale-95"
+            >
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#d4b37f]/15 text-[#d4b37f]">
+                <Wrench className="h-4 w-4" />
+              </div>
+              <p className="mt-2.5 text-[13px] font-bold text-[#f5f5f7]">Установка & Сетап</p>
+              <p className="mt-0.5 text-[10px] text-[#8e929b]">Инструкция по шагам</p>
+            </button>
+
+            {/* Tile 3: Devices */}
+            <button
+              type="button"
+              onClick={() => navigate('/ultima/devices')}
+              className="flex flex-col items-start rounded-2xl border border-white/[0.08] bg-black/30 p-3.5 text-left transition-all hover:border-[#b89358]/40 hover:bg-black/50 active:scale-95"
+            >
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#d4b37f]/15 text-[#d4b37f]">
+                <Smartphone className="h-4 w-4" />
+              </div>
+              <p className="mt-2.5 text-[13px] font-bold text-[#f5f5f7]">Устройства</p>
+              <p className="mt-0.5 text-[10px] text-[#8e929b]">Управление доступом</p>
+            </button>
+
+            {/* Tile 4: Rules */}
+            <button
+              type="button"
+              onClick={() => navigate('/rules')}
+              className="flex flex-col items-start rounded-2xl border border-white/[0.08] bg-black/30 p-3.5 text-left transition-all hover:border-[#b89358]/40 hover:bg-black/50 active:scale-95"
+            >
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#d4b37f]/15 text-[#d4b37f]">
+                <FileText className="h-4 w-4" />
+              </div>
+              <p className="mt-2.5 text-[13px] font-bold text-[#f5f5f7]">Правила сервиса</p>
+              <p className="mt-0.5 text-[10px] text-[#8e929b]">Условия использования</p>
+            </button>
+          </div>
+        </div>
+
+        {/* 4. Tickets System (if enabled) */}
+        {isTicketsEnabled && (
+          <div
+            className="relative overflow-hidden rounded-[26px] border border-[#5a5040]/35 p-5 shadow-[0_16px_36px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.1)]"
+            style={{
+              background:
+                'linear-gradient(180deg, rgba(22, 25, 30, 0.95) 0%, rgba(10, 12, 15, 0.98) 100%)',
+            }}
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-[15px] font-bold text-[#f5f5f7]">Ваши тикеты</h2>
+                <p className="mt-0.5 text-[11px] text-[#8e929b]">История обращений в поддержку</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowCreateModal(true)}
+                className="flex items-center gap-1.5 rounded-full border border-[#b89358]/40 bg-black/60 px-3 py-1 text-[11px] font-bold text-[#d4b37f] shadow-sm backdrop-blur-md transition-all hover:border-[#b89358]/80"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                <span>Создать тикет</span>
+              </button>
+            </div>
+
+            {/* Tabs */}
+            <div className="mt-4 flex gap-2">
+              <button
+                type="button"
+                onClick={() => setActiveTab('active')}
+                className={`flex-1 rounded-xl py-2 text-[12px] font-bold transition-all ${
+                  activeTab === 'active'
+                    ? 'border border-[#b89358]/50 bg-[#b89358]/20 text-[#d4b37f]'
+                    : 'border border-white/[0.08] bg-black/30 text-[#8e929b]'
+                }`}
+              >
+                Активные ({activeTickets.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('archive')}
+                className={`flex-1 rounded-xl py-2 text-[12px] font-bold transition-all ${
+                  activeTab === 'archive'
+                    ? 'border border-[#b89358]/50 bg-[#b89358]/20 text-[#d4b37f]'
+                    : 'border border-white/[0.08] bg-black/30 text-[#8e929b]'
+                }`}
+              >
+                Архив ({archiveTickets.length})
+              </button>
+            </div>
+
+            {/* List */}
+            <div className="mt-3 flex flex-col divide-y divide-white/[0.07]">
+              {currentTicketList.length === 0 ? (
+                <p className="py-6 text-center text-[12px] text-[#8e929b]">
+                  {activeTab === 'active' ? 'У вас нет активных тикетов' : 'В архиве нет обращений'}
+                </p>
+              ) : (
+                currentTicketList.map((ticket) => (
+                  <button
+                    key={ticket.id}
+                    type="button"
+                    onClick={() => navigate('/support')}
+                    className="flex items-center justify-between py-3.5 text-left transition-colors hover:bg-white/[0.02]"
+                  >
+                    <div className="min-w-0 flex-1 pr-3">
+                      <div className="flex items-center gap-2">
+                        <p className="truncate text-[13px] font-bold text-[#f5f5f7]">
+                          {ticket.title}
+                        </p>
+                        <span
+                          className={`rounded-full px-2 py-0.5 text-[9px] font-bold ${
+                            ticket.status === 'open'
+                              ? 'bg-amber-500/20 text-amber-300'
+                              : 'bg-white/10 text-white/70'
+                          }`}
+                        >
+                          {ticket.status === 'open' ? 'ОТКРЫТ' : 'ЗАКРЫТ'}
+                        </span>
+                      </div>
+                      {ticket.last_message && (
+                        <p className="mt-1 truncate text-[11px] text-[#8e929b]">
+                          {ticket.last_message.message_text}
+                        </p>
+                      )}
+                    </div>
+                    <ChevronRight className="h-4 w-4 text-[#8e929b]" />
+                  </button>
+                ))
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Create Ticket Modal */}
+        {showCreateModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+            <div
+              className="relative w-full max-w-[500px] overflow-hidden rounded-[26px] border border-[#5a5040]/40 p-6 shadow-2xl"
+              style={{
+                background: 'linear-gradient(180deg, #181b22 0%, #0e1014 100%)',
+              }}
+            >
+              <div className="flex items-center justify-between">
+                <h3 className="text-[17px] font-bold text-[#f5f5f7]">Новое обращение</h3>
+                <button
+                  type="button"
+                  onClick={() => setShowCreateModal(false)}
+                  className="flex h-8 w-8 items-center justify-center rounded-full bg-white/[0.05] text-[#8e929b] hover:text-white"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              <div className="mt-4 flex flex-col gap-3">
+                <div>
+                  <label className="text-[11px] font-bold uppercase tracking-wider text-[#8e929b]">
+                    Тема
+                  </label>
+                  <input
+                    value={ticketSubject}
+                    onChange={(e) => setTicketSubject(e.target.value)}
+                    placeholder="Опишите кратко суть вопроса..."
+                    className="mt-1 w-full rounded-xl border border-white/[0.1] bg-black/40 px-3.5 py-2.5 text-[13px] text-white outline-none focus:border-[#d4b37f]"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-bold uppercase tracking-wider text-[#8e929b]">
+                    Сообщение
+                  </label>
+                  <textarea
+                    value={ticketMessage}
+                    onChange={(e) => setTicketMessage(e.target.value)}
+                    placeholder="Подробно расскажите, что произошло..."
+                    rows={4}
+                    className="mt-1 w-full rounded-xl border border-white/[0.1] bg-black/40 px-3.5 py-2.5 text-[13px] text-white outline-none focus:border-[#d4b37f]"
+                  />
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => createTicketMutation.mutate()}
+                  disabled={
+                    !ticketSubject.trim() || !ticketMessage.trim() || createTicketMutation.isPending
+                  }
+                  className="mt-2 flex min-h-[46px] w-full items-center justify-center rounded-xl border border-[#b89358]/60 bg-gradient-to-r from-[#d4b37f] to-[#b89358] text-[14px] font-bold text-[#0a0c0f] shadow-md transition-all hover:brightness-110 disabled:opacity-50"
+                >
+                  {createTicketMutation.isPending ? 'Отправка...' : 'Отправить тикет'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Fixed Bottom Navigation Dock */}
+      <div className="pointer-events-none fixed bottom-0 left-0 right-0 z-40 px-3 pb-[max(env(safe-area-inset-bottom),12px)] pt-2 lg:hidden">
+        <div className="pointer-events-auto mx-auto max-w-[540px]">
+          <UltimaBottomNav active="support" />
+        </div>
       </div>
     </div>
   );

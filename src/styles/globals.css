@@ -3,98 +3,56 @@
 @tailwind utilities;
 
 :root {
-  --ultima-color-primary: #1bd29f;
+  --ultima-color-primary: #c8aa76;
   --ultima-color-primary-text: #ffffff;
-  --ultima-color-secondary: #0c2d2a;
-  --ultima-color-secondary-text: #f7fffc;
-  --ultima-color-nav-bg: #0f3a38;
-  --ultima-color-nav-active: #1bd29f;
-  --ultima-color-nav-text: #d6f6ee;
-  --ultima-color-bg-top: #031824;
-  --ultima-color-bg-bottom: #06232b;
-  --ultima-color-aura: #21d09a;
-  --ultima-color-ring: #b8ffec;
-  --ultima-color-surface: #0c2d2a;
-  --ultima-color-surface-border: #92f4d8;
-  --ultima-color-scrollbar-thumb: #49e9b3;
-  --ultima-color-scrollbar-track: #0c262a;
+  --ultima-color-secondary: #181b20;
+  --ultima-color-secondary-text: #f7f3eb;
+  --ultima-color-nav-bg: #15181c;
+  --ultima-color-nav-active: #d4b37f;
+  --ultima-color-nav-text: #dcd4c5;
+  --ultima-color-bg-top: #0a0c0e;
+  --ultima-color-bg-bottom: #050608;
+  --ultima-color-aura: #b89358;
+  --ultima-color-ring: #e0c99f;
+  --ultima-color-surface: #121519;
+  --ultima-color-surface-border: #8c734b;
+  --ultima-color-scrollbar-thumb: #b89358;
+  --ultima-color-scrollbar-track: #0e1013;
   --ultima-bg-page-desktop:
-    radial-gradient(
-      circle at 78% 12%,
-      color-mix(in srgb, var(--ultima-color-aura) 16%, transparent),
-      transparent 44%
-    ),
-    radial-gradient(
-      circle at 16% 86%,
-      color-mix(in srgb, var(--ultima-color-ring) 9%, transparent),
-      transparent 50%
-    ),
-    linear-gradient(
-      145deg,
-      color-mix(in srgb, #020617 80%, var(--ultima-color-bg-top) 20%) 0%,
-      color-mix(in srgb, #06101b 68%, var(--ultima-color-bg-bottom) 32%) 46%,
-      color-mix(in srgb, #020617 84%, var(--ultima-color-secondary) 16%) 100%
-    );
+    radial-gradient(circle at 78% 12%, rgba(184, 147, 88, 0.08), transparent 44%),
+    radial-gradient(circle at 16% 86%, rgba(200, 170, 118, 0.06), transparent 50%),
+    linear-gradient(145deg, #08090c 0%, #0d0f12 46%, #08090c 100%);
   --ultima-bg-page-mobile:
-    radial-gradient(
-      70% 42% at 50% 18%,
-      color-mix(in srgb, var(--ultima-color-ring) 10%, transparent),
-      transparent 66%
-    ),
-    radial-gradient(
-      92% 68% at 76% 62%,
-      color-mix(in srgb, var(--ultima-color-aura) 26%, transparent),
-      transparent 62%
-    ),
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, #020617 78%, var(--ultima-color-bg-top) 22%) 0%,
-      color-mix(in srgb, var(--ultima-color-bg-top) 82%, #000000) 38%,
-      color-mix(in srgb, #020617 72%, var(--ultima-color-bg-bottom) 28%) 100%
-    );
+    radial-gradient(70% 42% at 50% 18%, rgba(184, 147, 88, 0.07), transparent 66%),
+    radial-gradient(92% 68% at 76% 62%, rgba(184, 147, 88, 0.05), transparent 62%),
+    linear-gradient(180deg, #08090c 0%, #0b0d10 38%, #07080a 100%);
   --ultima-bg-page-overlay-desktop:
-    radial-gradient(
-      circle at 34% 82%,
-      color-mix(in srgb, var(--ultima-color-aura) 9%, transparent),
-      transparent 54%
-    ),
-    radial-gradient(
-      circle at 86% 18%,
-      color-mix(in srgb, var(--ultima-color-ring) 8%, transparent),
-      transparent 50%
-    );
+    radial-gradient(circle at 34% 82%, rgba(184, 147, 88, 0.04), transparent 54%),
+    radial-gradient(circle at 86% 18%, rgba(200, 170, 118, 0.04), transparent 50%);
   --ultima-bg-page-overlay-mobile:
-    radial-gradient(
-      82% 48% at 28% 80%,
-      color-mix(in srgb, var(--ultima-color-aura) 18%, transparent),
-      transparent 58%
-    ),
-    radial-gradient(
-      66% 38% at 84% 22%,
-      color-mix(in srgb, var(--ultima-color-ring) 13%, transparent),
-      transparent 56%
-    );
+    radial-gradient(82% 48% at 28% 80%, rgba(184, 147, 88, 0.06), transparent 58%),
+    radial-gradient(66% 38% at 84% 22%, rgba(200, 170, 118, 0.05), transparent 56%);
   --ultima-bg-page-scrim-desktop: linear-gradient(
     160deg,
-    rgba(2, 6, 23, 0.72) 0%,
-    rgba(2, 8, 18, 0.5) 44%,
-    rgba(2, 6, 23, 0.86) 100%
+    rgba(8, 9, 12, 0.8) 0%,
+    rgba(13, 15, 18, 0.6) 44%,
+    rgba(8, 9, 12, 0.9) 100%
   );
   --ultima-bg-page-scrim-mobile: linear-gradient(
     180deg,
-    color-mix(in srgb, #020617 22%, transparent) 0%,
-    color-mix(in srgb, var(--ultima-color-bg-top) 12%, transparent) 42%,
-    color-mix(in srgb, #020617 46%, transparent) 100%
+    rgba(8, 9, 12, 0.4) 0%,
+    rgba(11, 13, 16, 0.2) 42%,
+    rgba(7, 8, 10, 0.6) 100%
   );
   --ultima-bg-shell: linear-gradient(
     160deg,
-    color-mix(in srgb, #030712 70%, var(--ultima-color-bg-top) 30%) 0%,
-    color-mix(in srgb, #050b14 66%, var(--ultima-color-bg-bottom) 34%) 100%
+    color-mix(in srgb, #08090c 70%, var(--ultima-color-bg-top) 30%) 0%,
+    color-mix(in srgb, #0d0f12 66%, var(--ultima-color-bg-bottom) 34%) 100%
   );
   --ultima-bg-surface: linear-gradient(
     180deg,
-    color-mix(in srgb, #0b1320 54%, var(--ultima-color-surface) 46%) 0%,
-    color-mix(in srgb, #070d16 58%, var(--ultima-color-secondary) 42%) 100%
+    color-mix(in srgb, #16181d 54%, var(--ultima-color-surface) 46%) 0%,
+    color-mix(in srgb, #0f1114 58%, var(--ultima-color-secondary) 42%) 100%
   );
   --ultima-bg-surface-soft: linear-gradient(
     180deg,
@@ -103,24 +61,16 @@
   );
   --ultima-bg-surface-strong: linear-gradient(
     180deg,
-    color-mix(in srgb, #0b1320 44%, var(--ultima-color-surface) 56%) 0%,
-    color-mix(in srgb, #070d16 50%, var(--ultima-color-secondary) 50%) 100%
+    color-mix(in srgb, #181b20 44%, var(--ultima-color-surface) 56%) 0%,
+    color-mix(in srgb, #101216 50%, var(--ultima-color-secondary) 50%) 100%
   );
   --ultima-bg-accent-surface:
-    radial-gradient(
-      circle at 82% 18%,
-      color-mix(in srgb, var(--ultima-color-ring) 15%, transparent),
-      transparent 36%
-    ),
-    linear-gradient(
-      135deg,
-      color-mix(in srgb, var(--ultima-color-aura) 32%, #0f2430) 0%,
-      color-mix(in srgb, var(--ultima-color-secondary) 38%, #08111d) 100%
-    );
+    radial-gradient(circle at 82% 18%, rgba(200, 170, 118, 0.15), transparent 36%),
+    linear-gradient(135deg, rgba(184, 147, 88, 0.25) 0%, #14171b 100%);
   --ultima-bg-pane: linear-gradient(
     180deg,
-    color-mix(in srgb, #0b1320 58%, var(--ultima-color-secondary) 42%) 0%,
-    color-mix(in srgb, #070d16 62%, var(--ultima-color-surface) 38%) 100%
+    color-mix(in srgb, #181b20 58%, var(--ultima-color-secondary) 42%) 0%,
+    color-mix(in srgb, #101216 62%, var(--ultima-color-surface) 38%) 100%
   );
   --ultima-border-soft: color-mix(in srgb, var(--ultima-color-surface-border) 18%, transparent);
   --ultima-border-medium: color-mix(in srgb, var(--ultima-color-surface-border) 26%, transparent);
@@ -236,6 +186,116 @@
   to {
     --border-angle: 360deg;
   }
+}
+
+/* Deep Natural Samurai Breathing Animation */
+@keyframes samurai-deep-breathe {
+  0%,
+  100% {
+    transform: scale(1) translateY(0);
+    filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.95)) brightness(0.96);
+  }
+  42% {
+    transform: scale(1.05) translateY(-3.5px);
+    filter: drop-shadow(0 14px 32px rgba(184, 147, 88, 0.4)) brightness(1.1);
+  }
+  58% {
+    transform: scale(1.035) translateY(-2px);
+    filter: drop-shadow(0 12px 26px rgba(184, 147, 88, 0.3)) brightness(1.05);
+  }
+}
+
+/* Subtle, Soft Ethereal Background Smoke Drift */
+@keyframes soft-smoke-drift-1 {
+  0% {
+    transform: translate(-3%, -2%) rotate(0deg) scale(1);
+    opacity: 0.18;
+  }
+  50% {
+    transform: translate(3%, 2%) rotate(180deg) scale(1.12);
+    opacity: 0.32;
+  }
+  100% {
+    transform: translate(-3%, -2%) rotate(360deg) scale(1);
+    opacity: 0.18;
+  }
+}
+
+@keyframes soft-smoke-drift-2 {
+  0% {
+    transform: translate(2%, 3%) rotate(360deg) scale(1.1);
+    opacity: 0.28;
+  }
+  50% {
+    transform: translate(-2%, -3%) rotate(180deg) scale(0.95);
+    opacity: 0.14;
+  }
+  100% {
+    transform: translate(2%, 3%) rotate(0deg) scale(1.1);
+    opacity: 0.28;
+  }
+}
+
+/* Delicate Exhale Vapor Wisps from Mouth */
+@keyframes steam-drift-left {
+  0%,
+  42% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.4);
+  }
+  48% {
+    opacity: 0.6;
+  }
+  75% {
+    opacity: 0.25;
+    transform: translate(-10px, 16px) scale(1.4);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-18px, 30px) scale(2.2);
+  }
+}
+
+@keyframes steam-drift-right {
+  0%,
+  42% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.4);
+  }
+  50% {
+    opacity: 0.6;
+  }
+  78% {
+    opacity: 0.25;
+    transform: translate(10px, 16px) scale(1.4);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(18px, 30px) scale(2.2);
+  }
+}
+
+.samurai-breathe {
+  animation: samurai-deep-breathe 4.5s ease-in-out infinite;
+  will-change: transform, filter;
+}
+
+.samurai-soft-smoke-1 {
+  animation: soft-smoke-drift-1 28s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+.samurai-soft-smoke-2 {
+  animation: soft-smoke-drift-2 36s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+.samurai-steam-1 {
+  animation: steam-drift-left 4.5s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+}
+
+.samurai-steam-2 {
+  animation: steam-drift-right 4.5s cubic-bezier(0.25, 1, 0.5, 1) infinite;
 }
 
 @keyframes ultima-ring-wave {
@@ -1485,8 +1545,8 @@ html[data-ultima-animation='meteor-stream'] .ultima-shell-aura::after,
 
 .ultima-shell [class*='bg-[rgba(12,45,42'],
 .ultima-shell [class*='bg-[rgba(10,40,44'],
-.ultima-shell [class*='bg-emerald-950'],
-.ultima-shell [class*='bg-emerald-900'] {
+.ultima-shell [class*='bg-[#d4b37f]'],
+.ultima-shell [class*='bg-[#d4b37f]'] {
   background-color: color-mix(in srgb, var(--ultima-color-surface) 58%, transparent) !important;
 }
 
@@ -1501,8 +1561,8 @@ html.ultima-frames-enabled .ultima-shell [class*='border-emerald-'] {
 .ultima-shell [class*='bg-[#12cd97]'],
 .ultima-shell [class*='bg-[#14cf9a]'],
 .ultima-shell [class*='bg-[#16d8a1]'],
-.ultima-shell [class*='bg-emerald-400'],
-.ultima-shell [class*='bg-emerald-500'] {
+.ultima-shell [class*='bg-[#d4b37f]'],
+.ultima-shell [class*='bg-[#d4b37f]'] {
   background-color: var(--ultima-color-primary) !important;
   color: var(--ultima-color-primary-text) !important;
 }
@@ -4499,4 +4559,100 @@ input[type='checkbox']:hover:not(:checked) {
     padding-right: 24px;
     padding-left: 24px;
   }
+}
+
+/* ==========================================================================
+   Luxury Animated Gold Border Beam
+   ========================================================================== */
+@keyframes gold-beam-rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.gold-animated-beam-wrapper {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1.25rem;
+  padding: 1.5px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.gold-animated-beam-wrapper::before {
+  content: '';
+  position: absolute;
+  top: -150%;
+  left: -150%;
+  width: 400%;
+  height: 400%;
+  background: conic-gradient(
+    transparent 0deg,
+    transparent 200deg,
+    rgba(184, 147, 88, 0.2) 250deg,
+    rgba(212, 179, 127, 0.7) 290deg,
+    #ffffff 330deg,
+    #d4b37f 350deg,
+    transparent 360deg
+  );
+  animation: gold-beam-rotate 4s linear infinite;
+  pointer-events: none;
+}
+
+.gold-animated-beam-content {
+  position: relative;
+  border-radius: calc(1.25rem - 1.5px);
+  z-index: 1;
+}
+
+/* Button with revolving gold light border */
+.btn-gold-beam {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1rem;
+  padding: 1.5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-gold-beam::before {
+  content: '';
+  position: absolute;
+  top: -150%;
+  left: -150%;
+  width: 400%;
+  height: 400%;
+  background: conic-gradient(
+    transparent 0deg,
+    transparent 200deg,
+    rgba(184, 147, 88, 0.25) 250deg,
+    rgba(212, 179, 127, 0.8) 300deg,
+    #ffffff 335deg,
+    #d4b37f 350deg,
+    transparent 360deg
+  );
+  animation: gold-beam-rotate 3.5s linear infinite;
+  pointer-events: none;
+}
+
+.btn-gold-beam-inner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  border-radius: calc(1rem - 1.5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f5e6d0 0%, #d4b37f 50%, #b89358 100%);
+  color: #0a0c0f;
+  font-weight: 700;
+}
+
+.btn-gold-beam-inner-dark {
+  background: linear-gradient(135deg, #1e1b15 0%, #121418 100%);
+  color: #f5f5f7;
 }

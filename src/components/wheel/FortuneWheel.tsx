@@ -100,11 +100,11 @@ const FortuneWheel = memo(function FortuneWheel({
       '#8B5CF6',
       '#EC4899',
       '#3B82F6',
-      '#10B981',
+      '#d4b37f',
       '#F59E0B',
       '#EF4444',
       '#6366F1',
-      '#14B8A6',
+      '#d4b37f',
     ];
     return colors[index % colors.length];
   };

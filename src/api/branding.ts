@@ -75,23 +75,23 @@ export interface UltimaThemeConfig {
 }
 
 export const DEFAULT_ULTIMA_THEME_CONFIG: UltimaThemeConfig = {
-  themePresetId: 'emerald-classic',
+  themePresetId: 'midnight-gold',
   animationPresetId: 'orbital-aura',
-  primaryColor: '#1bd29f',
+  primaryColor: '#d4b37f',
   primaryTextColor: '#ffffff',
-  secondaryColor: '#0c2d2a',
-  secondaryTextColor: '#f7fffc',
-  navBackgroundColor: '#0f3a38',
-  navActiveColor: '#1bd29f',
-  navTextColor: '#d6f6ee',
-  backgroundTopColor: '#031824',
-  backgroundBottomColor: '#06232b',
-  auraColor: '#21d09a',
-  ringColor: '#b8ffec',
-  surfaceColor: '#0c2d2a',
-  surfaceBorderColor: '#92f4d8',
-  scrollbarThumbColor: '#49e9b3',
-  scrollbarTrackColor: '#0c262a',
+  secondaryColor: '#16181d',
+  secondaryTextColor: '#f5f5f7',
+  navBackgroundColor: '#121417',
+  navActiveColor: '#d4b37f',
+  navTextColor: '#dcd4c5',
+  backgroundTopColor: '#0a0c0e',
+  backgroundBottomColor: '#040506',
+  auraColor: '#b89358',
+  ringColor: '#d4b37f',
+  surfaceColor: '#121418',
+  surfaceBorderColor: '#5a5040',
+  scrollbarThumbColor: '#b89358',
+  scrollbarTrackColor: '#0c0e11',
   contentEnterMs: 320,
   tapRingMs: 780,
   ringWaveSec: 18,
@@ -272,7 +272,19 @@ export const getCachedUltimaThemeConfig = (): UltimaThemeConfig | null => {
   try {
     const cached = localStorage.getItem(ULTIMA_THEME_CONFIG_CACHE_KEY);
     if (!cached) return null;
-    return { ...DEFAULT_ULTIMA_THEME_CONFIG, ...JSON.parse(cached) };
+    const parsed = JSON.parse(cached);
+    if (
+      parsed.primaryColor === '#1bd29f' ||
+      parsed.themePresetId === 'emerald-classic' ||
+      parsed.themePresetId === 'cyber-emerald'
+    ) {
+      localStorage.setItem(
+        ULTIMA_THEME_CONFIG_CACHE_KEY,
+        JSON.stringify(DEFAULT_ULTIMA_THEME_CONFIG),
+      );
+      return DEFAULT_ULTIMA_THEME_CONFIG;
+    }
+    return { ...DEFAULT_ULTIMA_THEME_CONFIG, ...parsed };
   } catch {
     return null;
   }

@@ -675,9 +675,9 @@ export default function UltimaAccountLinking() {
         </header>
 
         <div className="ultima-scrollbar min-h-0 flex-1 space-y-3 overflow-y-auto pr-1 lg:overflow-visible lg:pr-0">
-          <section className="mb-1 rounded-[28px] border border-emerald-200/[0.12] bg-[linear-gradient(180deg,rgba(69,186,142,0.16),rgba(18,79,64,0.28))] p-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-md">
+          <section className="mb-1 rounded-[28px] border border-[#5a5040]/35 bg-[linear-gradient(180deg,rgba(28,31,36,0.95),rgba(12,14,18,0.98))] p-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-md">
             <div className="flex items-start gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-white/[0.12] bg-white/[0.08] text-white/[0.85]">
+              <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-white/[0.12] bg-white/[0.08] text-[#d4b37f]">
                 <LinkIcon />
               </div>
               <div className="flex-1">
@@ -687,40 +687,29 @@ export default function UltimaAccountLinking() {
                     ? 'Сначала используйте быстрые кнопки входа ниже. Если автоматически объединить аккаунты не получится, используйте кодовый режим.'
                     : 'Единая страница для безопасной привязки и смены Telegram, Yandex и VK.'}
                 </p>
-                <div className="mt-3 flex flex-wrap gap-2 text-xs">
-                  {isProviderAuthMode ? (
-                    <>
-                      <span className="rounded-xl border border-white/[0.12] bg-white/[0.06] px-2 py-1 text-white/70">
-                        1. Нажмите нужный способ входа
-                      </span>
-                      <span className="rounded-xl border border-white/[0.12] bg-white/[0.06] px-2 py-1 text-white/70">
-                        2. Авторизуйтесь в нем
-                      </span>
-                      <span className="rounded-xl border border-white/[0.12] bg-white/[0.06] px-2 py-1 text-white/70">
-                        3. Если нужно, используйте резервный кодовый режим
-                      </span>
-                    </>
-                  ) : (
-                    <>
-                      <span className="rounded-xl border border-white/[0.12] bg-white/[0.06] px-2 py-1 text-white/70">
-                        1. Введите код с другого аккаунта
-                      </span>
-                      <span className="rounded-xl border border-white/[0.12] bg-white/[0.06] px-2 py-1 text-white/70">
-                        2. Проверьте, что найден нужный аккаунт
-                      </span>
-                      <span className="rounded-xl border border-white/[0.12] bg-white/[0.06] px-2 py-1 text-white/70">
-                        3. Подтвердите привязку или отправьте в поддержку
-                      </span>
-                    </>
-                  )}
+                <div className="mt-3 flex flex-col gap-2">
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-2.5 text-xs text-white/[0.72]">
+                    1. Введите код с другого аккаунта
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-2.5 text-xs text-white/[0.72]">
+                    2. Проверьте, что найден нужный аккаунт
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-2.5 text-xs text-white/[0.72]">
+                    3. Подтвердите привязку или отправьте в поддержку
+                  </div>
                 </div>
-                <div className="mt-3 flex flex-wrap items-center gap-3">
-                  <Button variant="secondary" onClick={() => setShowTips((prev) => !prev)}>
+                <div className="mt-3 flex items-center justify-between gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-white/15 bg-white/10 text-white hover:bg-white/15"
+                    onClick={() => setShowTips((prev) => !prev)}
+                  >
                     {showTips ? 'Скрыть подсказки' : 'Показать подсказки'}
                   </Button>
                   <Link
                     to="/profile"
-                    className="inline-flex text-xs text-[#56e8c2] hover:text-[#7af3d7]"
+                    className="inline-flex text-xs text-[#d4b37f] hover:text-[#c8aa76]"
                   >
                     Вернуться в профиль
                   </Link>
@@ -750,7 +739,7 @@ export default function UltimaAccountLinking() {
           </section>
 
           {isProviderAuthMode && (
-            <section className="rounded-3xl border border-emerald-200/[0.12] bg-[rgba(12,45,42,0.2)] p-3 backdrop-blur-md">
+            <section className="border-[#d4b37f]/40/[0.12] rounded-3xl border bg-[rgba(12,45,42,0.2)] p-3 backdrop-blur-md">
               <h2 className="mb-2 text-lg font-semibold text-white/95">
                 Быстрая привязка через вход
               </h2>
@@ -766,7 +755,7 @@ export default function UltimaAccountLinking() {
                   disabled={
                     !!directLinkProvider || waitingExternalProvider !== null || !!telegramIdentity
                   }
-                  className="rounded-full border border-emerald-200/20 bg-[rgba(22,207,161,0.92)] px-4 py-2.5 text-[14px] font-medium text-slate-950 hover:bg-[rgba(39,220,176,0.96)] disabled:border-white/10 disabled:bg-white/[0.08] disabled:text-white/[0.45]"
+                  className="border-[#d4b37f]/40/20 rounded-full border bg-[rgba(22,207,161,0.92)] px-4 py-2.5 text-[14px] font-medium text-slate-950 hover:bg-[rgba(39,220,176,0.96)] disabled:border-white/10 disabled:bg-white/[0.08] disabled:text-white/[0.45]"
                 >
                   {telegramIdentity ? 'Telegram уже привязан' : 'Привязать Telegram'}
                 </Button>
@@ -814,7 +803,7 @@ export default function UltimaAccountLinking() {
             </section>
           )}
 
-          <section className="rounded-3xl border border-emerald-200/[0.12] bg-[rgba(12,45,42,0.2)] p-3 backdrop-blur-md">
+          <section className="border-[#d4b37f]/40/[0.12] rounded-3xl border bg-[rgba(12,45,42,0.2)] p-3 backdrop-blur-md">
             <h2 className="mb-4 text-lg font-semibold text-white/95">Связанные способы входа</h2>
 
             <div className="mb-4 flex flex-wrap gap-2">
@@ -867,7 +856,7 @@ export default function UltimaAccountLinking() {
                       : ''}
                   </p>
                 ) : (
-                  <p className="mt-1 text-xs text-success-400">
+                  <p className="mt-1 text-xs text-[#d4b37f]">
                     Смена Telegram доступна. Можно привязать другой Telegram-код.
                   </p>
                 )}
@@ -890,12 +879,12 @@ export default function UltimaAccountLinking() {
                 <Button
                   onClick={() => createLinkCodeMutation.mutate()}
                   loading={createLinkCodeMutation.isPending}
-                  className="rounded-full border border-emerald-200/25 bg-[rgba(22,207,161,0.92)] px-4 py-2.5 text-[14px] font-medium text-slate-950 shadow-[inset_0_1px_0_rgba(255,255,255,0.32)] transition hover:bg-[rgba(39,220,176,0.96)]"
+                  className="rounded-full border border-[#b89358]/60 bg-gradient-to-r from-[#d4b37f] to-[#b89358] px-4 py-2.5 text-[14px] font-bold text-[#0a0c0f] shadow-[inset_0_1px_0_rgba(255,255,255,0.32)] transition hover:brightness-110"
                 >
                   Сгенерировать код привязки
                 </Button>
                 {activeLinkCode && (
-                  <span className="rounded-xl border border-[#59f0c9]/[0.35] bg-[#1bd29f]/[0.12] px-3 py-2 font-mono text-sm text-[#8ff8de]">
+                  <span className="rounded-xl border border-[#b89358]/[0.4] bg-[#d4b37f]/[0.12] px-3 py-2 font-mono text-sm text-[#d4b37f]">
                     {activeLinkCode}
                   </span>
                 )}
@@ -1064,7 +1053,7 @@ export default function UltimaAccountLinking() {
                   </div>
                   <Link
                     to="/support"
-                    className="mt-2 inline-flex items-center gap-1 text-xs text-[#56e8c2] transition-colors hover:text-[#7af3d7]"
+                    className="mt-2 inline-flex items-center gap-1 text-xs text-[#d4b37f] transition-colors hover:text-[#e2c89d]"
                   >
                     Открыть поддержку
                   </Link>
@@ -1078,7 +1067,7 @@ export default function UltimaAccountLinking() {
           <div className="flex flex-wrap gap-2">
             <Button
               variant="secondary"
-              className="border-emerald-200/20 bg-emerald-950/[0.45] text-emerald-100 hover:bg-emerald-900/[0.45]"
+              className="border-[#d4b37f]/40/20 bg-[#d4b37f]/[0.45] text-[#d4b37f] hover:bg-[#d4b37f]/[0.45]"
               onClick={() => previewLinkCodeMutation.mutate(normalizedLinkCode)}
               loading={previewLinkCodeMutation.isPending}
               disabled={!hasLinkCode}
@@ -1086,7 +1075,7 @@ export default function UltimaAccountLinking() {
               Проверить
             </Button>
             <Button
-              className="bg-emerald-400 text-slate-950 hover:bg-emerald-300"
+              className="bg-[#d4b37f] text-slate-950 hover:bg-[#d4b37f]"
               onClick={() => confirmLinkCodeMutation.mutate(normalizedLinkCode)}
               loading={confirmLinkCodeMutation.isPending}
               disabled={!canConfirmLink}
@@ -1095,7 +1084,7 @@ export default function UltimaAccountLinking() {
             </Button>
             {linkFlowStep === 'manual' && (
               <Button
-                className="bg-emerald-400 text-slate-950 hover:bg-emerald-300"
+                className="bg-[#d4b37f] text-slate-950 hover:bg-[#d4b37f]"
                 onClick={() =>
                   manualMergeMutation.mutate({
                     code: normalizedLinkCode,

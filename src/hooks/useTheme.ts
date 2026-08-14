@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { EnabledThemes, DEFAULT_ENABLED_THEMES } from '../types/theme';
+import { EnabledThemes } from '../types/theme';
 import { themeColorsApi } from '../api/themeColors';
 import { STORAGE_KEYS } from '../config/constants';
 
@@ -12,22 +12,17 @@ const ENABLED_THEMES_KEY = STORAGE_KEYS.ENABLED_THEMES;
 async function fetchEnabledThemes(): Promise<EnabledThemes> {
   try {
     const data = await themeColorsApi.getEnabledThemes();
-    // Cache in localStorage for faster subsequent loads
-    localStorage.setItem(ENABLED_THEMES_KEY, JSON.stringify(data));
-    return data;
+    if (data && (typeof data.dark === 'boolean' || typeof data.light === 'boolean')) {
+      localStorage.setItem(ENABLED_THEMES_KEY, JSON.stringify(data));
+      return {
+        dark: data.dark ?? true,
+        light: data.light ?? false,
+      };
+    }
   } catch {
     // Ignore errors, use cached or default
   }
-  // Try to get from cache
-  const cached = localStorage.getItem(ENABLED_THEMES_KEY);
-  if (cached) {
-    try {
-      return JSON.parse(cached);
-    } catch {
-      // Ignore parse errors
-    }
-  }
-  return DEFAULT_ENABLED_THEMES;
+  return getCachedEnabledThemes();
 }
 
 // Get cached enabled themes synchronously
@@ -35,12 +30,18 @@ function getCachedEnabledThemes(): EnabledThemes {
   const cached = localStorage.getItem(ENABLED_THEMES_KEY);
   if (cached) {
     try {
-      return JSON.parse(cached);
+      const parsed = JSON.parse(cached);
+      if (parsed && (typeof parsed.dark === 'boolean' || typeof parsed.light === 'boolean')) {
+        return {
+          dark: parsed.dark ?? true,
+          light: parsed.light ?? false,
+        };
+      }
     } catch {
       // Ignore parse errors
     }
   }
-  return DEFAULT_ENABLED_THEMES;
+  return { dark: true, light: false };
 }
 
 // Custom events for same-tab updates
@@ -64,23 +65,15 @@ export function useTheme() {
     // Check localStorage first
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem(THEME_KEY) as Theme | null;
+      if (stored === 'dark') {
+        return 'dark';
+      }
       if (stored === 'light' && enabled.light) {
         return 'light';
       }
-      if (stored === 'dark' && enabled.dark) {
-        return 'dark';
-      }
-      // If stored theme is disabled, use the enabled one
-      if (stored && !enabled[stored]) {
-        return enabled.dark ? 'dark' : 'light';
-      }
-      // Check system preference
-      if (window.matchMedia('(prefers-color-scheme: light)').matches && enabled.light) {
-        return 'light';
-      }
     }
-    // Default to dark if enabled, otherwise light
-    return enabled.dark ? 'dark' : 'light';
+    // Default to dark
+    return 'dark';
   });
 
   const themeRef = useRef(theme);
@@ -89,6 +82,7 @@ export function useTheme() {
   // Fetch enabled themes on mount
   useEffect(() => {
     fetchEnabledThemes().then((data) => {
+      if (!data) return;
       setEnabledThemes(data);
       setIsLoading(false);
       // If current theme is disabled, switch to enabled one
@@ -187,25 +181,6 @@ export function useTheme() {
     return () =>
       window.removeEventListener(THEME_CHANGED_EVENT, handleThemeChange as EventListener);
   }, []);
-
-  // Listen for system theme changes
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: light)');
-
-    const handleChange = (e: MediaQueryListEvent) => {
-      const stored = localStorage.getItem(THEME_KEY);
-      // Only auto-switch if user hasn't set a preference and theme is enabled
-      if (!stored) {
-        const newTheme = e.matches ? 'light' : 'dark';
-        if (enabledThemes[newTheme]) {
-          setThemeState(newTheme);
-        }
-      }
-    };
-
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
-  }, [enabledThemes]);
 
   const setTheme = useCallback(
     (newTheme: Theme) => {

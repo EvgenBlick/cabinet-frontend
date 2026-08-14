@@ -468,18 +468,17 @@ export function AppShell({ children }: AppShellProps) {
         <div
           className="ultima-app-backdrop pointer-events-none fixed inset-0 z-0 overflow-hidden"
           style={{
-            background: isDesktopViewport
-              ? 'var(--ultima-bg-page-desktop)'
-              : 'var(--ultima-bg-page-mobile)',
+            backgroundImage:
+              'radial-gradient(circle at 50% 30%, rgba(25, 23, 20, 0.35) 0%, rgba(8, 9, 11, 0.98) 100%), url(/dark_brushed_metal.jpg)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
           }}
         >
-          <div className="ultima-shell-aura" />
           <div
-            className="absolute inset-0"
+            className="absolute inset-0 opacity-30 mix-blend-overlay"
             style={{
-              background: isDesktopViewport
-                ? 'var(--ultima-bg-page-overlay-desktop)'
-                : 'var(--ultima-bg-page-overlay-mobile)',
+              backgroundImage: 'url(/dark_brushed_metal.jpg)',
+              backgroundSize: 'cover',
             }}
           />
           <div

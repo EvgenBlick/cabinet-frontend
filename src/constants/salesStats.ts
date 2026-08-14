@@ -40,6 +40,6 @@ export const SALES_STATS = {
     '#06b6d4',
     '#8b5cf6',
     '#f97316',
-    '#14b8a6',
+    '#d4b37f',
   ] as const,
 } as const;

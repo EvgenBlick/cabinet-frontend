@@ -23,7 +23,7 @@ function StatusIcon({ tone }: { tone: UltimaAuthStatusTone }) {
 
   const toneClasses =
     tone === 'success'
-      ? 'bg-emerald-400/18 text-emerald-200'
+      ? 'bg-[#d4b37f]/18 text-[#d4b37f]'
       : tone === 'warning'
         ? 'bg-amber-400/18 text-amber-200'
         : 'bg-rose-400/18 text-rose-200';

@@ -1,112 +1,305 @@
-import { useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
+import { useQuery } from '@tanstack/react-query';
+import {
+  ChevronDown,
+  ChevronRight,
+  ExternalLink,
+  HelpCircle,
+  Newspaper,
+  Radio,
+  Send,
+  Shield,
+} from 'lucide-react';
+import { newsApi } from '@/api/news';
 import { infoApi } from '@/api/info';
-import { ticketsApi } from '@/api/tickets';
-import NewsSection from '@/components/news/NewsSection';
 import { UltimaBottomNav } from '@/components/ultima/UltimaBottomNav';
-import { UltimaDesktopSectionLayout } from '@/components/ultima/desktop/UltimaDesktopSectionLayout';
-import { useMediaQuery } from '@/hooks/useMediaQuery';
-
-const NewspaperIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6">
-    <path
-      d="M6 5.5h11.25A1.75 1.75 0 0 1 19 7.25V18a2.5 2.5 0 0 1-2.5 2.5H8A3 3 0 0 1 5 17.5V7.5A2 2 0 0 1 7 5.5h.5"
-      stroke="currentColor"
-      strokeWidth="1.7"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path
-      d="M8.5 9h7M8.5 12h7M8.5 15h4.5"
-      stroke="currentColor"
-      strokeWidth="1.7"
-      strokeLinecap="round"
-    />
-    <rect x="14.5" y="8.5" width="2.5" height="2.5" rx="0.4" fill="currentColor" />
-  </svg>
-);
+import { usePlatform } from '@/platform';
 
 export default function UltimaNews() {
-  const { t } = useTranslation();
+  const { i18n } = useTranslation();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const isDesktop = useMediaQuery('(min-width: 1024px)');
+  const { openLink } = usePlatform();
+  const [activeCategory, setActiveCategory] = useState<'all' | 'news' | 'faq' | 'rules'>('all');
+  const [expandedFaqId, setExpandedFaqId] = useState<number | null>(null);
 
-  const openSupport = () => {
-    void queryClient.prefetchQuery({
-      queryKey: ['support-config'],
-      queryFn: infoApi.getSupportConfig,
-      staleTime: 60000,
-    });
-    void queryClient.prefetchQuery({
-      queryKey: ['tickets'],
-      queryFn: () => ticketsApi.getTickets({ per_page: 20 }),
-      staleTime: 15000,
-    });
-    navigate('/support');
+  // 1. News Query
+  const { data: newsData } = useQuery({
+    queryKey: ['news', 1, 20],
+    queryFn: () => newsApi.getNews({ limit: 20, offset: 0 }),
+    staleTime: 60000,
+  });
+
+  // 2. FAQ Query
+  const { data: faqPages } = useQuery({
+    queryKey: ['faq-pages'],
+    queryFn: infoApi.getFaqPages,
+    staleTime: 60000,
+  });
+
+  const newsItems = newsData?.items || [];
+
+  const defaultFaqItems = [
+    {
+      id: 1,
+      title: 'Как подключить новое устройство?',
+      content:
+        'Откройте раздел «Подключить устройство» на главном экране. Отсканируйте персональный QR-код в приложении Happ, v2rayNG или Streisand, либо скопируйте ссылку подписки.',
+    },
+    {
+      id: 2,
+      title: 'Какие технологии и протоколы используются?',
+      content:
+        'Стек VLESS + XTLS-Vision + Reality с маскировкой трафика под доверенные TLS-серверы и балансировкой нагрузки.',
+    },
+    {
+      id: 3,
+      title: 'Как продлить тариф или пополнить баланс?',
+      content:
+        'Пополните баланс в разделе «Профиль» через СБП, банковскую карту или криптовалюту и выберите подходящий период подписки.',
+    },
+    {
+      id: 4,
+      title: 'Что делать, если пропал интернет?',
+      content:
+        'Откройте приложение вашего VPN-клиента и нажмите «Обновить подписку» (Update Subscription), чтобы актуализировать рабочие адреса серверов.',
+    },
+  ];
+
+  const displayFaqList = faqPages && faqPages.length > 0 ? faqPages : defaultFaqItems;
+
+  const formatDate = (dateStr: string) => {
+    try {
+      const d = new Date(dateStr);
+      return new Intl.DateTimeFormat(i18n.language, {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      }).format(d);
+    } catch {
+      return dateStr;
+    }
   };
 
-  const bottomNav = <UltimaBottomNav active="news" onSupportClick={openSupport} />;
-
-  if (isDesktop) {
-    return (
-      <div className="ultima-shell ultima-shell-shared-nav-docked ultima-flat-frames">
-        <div className="ultima-shell-aura" />
-        <UltimaDesktopSectionLayout
-          icon={<NewspaperIcon />}
-          eyebrow={t('news.title')}
-          title={t('ultima.newsPageTitle', { defaultValue: 'Новости' })}
-          subtitle={t('ultima.newsPageSubtitle', {
-            defaultValue:
-              'Отдельная лента новостей проекта: обновления, анонсы и важные изменения в одном месте.',
-          })}
-          metrics={[
-            {
-              label: t('ultima.newsPageMetricLabel', { defaultValue: 'Формат' }),
-              value: t('ultima.newsPageMetricValue', { defaultValue: 'Лента проекта' }),
-              hint: t('ultima.newsPageMetricHint', {
-                defaultValue:
-                  'Новые публикации открываются отдельной статьей без перегруза главной.',
-              }),
-            },
-          ]}
-          bottomNav={bottomNav}
-        >
-          <NewsSection showHeader={false} showEmptyState variant="ultima" />
-        </UltimaDesktopSectionLayout>
-      </div>
-    );
-  }
+  const handleOpenTelegramChannel = () => {
+    openLink('https://t.me/samuraiservice');
+  };
 
   return (
-    <div className="ultima-shell ultima-shell-shared-nav-docked ultima-shell-wide ultima-flat-frames ultima-shell-muted-aura">
-      <div className="ultima-shell-inner ultima-shell-mobile-docked lg:max-w-[960px]">
-        <div className="ultima-scrollbar min-h-0 flex-1 overflow-y-auto px-0 pb-[max(12px,env(safe-area-inset-bottom,0px))] pr-1 pt-[clamp(8px,2vh,16px)] lg:overflow-visible lg:pr-0">
-          <header className="mb-4 px-1">
-            <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.08] text-white/[0.88]">
-              <NewspaperIcon />
-            </div>
-            <p className="text-[11px] uppercase tracking-[0.2em] text-white/[0.44]">
-              {t('news.title')}
-            </p>
-            <h1 className="mt-3 text-[clamp(34px,9vw,46px)] font-semibold leading-[0.92] tracking-[-0.02em] text-white">
-              {t('ultima.newsPageTitle', { defaultValue: 'Новости' })}
-            </h1>
-            <p className="mt-2 max-w-[32rem] text-[15px] leading-[1.7] text-white/[0.64]">
-              {t('ultima.newsPageSubtitle', {
-                defaultValue:
-                  'Отдельная лента новостей проекта: обновления, анонсы и важные изменения в одном месте.',
-              })}
-            </p>
-          </header>
+    <div className="min-h-screen px-3 pb-36 pt-3 text-white">
+      <div className="mx-auto flex max-w-[540px] flex-col gap-3.5">
+        {/* 1. Header */}
+        <div className="px-1">
+          <h1 className="text-[26px] font-bold text-[#f5f5f7] drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">
+            Новости и обновления
+          </h1>
+          <p className="mt-0.5 text-[13px] font-medium text-[#8e929b]">
+            Анонсы, технические изменения и документация сервиса
+          </p>
+        </div>
 
-          <NewsSection
-            showHeader={false}
-            showEmptyState
-            variant="ultima"
-            className="overflow-visible shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_22px_48px_rgba(3,14,24,0.24)]"
-          />
+        {/* 2. Official Telegram Channel Hero */}
+        <div
+          className="relative overflow-hidden rounded-[26px] border border-[#5a5040]/35 p-5 shadow-[0_16px_36px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.1)]"
+          style={{
+            background:
+              'linear-gradient(180deg, rgba(22, 25, 30, 0.95) 0%, rgba(10, 12, 15, 0.98) 100%)',
+          }}
+        >
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-[#b89358]/40 bg-[#d4b37f]/15 text-[#d4b37f]">
+                <Radio className="h-5 w-5 stroke-[1.8]" />
+              </div>
+              <div>
+                <h2 className="text-[15px] font-bold text-[#f5f5f7]">Канал в Telegram</h2>
+                <p className="mt-0.5 text-[11px] text-[#8e929b]">
+                  Оперативные новости и анонсы новых локаций
+                </p>
+              </div>
+            </div>
+            <span className="flex items-center gap-1 rounded-full border border-[#b89358]/40 bg-black/60 px-2.5 py-0.5 text-[10px] font-bold text-[#d4b37f]">
+              LIVE
+            </span>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleOpenTelegramChannel}
+            className="mt-4 flex min-h-[46px] w-full items-center justify-center gap-2 rounded-xl border border-[#b89358]/60 bg-gradient-to-r from-[#d4b37f] to-[#b89358] px-4 py-2.5 text-[13px] font-bold text-[#0a0c0f] shadow-md transition-all hover:brightness-110 active:scale-[0.98]"
+          >
+            <Send className="h-4 w-4" />
+            <span>Перейти в Telegram-канал</span>
+            <ExternalLink className="h-3.5 w-3.5 opacity-80" />
+          </button>
+        </div>
+
+        {/* 3. Category Filter Tabs */}
+        <div className="flex gap-2">
+          {[
+            { id: 'all', label: 'Все' },
+            { id: 'news', label: 'Новости' },
+            { id: 'faq', label: 'База знаний' },
+            { id: 'rules', label: 'Документы' },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setActiveCategory(tab.id as any)}
+              className={`rounded-full px-4 py-2 text-[12px] font-bold transition-all ${
+                activeCategory === tab.id
+                  ? 'border border-[#b89358]/60 bg-gradient-to-r from-[#d4b37f] to-[#b89358] text-[#0a0c0f] shadow-sm'
+                  : 'border border-white/[0.08] bg-black/40 text-[#8e929b] hover:text-white'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* 4. News Feed List */}
+        {(activeCategory === 'all' || activeCategory === 'news') && (
+          <div
+            className="relative overflow-hidden rounded-[26px] border border-[#5a5040]/35 p-5 shadow-[0_16px_36px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.1)]"
+            style={{
+              background:
+                'linear-gradient(180deg, rgba(22, 25, 30, 0.95) 0%, rgba(10, 12, 15, 0.98) 100%)',
+            }}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Newspaper className="h-4 w-4 text-[#d4b37f]" />
+                <h2 className="text-[15px] font-bold text-[#f5f5f7]">Лента публикаций</h2>
+              </div>
+              <span className="text-[11px] text-[#8e929b]">{newsItems.length}</span>
+            </div>
+
+            <div className="mt-4 flex flex-col divide-y divide-white/[0.07]">
+              {newsItems.length === 0 ? (
+                <div className="py-6 text-center text-[12px] text-[#8e929b]">
+                  <p className="font-semibold text-[#f5f5f7]">Публикаций пока нет</p>
+                  <p className="mt-1 text-[11px]">Свежие релизы появятся здесь</p>
+                </div>
+              ) : (
+                newsItems.map((item) => (
+                  <div key={item.id} className="py-4 first:pt-0 last:pb-0">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="rounded-full border border-[#b89358]/35 bg-black/60 px-2.5 py-0.5 text-[9px] font-bold uppercase text-[#d4b37f]">
+                        {item.category || 'ОБНОВЛЕНИЕ'}
+                      </span>
+                      <span className="text-[11px] text-[#8e929b]">
+                        {formatDate(item.published_at || '')}
+                      </span>
+                    </div>
+                    <h3 className="mt-2 text-[15px] font-bold leading-snug text-[#f5f5f7]">
+                      {item.title}
+                    </h3>
+                    {item.excerpt && (
+                      <p className="mt-1 line-clamp-2 text-[12px] leading-relaxed text-[#8e929b]">
+                        {item.excerpt}
+                      </p>
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* 5. FAQ Accordion */}
+        {(activeCategory === 'all' || activeCategory === 'faq') && (
+          <div
+            className="relative overflow-hidden rounded-[26px] border border-[#5a5040]/35 p-5 shadow-[0_16px_36px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.1)]"
+            style={{
+              background:
+                'linear-gradient(180deg, rgba(22, 25, 30, 0.95) 0%, rgba(10, 12, 15, 0.98) 100%)',
+            }}
+          >
+            <div className="flex items-center gap-2">
+              <HelpCircle className="h-4 w-4 text-[#d4b37f]" />
+              <h2 className="text-[15px] font-bold text-[#f5f5f7]">Частые вопросы</h2>
+            </div>
+
+            <div className="mt-4 flex flex-col divide-y divide-white/[0.07]">
+              {displayFaqList.map((faq) => {
+                const isExpanded = expandedFaqId === faq.id;
+                return (
+                  <div key={faq.id} className="py-3.5 first:pt-0 last:pb-0">
+                    <button
+                      type="button"
+                      onClick={() => setExpandedFaqId(isExpanded ? null : faq.id)}
+                      className="flex w-full items-center justify-between gap-3 text-left transition-colors hover:text-[#d4b37f]"
+                    >
+                      <span className="text-[13px] font-semibold text-[#f5f5f7]">{faq.title}</span>
+                      <ChevronDown
+                        className={`h-4 w-4 shrink-0 text-[#8e929b] transition-transform duration-200 ${
+                          isExpanded ? 'rotate-180 text-[#d4b37f]' : ''
+                        }`}
+                      />
+                    </button>
+                    {isExpanded && (
+                      <div className="mt-2 border-t border-white/[0.05] pt-2 text-[12px] leading-relaxed text-[#9ea4ad]">
+                        {faq.content.replace(/<[^>]*>?/gm, '')}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* 6. Legal & Terms Links */}
+        {(activeCategory === 'all' || activeCategory === 'rules') && (
+          <div
+            className="relative overflow-hidden rounded-[26px] border border-[#5a5040]/35 p-5 shadow-[0_16px_36px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.1)]"
+            style={{
+              background:
+                'linear-gradient(180deg, rgba(22, 25, 30, 0.95) 0%, rgba(10, 12, 15, 0.98) 100%)',
+            }}
+          >
+            <div className="flex items-center gap-2">
+              <Shield className="h-4 w-4 text-[#d4b37f]" />
+              <h2 className="text-[15px] font-bold text-[#f5f5f7]">Документы и соглашения</h2>
+            </div>
+
+            <div className="mt-3 flex flex-col divide-y divide-white/[0.07]">
+              <button
+                type="button"
+                onClick={() => navigate('/rules')}
+                className="flex items-center justify-between py-3 text-left transition-colors hover:text-[#d4b37f]"
+              >
+                <span className="text-[13px] font-medium text-[#f5f5f7]">Правила сервиса</span>
+                <ChevronRight className="h-4 w-4 text-[#8e929b]" />
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate('/privacy')}
+                className="flex items-center justify-between py-3 text-left transition-colors hover:text-[#d4b37f]"
+              >
+                <span className="text-[13px] font-medium text-[#f5f5f7]">
+                  Политика конфиденциальности
+                </span>
+                <ChevronRight className="h-4 w-4 text-[#8e929b]" />
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate('/offer')}
+                className="flex items-center justify-between py-3 text-left transition-colors hover:text-[#d4b37f]"
+              >
+                <span className="text-[13px] font-medium text-[#f5f5f7]">Публичная оферта</span>
+                <ChevronRight className="h-4 w-4 text-[#8e929b]" />
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* 7. Fixed Bottom Navigation Dock */}
+      <div className="pointer-events-none fixed bottom-0 left-0 right-0 z-40 px-3 pb-[max(env(safe-area-inset-bottom),12px)] pt-2 lg:hidden">
+        <div className="pointer-events-auto mx-auto max-w-[540px]">
+          <UltimaBottomNav active="news" />
         </div>
       </div>
     </div>

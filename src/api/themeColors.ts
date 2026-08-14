@@ -11,7 +11,14 @@ export const themeColorsApi = {
   getColors: async (): Promise<ThemeSettings> => {
     try {
       const response = await apiClient.get<ThemeSettings>('/cabinet/branding/colors');
-      return response.data;
+      if (
+        response.data &&
+        typeof response.data === 'object' &&
+        typeof response.data.darkBackground === 'string'
+      ) {
+        return response.data;
+      }
+      return DEFAULT_THEME_COLORS;
     } catch {
       // Return default colors if endpoint not available
       return DEFAULT_THEME_COLORS;

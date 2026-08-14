@@ -1,10 +1,9 @@
 import { useNavigate } from 'react-router';
-import { useTranslation } from 'react-i18next';
-import { LayoutGrid, Settings, ShieldCheck, Sparkles, User } from 'lucide-react';
+import { Headphones, LayoutGrid, Newspaper, SlidersHorizontal, User } from 'lucide-react';
 import type { UltimaBottomNavTab } from '@/features/ultima/navigation';
 
 type UltimaBottomNavProps = {
-  active: UltimaBottomNavTab;
+  active: UltimaBottomNavTab | 'news';
   onHomeClick?: () => void;
   onConnectionClick?: () => void;
   onNewsClick?: () => void;
@@ -16,19 +15,27 @@ export function UltimaBottomNav({
   active,
   onHomeClick,
   onConnectionClick,
+  onNewsClick,
   onProfileClick,
   onSupportClick,
 }: UltimaBottomNavProps) {
-  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const getButtonClassName = (isActive: boolean) =>
     isActive
-      ? 'relative flex h-11 flex-1 items-center justify-center text-[#d4b37f] transition-all'
-      : 'relative flex h-11 flex-1 items-center justify-center text-[#7e838c] transition-all hover:text-[#c8aa76]';
+      ? 'relative flex flex-col h-12 flex-1 items-center justify-center text-[#d4b37f] transition-all'
+      : 'relative flex flex-col h-12 flex-1 items-center justify-center text-[#6e727c] transition-all hover:text-[#c8aa76]';
 
   return (
-    <nav className="ultima-bottom-nav mx-auto flex items-center justify-around rounded-2xl border-t border-white/[0.08] bg-gradient-to-b from-[#2b2e34]/95 to-[#16181b]/95 p-1 shadow-[0_-4px_24px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-2xl">
+    <nav
+      className="ultima-bottom-nav mx-auto flex items-center justify-around overflow-hidden rounded-2xl border-t border-[#5a5040]/35 px-2 py-1 shadow-[0_-8px_24px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.12)]"
+      style={{
+        backgroundImage:
+          'linear-gradient(180deg, rgba(28, 31, 36, 0.92) 0%, rgba(10, 12, 15, 0.98) 100%), url(/horizontal_brushed_steel.jpg)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }}
+    >
       {/* 1. Dashboard (Grid) */}
       <button
         type="button"
@@ -36,40 +43,72 @@ export function UltimaBottomNav({
         className={getButtonClassName(active === 'home')}
         aria-label="Главная"
       >
-        <LayoutGrid className="h-6 w-6 stroke-[1.8] drop-shadow-sm" />
+        <LayoutGrid
+          className={`h-5 w-5 stroke-[1.8] ${active === 'home' ? 'text-[#d4b37f] drop-shadow-[0_0_8px_rgba(212,179,127,0.5)]' : ''}`}
+        />
+        {active === 'home' && (
+          <span className="absolute bottom-1 h-1 w-1 rounded-full bg-[#d4b37f] shadow-[0_0_6px_#d4b37f]" />
+        )}
       </button>
 
-      {/* 2. Connection / Settings (Gear) */}
+      {/* 2. Connection / Settings (Sliders) */}
       <button
         type="button"
         onClick={onConnectionClick ?? (() => navigate('/connection'))}
         className={getButtonClassName(active === 'connection')}
-        aria-label="Настройки"
+        aria-label="Подключение"
       >
-        <Settings className="h-6 w-6 stroke-[1.8] drop-shadow-sm" />
+        <SlidersHorizontal
+          className={`h-5 w-5 stroke-[1.8] ${active === 'connection' ? 'text-[#d4b37f] drop-shadow-[0_0_8px_rgba(212,179,127,0.5)]' : ''}`}
+        />
+        {active === 'connection' && (
+          <span className="absolute bottom-1 h-1 w-1 rounded-full bg-[#d4b37f] shadow-[0_0_6px_#d4b37f]" />
+        )}
       </button>
 
-      {/* 3. Profile (User) */}
+      {/* 3. News / Info (Newspaper) */}
+      <button
+        type="button"
+        onClick={onNewsClick ?? (() => navigate('/ultima/news'))}
+        className={getButtonClassName(active === 'news')}
+        aria-label="Инфо"
+      >
+        <Newspaper
+          className={`h-5 w-5 stroke-[1.8] ${active === 'news' ? 'text-[#d4b37f] drop-shadow-[0_0_8px_rgba(212,179,127,0.5)]' : ''}`}
+        />
+        {active === 'news' && (
+          <span className="absolute bottom-1 h-1 w-1 rounded-full bg-[#d4b37f] shadow-[0_0_6px_#d4b37f]" />
+        )}
+      </button>
+
+      {/* 4. Profile (User) */}
       <button
         type="button"
         onClick={onProfileClick ?? (() => navigate('/profile'))}
         className={getButtonClassName(active === 'profile')}
         aria-label="Профиль"
       >
-        <User className="h-6 w-6 stroke-[1.8] drop-shadow-sm" />
+        <User
+          className={`h-5 w-5 stroke-[1.8] ${active === 'profile' ? 'text-[#d4b37f] drop-shadow-[0_0_8px_rgba(212,179,127,0.5)]' : ''}`}
+        />
+        {active === 'profile' && (
+          <span className="absolute bottom-1 h-1 w-1 rounded-full bg-[#d4b37f] shadow-[0_0_6px_#d4b37f]" />
+        )}
       </button>
 
-      {/* 4. Support / Security (Shield with Sparkle) */}
+      {/* 5. Support (Headphones) */}
       <button
         type="button"
         onClick={onSupportClick ?? (() => navigate('/support'))}
         className={getButtonClassName(active === 'support')}
         aria-label="Поддержка"
       >
-        <div className="relative flex items-center justify-center">
-          <ShieldCheck className="h-6 w-6 stroke-[1.8] drop-shadow-sm" />
-          <Sparkles className="absolute -right-1.5 -top-1.5 h-3.5 w-3.5 fill-[#d4b37f] text-[#d4b37f]" />
-        </div>
+        <Headphones
+          className={`h-5 w-5 stroke-[1.8] ${active === 'support' ? 'text-[#d4b37f] drop-shadow-[0_0_8px_rgba(212,179,127,0.5)]' : ''}`}
+        />
+        {active === 'support' && (
+          <span className="absolute bottom-1 h-1 w-1 rounded-full bg-[#d4b37f] shadow-[0_0_6px_#d4b37f]" />
+        )}
       </button>
     </nav>
   );

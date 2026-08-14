@@ -149,13 +149,13 @@ export const BuyDevicesSection = ({
               </div>
               {devicePriceData.discount_percent && devicePriceData.discount_percent > 0 && (
                 <div className="mb-2">
-                  <span className="inline-block rounded-full bg-green-500/20 px-2.5 py-0.5 text-sm font-medium text-green-400">
+                  <span className="inline-block rounded-full bg-[#d4b37f]/20 px-2.5 py-0.5 text-sm font-medium text-[#d4b37f]">
                     -{devicePriceData.discount_percent}%
                   </span>
                 </div>
               )}
               {devicePriceData.total_price_kopeks === 0 ? (
-                <div className="text-2xl font-bold text-green-400">
+                <div className="text-2xl font-bold text-[#d4b37f]">
                   {t('subscription.switchTariff.free')}
                 </div>
               ) : (

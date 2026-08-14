@@ -199,7 +199,7 @@ export default function GuestSupport() {
                 {identity ? (
                   <>
                     <span
-                      className={`h-1.5 w-1.5 rounded-full ${live ? 'bg-emerald-400' : 'bg-amber-400'}`}
+                      className={`h-1.5 w-1.5 rounded-full ${live ? 'bg-[#d4b37f]' : 'bg-amber-400'}`}
                     />
                     {live ? 'Онлайн' : 'Подключение'}
                   </>

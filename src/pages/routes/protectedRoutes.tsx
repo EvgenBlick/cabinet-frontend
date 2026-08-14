@@ -272,6 +272,46 @@ export const protectedRoutes: RouteConfig[] = [
     ),
   },
   {
+    path: '/agreement',
+    element: (
+      <ProtectedRoute>
+        <LazyPage>
+          <UltimaAgreement />
+        </LazyPage>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/rules',
+    element: (
+      <ProtectedRoute>
+        <LazyPage>
+          <UltimaAgreement />
+        </LazyPage>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/privacy',
+    element: (
+      <ProtectedRoute>
+        <LazyPage>
+          <UltimaAgreement />
+        </LazyPage>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/offer',
+    element: (
+      <ProtectedRoute>
+        <LazyPage>
+          <UltimaAgreement />
+        </LazyPage>
+      </ProtectedRoute>
+    ),
+  },
+  {
     path: '/ultima/info',
     element: (
       <ProtectedRoute>
@@ -283,6 +323,16 @@ export const protectedRoutes: RouteConfig[] = [
   },
   {
     path: '/ultima/news',
+    element: (
+      <ProtectedRoute>
+        <LazyPage>
+          <UltimaNews />
+        </LazyPage>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/news',
     element: (
       <ProtectedRoute>
         <LazyPage>

@@ -113,6 +113,14 @@ export const adminRoutes: RouteConfig[] = [
     element: withAdminLayout(<AdminUltimaTheme />),
   },
   {
+    path: '/admin/ultima-theme',
+    element: withAdminLayout(<AdminUltimaTheme />),
+  },
+  {
+    path: '/admin/theme',
+    element: withAdminLayout(<AdminUltimaTheme />),
+  },
+  {
     path: '/admin/ultima-settings/params/:categoryKey',
     element: withAdminLayout(<AdminUltimaCategorySettings />),
   },

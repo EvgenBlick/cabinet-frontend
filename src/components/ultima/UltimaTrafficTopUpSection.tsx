@@ -131,10 +131,10 @@ export function UltimaTrafficTopUpSection({
       >
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
           <div className="flex min-w-0 items-center gap-3">
-            <span className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-[15px] border border-emerald-200/[0.2] bg-emerald-300/[0.1] text-emerald-50 shadow-[0_0_26px_rgba(45,212,191,0.12)] lg:rounded-[7px]">
+            <span className="border-[#d4b37f]/40/[0.2] relative flex h-11 w-11 shrink-0 items-center justify-center rounded-[15px] border bg-[#d4b37f]/[0.1] text-[#d4b37f] shadow-[0_0_26px_rgba(45,212,191,0.12)] lg:rounded-[7px]">
               <CloudDownload className="h-5 w-5" />
               {purchasedTrafficTotal > 0 ? (
-                <span className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full border-2 border-[#102623] bg-emerald-200" />
+                <span className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full border-2 border-[#102623] bg-[#d4b37f]" />
               ) : null}
             </span>
             <div className="min-w-0">
@@ -181,7 +181,7 @@ export function UltimaTrafficTopUpSection({
           </div>
           <div className="flex min-w-0 flex-wrap justify-end gap-1.5">
             {purchasedTrafficTotal > 0 ? (
-              <span className="rounded-full border border-emerald-200/[0.18] bg-emerald-300/[0.09] px-2.5 py-1 text-[10px] font-medium text-emerald-50">
+              <span className="border-[#d4b37f]/40/[0.18] rounded-full border bg-[#d4b37f]/[0.09] px-2.5 py-1 text-[10px] font-medium text-[#d4b37f]">
                 {t('ultima.trafficTopUp.activeBonus', {
                   traffic: formatTraffic(purchasedTrafficTotal),
                 })}
@@ -195,7 +195,7 @@ export function UltimaTrafficTopUpSection({
         <div className="mt-2.5 h-1.5 overflow-hidden rounded-full bg-black/[0.24]">
           <div
             className={`h-full rounded-full transition-[width] duration-500 ${
-              trafficRemainingPercent <= 10 ? 'bg-amber-300' : 'bg-emerald-300'
+              trafficRemainingPercent <= 10 ? 'bg-amber-300' : 'bg-[#d4b37f]'
             }`}
             style={{ width: `${trafficRemainingPercent}%` }}
           />
@@ -208,12 +208,12 @@ export function UltimaTrafficTopUpSection({
             <section data-testid="ultima-traffic-active-packages">
               <div className="mb-2.5 flex items-center justify-between gap-3">
                 <div className="flex min-w-0 items-center gap-2">
-                  <Clock3 className="h-4 w-4 shrink-0 text-emerald-100/[0.72]" />
+                  <Clock3 className="h-4 w-4 shrink-0 text-[#d4b37f]/[0.72]" />
                   <h3 className="break-words text-[12px] font-semibold text-white">
                     {t('ultima.trafficTopUp.activePackages')}
                   </h3>
                 </div>
-                <span className="shrink-0 text-[11px] font-semibold text-emerald-100">
+                <span className="shrink-0 text-[11px] font-semibold text-[#d4b37f]">
                   +{formatTraffic(purchasedTrafficTotal)} {t('common.units.gb')}
                 </span>
               </div>
@@ -235,7 +235,7 @@ export function UltimaTrafficTopUpSection({
                 className={cn(trafficPurchases?.length && 'mt-4 border-t border-white/[0.07] pt-4')}
               >
                 <div className="flex items-start gap-2.5">
-                  <Gauge className="mt-0.5 h-4 w-4 shrink-0 text-emerald-100/[0.72]" />
+                  <Gauge className="mt-0.5 h-4 w-4 shrink-0 text-[#d4b37f]/[0.72]" />
                   <div>
                     <h3 className="text-[13px] font-semibold text-white">
                       {t('ultima.trafficTopUp.selectTitle')}
@@ -267,7 +267,7 @@ export function UltimaTrafficTopUpSection({
                         className={cn(
                           'relative min-h-[104px] rounded-[18px] border p-3 text-left transition-colors lg:rounded-[8px]',
                           active
-                            ? 'border-emerald-200/[0.32] bg-emerald-300/[0.09]'
+                            ? 'border-[#d4b37f]/40/[0.32] bg-[#d4b37f]/[0.09]'
                             : 'border-white/[0.09] bg-white/[0.025] hover:bg-white/[0.05]',
                         )}
                         style={active ? ultimaAccentSurfaceStyle : undefined}
@@ -277,11 +277,11 @@ export function UltimaTrafficTopUpSection({
                             {packageLabel}
                           </span>
                           {active ? (
-                            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-300 text-emerald-950">
+                            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#d4b37f] text-[#d4b37f]">
                               <Check className="h-3.5 w-3.5" strokeWidth={2.6} />
                             </span>
                           ) : pkg.discount_percent && pkg.discount_percent > 0 ? (
-                            <span className="shrink-0 rounded-full border border-emerald-200/[0.2] bg-emerald-300/[0.09] px-1.5 py-0.5 text-[9px] font-semibold text-emerald-50">
+                            <span className="border-[#d4b37f]/40/[0.2] shrink-0 rounded-full border bg-[#d4b37f]/[0.09] px-1.5 py-0.5 text-[9px] font-semibold text-[#d4b37f]">
                               -{pkg.discount_percent}%
                             </span>
                           ) : null}

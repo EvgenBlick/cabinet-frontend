@@ -70,14 +70,14 @@ const toneMap: Record<
   { chip: string; accent: string; progress: string }
 > = {
   active: {
-    chip: 'border-emerald-200/25 bg-emerald-300/[0.12] text-emerald-50',
-    accent: 'text-emerald-100/[0.88]',
+    chip: 'border-[#d4b37f]/40/25 bg-[#d4b37f]/[0.12] text-[#d4b37f]',
+    accent: 'text-[#d4b37f]/[0.88]',
     progress: 'var(--ultima-color-primary)',
   },
   trial: {
-    chip: 'border-cyan-200/25 bg-cyan-300/[0.12] text-cyan-50',
-    accent: 'text-cyan-100/[0.88]',
-    progress: 'rgb(103 232 249 / 0.88)',
+    chip: 'border-[#b89358]/35 bg-[#d4b37f]/[0.12] text-[#d4b37f]',
+    accent: 'text-[#d4b37f]/[0.88]',
+    progress: '#d4b37f',
   },
   warning: {
     chip: 'border-amber-200/25 bg-amber-300/[0.12] text-amber-50',
@@ -99,7 +99,7 @@ function DashboardMetric({ icon, label, value, meta }: DashboardMetricProps) {
   return (
     <article className={cn(ultimaCardClassName, 'min-w-0 p-4')} style={defaultCardStyle}>
       <div className="flex items-start gap-3">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[6px] border border-white/[0.08] bg-white/[0.04] text-emerald-50/[0.82]">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[6px] border border-white/[0.08] bg-white/[0.04] text-[#d4b37f]/[0.82]">
           {icon}
         </div>
         <div className="min-w-0">
@@ -256,7 +256,7 @@ export function UltimaDesktopDashboard({
                   })}
             </p>
           </div>
-          <Gauge className="h-5 w-5 shrink-0 text-emerald-100/[0.78]" />
+          <Gauge className="h-5 w-5 shrink-0 text-[#d4b37f]/[0.78]" />
         </div>
         <div className="mt-5 flex flex-wrap gap-2">
           {onActivateOffer && firstPromoOffer ? (
@@ -407,7 +407,7 @@ export function UltimaDesktopDashboard({
                         })}
                       </p>
                     </div>
-                    <ShieldCheck className="h-5 w-5 text-emerald-100/[0.72]" />
+                    <ShieldCheck className="h-5 w-5 text-[#d4b37f]/[0.72]" />
                   </div>
 
                   <div className="mt-5 grid gap-5 lg:grid-cols-2">
@@ -459,7 +459,7 @@ export function UltimaDesktopDashboard({
                       </div>
                       <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-black/[0.18]">
                         <span
-                          className="block h-full rounded-full bg-emerald-300/[0.78]"
+                          className="block h-full rounded-full bg-[#d4b37f]/[0.78]"
                           style={{ width: `${connectionProgress}%` }}
                         />
                       </div>
@@ -496,7 +496,7 @@ export function UltimaDesktopDashboard({
                     })}
                   </p>
                 </div>
-                <Headphones className="h-5 w-5 text-emerald-100/[0.72]" />
+                <Headphones className="h-5 w-5 text-[#d4b37f]/[0.72]" />
               </div>
               <button
                 type="button"

@@ -11,12 +11,24 @@ export interface RGBColor {
 }
 
 export function hexToRgb(hex: string): RGBColor {
-  if (hex.length === 4) {
-    hex = '#' + hex[1] + hex[1] + hex[2] + hex[2] + hex[3] + hex[3];
+  if (!hex || typeof hex !== 'string') {
+    return { r: 10, g: 12, b: 15 };
   }
-  const r = parseInt(hex.slice(1, 3), 16);
-  const g = parseInt(hex.slice(3, 5), 16);
-  const b = parseInt(hex.slice(5, 7), 16);
+  let cleanHex = hex.trim();
+  if (!cleanHex.startsWith('#')) {
+    cleanHex = '#' + cleanHex;
+  }
+  if (cleanHex.length === 4) {
+    cleanHex =
+      '#' + cleanHex[1] + cleanHex[1] + cleanHex[2] + cleanHex[2] + cleanHex[3] + cleanHex[3];
+  }
+  const parsedR = parseInt(cleanHex.slice(1, 3), 16);
+  const parsedG = parseInt(cleanHex.slice(3, 5), 16);
+  const parsedB = parseInt(cleanHex.slice(5, 7), 16);
+
+  const r = Number.isNaN(parsedR) ? 10 : parsedR;
+  const g = Number.isNaN(parsedG) ? 12 : parsedG;
+  const b = Number.isNaN(parsedB) ? 15 : parsedB;
   return { r, g, b };
 }
 

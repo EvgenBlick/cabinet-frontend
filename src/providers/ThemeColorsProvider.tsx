@@ -36,7 +36,7 @@ export function ThemeColorsProvider({ children }: ThemeColorsProviderProps) {
     const themeColors = colors || DEFAULT_THEME_COLORS;
     // Use surface color for header/bottom bar to match app UI
     const headerColor = isUltimaMode
-      ? '#0d2f2f'
+      ? '#0a0c0f'
       : isDark
         ? themeColors.darkSurface
         : themeColors.lightSurface;

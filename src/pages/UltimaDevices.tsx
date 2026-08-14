@@ -32,7 +32,8 @@ import { buildTelegramDeepLinkHandoff } from '@/utils/deepLinkHandoff';
 
 const DeviceIcon = () => <Smartphone className="h-5 w-5" strokeWidth={1.8} />;
 
-const formatDeviceFingerprint = (hwid: string) => {
+const formatDeviceFingerprint = (hwid: string | null | undefined) => {
+  if (!hwid || typeof hwid !== 'string') return '';
   const value = hwid.trim();
   if (value.length <= 18) return value;
   return `${value.slice(0, 8)}…${value.slice(-6)}`;
@@ -536,7 +537,7 @@ export function UltimaDevices() {
           <div className="mt-3 h-11 rounded-xl bg-white/[0.06]" />
         </section>
       ) : !hasSubscription ? (
-        <section className="rounded-3xl border border-emerald-200/[0.12] bg-[rgba(12,45,42,0.18)] p-4 backdrop-blur-md">
+        <section className="border-[#d4b37f]/40/[0.12] rounded-3xl border bg-[rgba(12,45,42,0.18)] p-4 backdrop-blur-md">
           <p className="text-sm text-white/80">
             {t('subscription.connection.needSubscription', {
               defaultValue: 'Для управления устройствами нужна активная подписка.',
@@ -555,11 +556,11 @@ export function UltimaDevices() {
           <section
             id="ultima-device-slots"
             data-testid="ultima-device-capacity"
-            className="rounded-2xl border border-emerald-200/[0.14] bg-[rgba(8,38,36,0.32)] p-4 backdrop-blur-md"
+            className="border-[#d4b37f]/40/[0.14] rounded-2xl border bg-[rgba(8,38,36,0.32)] p-4 backdrop-blur-md"
           >
             <div className="flex items-center justify-between gap-3">
               <div className="flex min-w-0 items-center gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-300/[0.1] text-emerald-100">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#d4b37f]/[0.1] text-[#d4b37f]">
                   <DeviceIcon />
                 </div>
                 <div className="min-w-0">
@@ -582,7 +583,7 @@ export function UltimaDevices() {
               </div>
               <span
                 data-testid="ultima-device-free-slots"
-                className="shrink-0 rounded-full border border-emerald-200/[0.16] bg-emerald-300/[0.08] px-2.5 py-1 text-[11px] font-medium text-emerald-50"
+                className="border-[#d4b37f]/40/[0.16] shrink-0 rounded-full border bg-[#d4b37f]/[0.08] px-2.5 py-1 text-[11px] font-medium text-[#d4b37f]"
               >
                 {availableDeviceSlots > 0
                   ? t('devices.freeSlotsShort', {
@@ -622,7 +623,7 @@ export function UltimaDevices() {
 
             <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/[0.08]">
               <div
-                className="h-full rounded-full bg-emerald-300 transition-[width] duration-300"
+                className="h-full rounded-full bg-[#d4b37f] transition-[width] duration-300"
                 style={{ width: `${capacityPercent}%` }}
               />
             </div>
@@ -765,7 +766,7 @@ export function UltimaDevices() {
             )}
           </section>
 
-          <section className="overflow-visible rounded-2xl border border-emerald-200/[0.12] bg-[rgba(8,38,36,0.24)] backdrop-blur-md">
+          <section className="border-[#d4b37f]/40/[0.12] overflow-visible rounded-2xl border bg-[rgba(8,38,36,0.24)] backdrop-blur-md">
             <div className="flex items-center justify-between gap-3 px-4 py-3">
               <div className="min-w-0">
                 <p className="text-[14px] font-medium text-white/90">
@@ -855,7 +856,7 @@ export function UltimaDevices() {
                     type="button"
                     data-testid="ultima-devices-list-toggle"
                     onClick={() => setShowAllDevices((value) => !value)}
-                    className="w-full border-t border-white/[0.07] px-4 py-2.5 text-[12px] font-medium text-emerald-100/[0.78]"
+                    className="w-full border-t border-white/[0.07] px-4 py-2.5 text-[12px] font-medium text-[#d4b37f]/[0.78]"
                   >
                     {showAllDevices
                       ? t('devices.showLess', { defaultValue: 'Свернуть список' })
@@ -885,7 +886,7 @@ export function UltimaDevices() {
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="ultima-connect-new-device-title"
-                className="max-h-[calc(100dvh-24px)] w-full max-w-[460px] overflow-y-auto rounded-2xl border border-emerald-200/[0.18] bg-[#071f1f] p-4 shadow-2xl"
+                className="border-[#d4b37f]/40/[0.18] max-h-[calc(100dvh-24px)] w-full max-w-[460px] overflow-y-auto rounded-2xl border bg-[#071f1f] p-4 shadow-2xl"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
@@ -957,7 +958,7 @@ export function UltimaDevices() {
                                 onClick={() => setSelectedConnectionKind(option.kind)}
                                 className={`flex min-h-9 items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-[11px] font-semibold transition-colors ${
                                   isSelected
-                                    ? 'bg-emerald-300 text-emerald-950 shadow-[0_6px_18px_rgba(52,211,153,0.16)]'
+                                    ? 'bg-[#d4b37f] text-[#d4b37f] shadow-[0_6px_18px_rgba(52,211,153,0.16)]'
                                     : 'text-white/[0.58] hover:bg-white/[0.055] hover:text-white'
                                 }`}
                               >
@@ -988,10 +989,10 @@ export function UltimaDevices() {
 
                     <div
                       data-testid="ultima-device-link-meta"
-                      className="mt-3 flex items-center justify-center gap-2 text-center text-[11px] text-emerald-100/[0.72]"
+                      className="mt-3 flex items-center justify-center gap-2 text-center text-[11px] text-[#d4b37f]/[0.72]"
                     >
                       {selectedConnectionOption.protected ? (
-                        <ShieldCheck className="h-4 w-4 text-emerald-300" strokeWidth={2} />
+                        <ShieldCheck className="h-4 w-4 text-[#d4b37f]" strokeWidth={2} />
                       ) : (
                         <Globe2 className="h-4 w-4 text-white/[0.52]" strokeWidth={2} />
                       )}
@@ -1052,7 +1053,7 @@ export function UltimaDevices() {
               className={`fixed bottom-[calc(88px+env(safe-area-inset-bottom))] left-1/2 z-[90] flex w-[calc(100%-24px)] max-w-md -translate-x-1/2 items-center gap-3 rounded-xl border px-3 py-2.5 text-[12px] shadow-2xl backdrop-blur-xl lg:bottom-6 ${
                 error
                   ? 'border-rose-300/25 bg-rose-950/90 text-rose-50'
-                  : 'border-emerald-200/20 bg-emerald-950/90 text-emerald-50'
+                  : 'border-[#d4b37f]/40/20 bg-[#d4b37f]/90 text-[#d4b37f]'
               }`}
             >
               <span className="min-w-0 flex-1">{error || success}</span>

@@ -96,7 +96,7 @@ export const TariffSwitchPreview = ({
                     {t('subscription.switchTariff.upgradeCost')}
                   </span>
                   {switchPreview.discount_percent && switchPreview.discount_percent > 0 && (
-                    <span className="ml-2 inline-block rounded-full bg-green-500/20 px-2 py-0.5 text-xs font-medium text-green-400">
+                    <span className="ml-2 inline-block rounded-full bg-[#d4b37f]/20 px-2 py-0.5 text-xs font-medium text-[#d4b37f]">
                       -{switchPreview.discount_percent}%
                     </span>
                   )}
@@ -111,7 +111,7 @@ export const TariffSwitchPreview = ({
                       </span>
                     )}
                   <span
-                    className={`text-lg font-bold ${switchPreview.upgrade_cost_kopeks === 0 ? 'text-green-400' : 'text-accent-400'}`}
+                    className={`text-lg font-bold ${switchPreview.upgrade_cost_kopeks === 0 ? 'text-[#d4b37f]' : 'text-accent-400'}`}
                   >
                     {switchPreview.upgrade_cost_kopeks > 0
                       ? switchPreview.upgrade_cost_label

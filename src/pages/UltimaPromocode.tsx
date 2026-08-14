@@ -45,15 +45,15 @@ function GiftActivationDialog({
       role="dialog"
       aria-modal="true"
       aria-labelledby="gift-activation-title"
-      className="ultima-step-enter w-full max-w-[480px] rounded-[28px] border border-emerald-200/[0.2] bg-[#07110f]/[0.95] p-5 text-white shadow-[0_28px_70px_rgba(0,0,0,0.72)] backdrop-blur-2xl"
+      className="ultima-step-enter border-[#d4b37f]/40/[0.2] w-full max-w-[480px] rounded-[28px] border bg-[#07110f]/[0.95] p-5 text-white shadow-[0_28px_70px_rgba(0,0,0,0.72)] backdrop-blur-2xl"
       data-testid="ultima-promocode-gift-dialog"
     >
       <div className="flex items-start gap-3">
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-emerald-200/[0.20] bg-emerald-300/[0.12] text-emerald-100">
+        <span className="border-[#d4b37f]/40/[0.20] flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border bg-[#d4b37f]/[0.12] text-[#d4b37f]">
           <Gift className="h-5 w-5" />
         </span>
         <div className="min-w-0 flex-1">
-          <p className="text-[10px] font-medium uppercase text-emerald-100/[0.55]">
+          <p className="text-[10px] font-medium uppercase text-[#d4b37f]/[0.55]">
             {t('promocode.desktopApplied', { defaultValue: 'Код применён' })}
           </p>
           <h2 id="gift-activation-title" className="mt-1 text-[22px] font-semibold leading-tight">
@@ -211,15 +211,15 @@ export function UltimaPromocode() {
 
   const activationCard = (
     <section
-      className="rounded-[28px] border border-emerald-200/[0.14] bg-[rgba(9,35,34,0.58)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-xl sm:p-5"
+      className="border-[#d4b37f]/40/[0.14] rounded-[28px] border bg-[rgba(9,35,34,0.58)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-xl sm:p-5"
       data-testid="ultima-promocode-card"
     >
       <div className="flex items-start gap-3">
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-emerald-200/[0.18] bg-emerald-300/[0.1] text-emerald-100">
+        <span className="border-[#d4b37f]/40/[0.18] flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border bg-[#d4b37f]/[0.1] text-[#d4b37f]">
           <TicketCheck className="h-5 w-5" />
         </span>
         <div className="min-w-0 flex-1">
-          <p className="text-[10px] font-medium uppercase text-emerald-100/[0.50]">
+          <p className="text-[10px] font-medium uppercase text-[#d4b37f]/[0.50]">
             {t('balance.promocode.title', { defaultValue: 'Промокод' })}
           </p>
           <h2 className="mt-1 text-[20px] font-semibold leading-tight text-white">
@@ -242,8 +242,8 @@ export function UltimaPromocode() {
             error
               ? 'border-rose-200/[0.30]'
               : success
-                ? 'border-emerald-200/[0.35]'
-                : 'border-white/[0.12] focus-within:border-emerald-200/[0.35]'
+                ? 'border-[#d4b37f]/40/[0.35]'
+                : 'focus-within:border-[#d4b37f]/40/[0.35] border-white/[0.12]'
           }`}
         >
           <TicketCheck className="h-5 w-5 shrink-0 text-white/[0.35]" />
@@ -311,7 +311,7 @@ export function UltimaPromocode() {
             activationState === 'error'
               ? 'border-rose-200/[0.2] bg-rose-300/[0.08] text-rose-100'
               : activationState === 'success'
-                ? 'border-emerald-200/[0.2] bg-emerald-300/[0.08] text-emerald-100'
+                ? 'border-[#d4b37f]/40/[0.2] bg-[#d4b37f]/[0.08] text-[#d4b37f]'
                 : 'border-sky-200/[0.18] bg-sky-300/[0.07] text-sky-50/[0.85]'
           }`}
           role={activationState === 'error' ? 'alert' : 'status'}
@@ -336,7 +336,7 @@ export function UltimaPromocode() {
 
       <div className="mt-4 grid grid-cols-2 gap-2">
         <div className="flex min-h-[70px] items-center gap-2.5 rounded-2xl border border-white/[0.08] bg-white/[0.03] px-3 py-2.5">
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white/[0.05] text-emerald-100/[0.70]">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white/[0.05] text-[#d4b37f]/[0.70]">
             <BadgePercent className="h-4 w-4" />
           </span>
           <span className="min-w-0">
@@ -347,7 +347,7 @@ export function UltimaPromocode() {
           </span>
         </div>
         <div className="flex min-h-[70px] items-center gap-2.5 rounded-2xl border border-white/[0.08] bg-white/[0.03] px-3 py-2.5">
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white/[0.05] text-emerald-100/[0.70]">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white/[0.05] text-[#d4b37f]/[0.70]">
             <Gift className="h-4 w-4" />
           </span>
           <span className="min-w-0">
@@ -455,7 +455,7 @@ export function UltimaPromocode() {
                     key={item.title}
                     className="flex gap-3 rounded-[20px] border border-white/[0.08] bg-white/[0.035] p-3"
                   >
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-300/[0.08] text-emerald-100/[0.75]">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#d4b37f]/[0.08] text-[#d4b37f]/[0.75]">
                       {item.icon}
                     </span>
                     <div>
@@ -486,7 +486,7 @@ export function UltimaPromocode() {
       <div className="ultima-shell-aura" />
       <div className="ultima-shell-inner ultima-shell-mobile-docked lg:max-w-[960px]">
         <header className="mb-4 flex items-start gap-3 px-1">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-emerald-200/[0.16] bg-emerald-300/[0.09] text-emerald-100">
+          <div className="border-[#d4b37f]/40/[0.16] flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border bg-[#d4b37f]/[0.09] text-[#d4b37f]">
             <TicketCheck className="h-6 w-6" />
           </div>
           <div className="min-w-0 flex-1">

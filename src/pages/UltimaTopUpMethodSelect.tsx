@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   ArrowRight,
@@ -45,7 +46,7 @@ function PaymentMethodCard({
       type="button"
       disabled={!method.is_available}
       onClick={onSelect}
-      className="group grid min-h-[92px] w-full grid-cols-[48px_minmax(0,1fr)_36px] items-center gap-3 rounded-2xl border border-white/[0.09] bg-[rgba(7,29,31,0.72)] px-3.5 py-3 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.035)] transition duration-200 enabled:hover:-translate-y-0.5 enabled:hover:border-emerald-200/25 enabled:hover:bg-[rgba(13,50,47,0.78)] enabled:active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-45"
+      className="enabled:hover:border-[#d4b37f]/40/25 group grid min-h-[92px] w-full grid-cols-[48px_minmax(0,1fr)_36px] items-center gap-3 rounded-2xl border border-white/[0.09] bg-[rgba(7,29,31,0.72)] px-3.5 py-3 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.035)] transition duration-200 enabled:hover:-translate-y-0.5 enabled:hover:bg-[rgba(13,50,47,0.78)] enabled:active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-45"
     >
       <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/[0.07] ring-1 ring-inset ring-white/[0.08]">
         <PaymentMethodIcon method={method.id} className="h-9 w-9" />
@@ -60,7 +61,7 @@ function PaymentMethodCard({
         </span>
         <span className="mt-2 flex min-w-0 items-center gap-1.5 text-[11px] text-white/[0.62]">
           {method.is_available ? (
-            <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-emerald-200" />
+            <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-[#d4b37f]" />
           ) : (
             <Clock3 className="h-3.5 w-3.5 shrink-0 text-amber-200" />
           )}
@@ -68,7 +69,7 @@ function PaymentMethodCard({
         </span>
       </span>
 
-      <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/[0.05] text-white/[0.46] transition group-enabled:group-hover:bg-emerald-300/[0.12] group-enabled:group-hover:text-emerald-100">
+      <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/[0.05] text-white/[0.46] transition group-enabled:group-hover:bg-[#d4b37f]/[0.12] group-enabled:group-hover:text-[#d4b37f]">
         {method.is_available ? (
           <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
         ) : (
@@ -107,19 +108,31 @@ export function UltimaTopUpMethodSelect() {
   const { formatAmount, currencySymbol } = useCurrency();
   const isDesktop = useMediaQuery('(min-width: 1024px)');
 
-  const { data: paymentMethods, isLoading } = useQuery({
+  const { data: paymentMethodsRaw, isLoading } = useQuery({
     queryKey: ['payment-methods'],
     queryFn: balanceApi.getPaymentMethods,
     staleTime: 60000,
     placeholderData: (previousData) => previousData,
   });
 
+  const paymentMethods = useMemo(() => {
+    if (Array.isArray(paymentMethodsRaw)) return paymentMethodsRaw;
+    if (paymentMethodsRaw && typeof paymentMethodsRaw === 'object') {
+      const candidate =
+        (paymentMethodsRaw as any).items ||
+        (paymentMethodsRaw as any).methods ||
+        (paymentMethodsRaw as any).payment_methods;
+      if (Array.isArray(candidate)) return candidate;
+    }
+    return [];
+  }, [paymentMethodsRaw]);
+
   const amountParam = searchParams.get('amount');
   const requestedAmountRub = amountParam ? Number(amountParam) : null;
   const hasRequestedAmount =
     requestedAmountRub !== null && Number.isFinite(requestedAmountRub) && requestedAmountRub > 0;
   const returnTo = searchParams.get('returnTo');
-  const availableMethods = paymentMethods?.filter((method) => method.is_available) ?? [];
+  const availableMethods = paymentMethods.filter((method) => method.is_available);
   const availableCount = availableMethods.length;
   const overallMinimum =
     availableMethods.length > 0
@@ -254,7 +267,7 @@ export function UltimaTopUpMethodSelect() {
             >
               <div className="space-y-4">
                 <div className="flex items-start gap-3 border-b border-white/[0.08] pb-4">
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-300/[0.1] text-emerald-100">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#d4b37f]/[0.1] text-[#d4b37f]">
                     <ShieldCheck className="h-4 w-4" />
                   </span>
                   <div>
@@ -312,7 +325,7 @@ export function UltimaTopUpMethodSelect() {
       <div className="ultima-shell-aura" />
       <div className="ultima-shell-inner ultima-shell-mobile-docked lg:max-w-[960px]">
         <header className="mb-4">
-          <div className="mb-2 flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.12em] text-emerald-100/70">
+          <div className="mb-2 flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.12em] text-[#d4b37f]/70">
             <WalletCards className="h-4 w-4" />
             {t('balance.topUpBalance')}
           </div>
@@ -326,17 +339,17 @@ export function UltimaTopUpMethodSelect() {
           {hasRequestedAmount ? (
             <section
               data-testid="ultima-payment-requested-amount"
-              className="mb-4 flex items-center justify-between gap-3 rounded-2xl bg-emerald-300/[0.09] px-4 py-3 ring-1 ring-inset ring-emerald-200/[0.12]"
+              className="mb-4 flex items-center justify-between gap-3 rounded-2xl bg-[#d4b37f]/[0.09] px-4 py-3 ring-1 ring-inset ring-[#b89358]/[0.25]"
             >
               <div className="min-w-0">
-                <p className="text-[11px] uppercase tracking-[0.1em] text-emerald-100/55">
+                <p className="text-[11px] uppercase tracking-[0.1em] text-[#d4b37f]/55">
                   {t('balance.paymentRequestedAmount', { defaultValue: 'К пополнению' })}
                 </p>
                 <p className="mt-0.5 truncate text-xl font-semibold text-white">
                   {requestedAmountLabel}
                 </p>
               </div>
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-300/[0.12] text-emerald-100">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#d4b37f]/[0.12] text-[#d4b37f]">
                 <CreditCard className="h-5 w-5" />
               </span>
             </section>
@@ -364,7 +377,7 @@ export function UltimaTopUpMethodSelect() {
 
           <footer className="mt-4 border-t border-white/[0.08] pt-3">
             <div className="flex items-start gap-2.5 px-1">
-              <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-100/75" />
+              <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-[#d4b37f]/75" />
               <p className="text-[11px] leading-relaxed text-white/45">
                 {t('balance.paymentBalanceDestinationHint', {
                   defaultValue: 'Средства появятся на балансе после подтверждения платежа.',

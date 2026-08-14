@@ -113,7 +113,7 @@ export const BuyTrafficSection = ({
                     </div>
                     {pkg.discount_percent && pkg.discount_percent > 0 && (
                       <div className="mb-1">
-                        <span className="inline-block rounded-full bg-green-500/20 px-2 py-0.5 text-xs font-medium text-green-400">
+                        <span className="inline-block rounded-full bg-[#d4b37f]/20 px-2 py-0.5 text-xs font-medium text-[#d4b37f]">
                           -{pkg.discount_percent}%
                         </span>
                       </div>

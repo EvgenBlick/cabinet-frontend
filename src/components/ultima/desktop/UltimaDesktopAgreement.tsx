@@ -97,7 +97,7 @@ export function UltimaDesktopAgreement({
 
             {isLoading ? (
               <div className="flex min-h-0 flex-1 items-center justify-center">
-                <div className="h-8 w-8 animate-spin rounded-full border-2 border-emerald-300/[0.35] border-t-transparent" />
+                <div className="border-[#d4b37f]/40/[0.35] h-8 w-8 animate-spin rounded-full border-2 border-t-transparent" />
               </div>
             ) : (
               <div className="ultima-scrollbar min-h-0 flex-1 overflow-y-auto px-6 py-6">

@@ -89,7 +89,7 @@ export function UltimaSubscriptionPeriodGrid({
           className={cn(
             'relative min-h-[72px] rounded-[12px] border px-3 py-2.5 text-left transition-colors lg:rounded-[8px]',
             period.isSelected
-              ? 'border-emerald-200/[0.34] bg-emerald-300/[0.1]'
+              ? 'border-[#d4b37f]/40/[0.34] bg-[#d4b37f]/[0.1]'
               : 'border-white/[0.1] bg-white/[0.035] hover:bg-white/[0.07]',
           )}
         >
@@ -98,11 +98,11 @@ export function UltimaSubscriptionPeriodGrid({
               {period.label}
             </span>
             {period.isSelected ? (
-              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-300 text-emerald-950">
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#d4b37f] text-[#d4b37f]">
                 <Check className="h-3.5 w-3.5" strokeWidth={2.6} />
               </span>
             ) : period.isBestDeal ? (
-              <span className="shrink-0 rounded-full border border-emerald-200/[0.24] bg-emerald-300/[0.1] px-1.5 py-0.5 text-[9px] font-semibold text-emerald-50">
+              <span className="border-[#d4b37f]/40/[0.24] shrink-0 rounded-full border bg-[#d4b37f]/[0.1] px-1.5 py-0.5 text-[9px] font-semibold text-[#d4b37f]">
                 {t('ultima.subscriptionBuilder.bestDeal')}
               </span>
             ) : null}
@@ -198,7 +198,7 @@ export function UltimaSubscriptionConfigurator({
               {title}
             </h1>
             {isCurrentTariff ? (
-              <span className="shrink-0 rounded-full border border-emerald-200/[0.24] bg-emerald-300/[0.1] px-2 py-0.5 text-[9px] font-semibold text-emerald-50">
+              <span className="border-[#d4b37f]/40/[0.24] shrink-0 rounded-full border bg-[#d4b37f]/[0.1] px-2 py-0.5 text-[9px] font-semibold text-[#d4b37f]">
                 {t('subscription.currentTariff')}
               </span>
             ) : null}
@@ -216,7 +216,7 @@ export function UltimaSubscriptionConfigurator({
           data-testid="ultima-subscription-parameters"
         >
           <div className="flex items-center gap-2 text-[12px] font-semibold text-white/[0.82]">
-            <SlidersHorizontal className="h-4 w-4 text-emerald-200/[0.84]" />
+            <SlidersHorizontal className="h-4 w-4 text-[#d4b37f]/[0.84]" />
             {t('ultima.subscriptionBuilder.parameters')}
           </div>
 
@@ -243,14 +243,14 @@ export function UltimaSubscriptionConfigurator({
           </div>
 
           {isTariffSwitchFlow ? (
-            <div className="mt-3 rounded-[12px] border border-emerald-200/[0.16] bg-emerald-300/[0.07] px-3 py-2.5">
+            <div className="border-[#d4b37f]/40/[0.16] mt-3 rounded-[12px] border bg-[#d4b37f]/[0.07] px-3 py-2.5">
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0 text-[12px] text-white/[0.58]">
                   <span className="truncate">{switchFromLabel || '—'}</span>
                   <span className="mx-1.5 text-white/[0.3]">→</span>
                   <span className="font-semibold text-white">{title}</span>
                 </div>
-                <span className="shrink-0 text-[12px] font-semibold text-emerald-50">
+                <span className="shrink-0 text-[12px] font-semibold text-[#d4b37f]">
                   {totalPriceLabel}
                 </span>
               </div>
@@ -290,7 +290,7 @@ export function UltimaSubscriptionConfigurator({
                       {extraDeviceSummary}
                     </p>
                     {deviceTrafficLabel ? (
-                      <p className="mt-0.5 truncate text-[9px] text-emerald-100/[0.7]">
+                      <p className="mt-0.5 truncate text-[9px] text-[#d4b37f]/[0.7]">
                         {deviceTrafficLabel}
                       </p>
                     ) : null}
@@ -310,7 +310,7 @@ export function UltimaSubscriptionConfigurator({
           <section className={cn(ultimaCardClassName, 'mb-2.5 p-3')} style={ultimaSurfaceStyle}>
             <div className="mb-2.5 flex items-center justify-between gap-3">
               <div className="flex items-center gap-2">
-                <Clock3 className="h-4 w-4 text-emerald-200/[0.84]" />
+                <Clock3 className="h-4 w-4 text-[#d4b37f]/[0.84]" />
                 <div>
                   <h2 className="text-[12px] font-semibold text-white/[0.82]">
                     {t('ultima.subscriptionBuilder.periodTitle')}
@@ -374,7 +374,7 @@ export function UltimaSubscriptionConfigurator({
               <div className="text-[8px] uppercase text-white/[0.38]">
                 {t('ultima.subscriptionBuilder.toTopUp')}
               </div>
-              <div className="mt-0.5 truncate text-[12px] font-semibold text-emerald-100">
+              <div className="mt-0.5 truncate text-[12px] font-semibold text-[#d4b37f]">
                 {requiresTopUp ? payablePriceLabel : t('ultima.subscriptionBuilder.noTopUp')}
               </div>
             </div>

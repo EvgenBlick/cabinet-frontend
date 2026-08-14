@@ -140,7 +140,7 @@ function MessageBlock({
 }) {
   const toneClassName =
     tone === 'success'
-      ? 'border-emerald-200/[0.24] bg-emerald-300/10 text-emerald-50/90'
+      ? 'border-[#d4b37f]/40/[0.24] bg-[#d4b37f]/10 text-[#d4b37f]/90'
       : tone === 'error'
         ? 'border-rose-200/[0.24] bg-rose-400/10 text-rose-100'
         : tone === 'warning'
@@ -268,8 +268,8 @@ export function UltimaDesktopGift({
             defaultValue: 'Код можно сразу отправить получателю или сохранить.',
           })}
         >
-          <div className="rounded-[24px] border border-emerald-200/[0.14] bg-emerald-950/[0.22] px-4 py-4">
-            <div className="break-all font-mono text-[16px] font-medium tracking-[0.02em] text-emerald-100">
+          <div className="border-[#d4b37f]/40/[0.14] rounded-[24px] border bg-[#d4b37f]/[0.22] px-4 py-4">
+            <div className="break-all font-mono text-[16px] font-medium tracking-[0.02em] text-[#d4b37f]">
               {generatedGiftCode}
             </div>
             <button
@@ -366,7 +366,7 @@ export function UltimaDesktopGift({
                     className={cn(
                       'rounded-[24px] border p-4 text-left transition-colors',
                       tariff.isSelected
-                        ? 'border-emerald-200/[0.36] bg-emerald-300/[0.08]'
+                        ? 'border-[#d4b37f]/40/[0.36] bg-[#d4b37f]/[0.08]'
                         : 'border-white/10 bg-white/[0.04] hover:bg-white/[0.08]',
                     )}
                   >
@@ -399,14 +399,14 @@ export function UltimaDesktopGift({
                     className={cn(
                       'rounded-[24px] border p-4 text-left transition-colors',
                       period.isSelected
-                        ? 'border-emerald-200/[0.36] bg-emerald-300/[0.08]'
+                        ? 'border-[#d4b37f]/40/[0.36] bg-[#d4b37f]/[0.08]'
                         : 'border-white/10 bg-white/[0.04] hover:bg-white/[0.08]',
                     )}
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="text-[17px] font-medium text-white">{period.label}</div>
                       {period.badge ? (
-                        <span className="rounded-full border border-emerald-200/[0.26] bg-emerald-300/[0.14] px-2.5 py-1 text-[11px] font-medium text-emerald-50">
+                        <span className="border-[#d4b37f]/40/[0.26] rounded-full border bg-[#d4b37f]/[0.14] px-2.5 py-1 text-[11px] font-medium text-[#d4b37f]">
                           {period.badge}
                         </span>
                       ) : null}
@@ -436,7 +436,7 @@ export function UltimaDesktopGift({
                         className={cn(
                           'rounded-[24px] border p-4 text-left transition-colors',
                           method.isSelected
-                            ? 'border-emerald-200/[0.36] bg-emerald-300/[0.08]'
+                            ? 'border-[#d4b37f]/40/[0.36] bg-[#d4b37f]/[0.08]'
                             : 'border-white/10 bg-white/[0.04] hover:bg-white/[0.08]',
                         )}
                       >
@@ -465,7 +465,7 @@ export function UltimaDesktopGift({
                           className={cn(
                             'rounded-full border px-4 py-2 text-sm transition-colors',
                             option.isSelected
-                              ? 'border-emerald-200/[0.36] bg-emerald-300/[0.08] text-emerald-50'
+                              ? 'border-[#d4b37f]/40/[0.36] bg-[#d4b37f]/[0.08] text-[#d4b37f]'
                               : 'border-white/10 bg-white/[0.04] text-white/[0.72] hover:bg-white/[0.08]',
                           )}
                         >
@@ -528,7 +528,7 @@ export function UltimaDesktopGift({
                     <button
                       type="button"
                       onClick={gift.onCopyCode}
-                      className="mt-2 text-left font-mono text-[14px] text-emerald-100 transition hover:text-emerald-50"
+                      className="mt-2 text-left font-mono text-[14px] text-[#d4b37f] transition hover:text-[#d4b37f]"
                     >
                       GIFT-{gift.token}
                     </button>

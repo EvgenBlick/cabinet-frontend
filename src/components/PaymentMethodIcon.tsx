@@ -251,10 +251,10 @@ export default function PaymentMethodIcon({
 
     case 'kassa_ai_sberpay':
     case 'antilopay_sberpay':
-      return letterIcon('SB', '#16A34A');
+      return letterIcon('SB', '#b89358');
 
     case 'riopay':
-      return letterIcon('RP', '#059669');
+      return letterIcon('RP', '#b89358');
 
     case 'severpay':
       return letterIcon('SP', '#1D4ED8');
@@ -263,7 +263,7 @@ export default function PaymentMethodIcon({
       return letterIcon('PP', '#D97706');
 
     case 'rollypay':
-      return letterIcon('RY', '#0D9488');
+      return letterIcon('RY', '#b89358');
 
     case 'overpay':
       return letterIcon('OP', '#7C3AED');
@@ -272,7 +272,7 @@ export default function PaymentMethodIcon({
       return letterIcon('AP', '#DB2777');
 
     case 'etoplatezhi':
-      return letterIcon('EP', '#059669');
+      return letterIcon('EP', '#b89358');
 
     case 'antilopay':
       return letterIcon('AL', '#D97706');

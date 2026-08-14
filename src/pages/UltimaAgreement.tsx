@@ -115,10 +115,10 @@ export function UltimaAgreement() {
   return (
     <div className="ultima-shell ultima-shell-wide ultima-flat-frames">
       <div className="ultima-shell-aura" />
-      <div className="ultima-shell-inner ultima-shell-mobile-docked lg:max-w-[960px]">
-        <section className="mb-3 rounded-[24px] border border-emerald-200/10 bg-[linear-gradient(180deg,rgba(69,186,142,0.16),rgba(18,79,64,0.26))] p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.07)] backdrop-blur-md">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/[0.06] text-white/80">
-            <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6">
+      <div className="ultima-shell-inner ultima-shell-mobile-docked pb-32 lg:max-w-[960px]">
+        <section className="mb-3 rounded-[24px] border border-[#5a5040]/35 bg-gradient-to-b from-[#181b22] to-[#0e1014] p-4 shadow-[0_12px_28px_rgba(0,0,0,0.6)] backdrop-blur-md">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#b89358]/40 bg-[#d4b37f]/15 text-[#d4b37f]">
+            <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
               <path
                 d="M8 3.5h7l4 4v12A1.5 1.5 0 0 1 17.5 21h-9A1.5 1.5 0 0 1 7 19.5v-14A1.5 1.5 0 0 1 8.5 4"
                 stroke="currentColor"
@@ -136,22 +136,22 @@ export function UltimaAgreement() {
               />
             </svg>
           </div>
-          <h1 className="mt-2 text-[clamp(27px,7.4vw,34px)] font-semibold leading-[0.95] tracking-[-0.015em] text-white">
+          <h1 className="mt-2 text-[clamp(24px,6.5vw,30px)] font-bold leading-snug text-[#f5f5f7]">
             {title}
           </h1>
-          <p className="mt-1 text-[12px] text-white/[0.55]">{subtitle}</p>
+          <p className="mt-1 text-[12px] text-[#8e929b]">{subtitle}</p>
         </section>
 
         <section className="min-h-0 flex-1 overflow-hidden rounded-3xl lg:min-h-0 lg:pb-2">
           {isLoading ? (
             <div className="flex h-full items-center justify-center">
-              <div className="h-8 w-8 animate-spin rounded-full border-2 border-emerald-300/[0.35] border-t-transparent" />
+              <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#d4b37f] border-t-transparent" />
             </div>
           ) : (
             <div className="ultima-scrollbar h-full min-h-0 overflow-y-auto px-1 pb-1 text-[14px] leading-[1.6] text-white/[0.87] lg:px-0 lg:pr-2">
               {htmlContent ? (
                 <div
-                  className="prose prose-invert max-w-none [&_a]:text-[#5de8c3] [&_a]:underline [&_h1]:mb-3 [&_h1]:text-[34px] [&_h1]:font-semibold [&_h1]:leading-[1] [&_h2]:mb-2 [&_h2]:mt-6 [&_h2]:text-[34px] [&_h2]:font-semibold [&_h2]:leading-[1] [&_h3]:mb-2 [&_h3]:mt-5 [&_h3]:text-[34px] [&_h3]:font-semibold [&_h3]:leading-[1] [&_li]:mb-1 [&_p]:mb-3 [&_strong]:font-semibold"
+                  className="prose prose-invert max-w-none [&_a]:text-[#d4b37f] [&_a]:underline [&_h1]:mb-3 [&_h1]:text-[28px] [&_h1]:font-semibold [&_h1]:leading-[1.1] [&_h2]:mb-2 [&_h2]:mt-6 [&_h2]:text-[22px] [&_h2]:font-semibold [&_h2]:leading-[1.2] [&_h3]:mb-2 [&_h3]:mt-5 [&_h3]:text-[18px] [&_h3]:font-semibold [&_h3]:leading-[1.2] [&_li]:mb-1 [&_p]:mb-3 [&_strong]:font-semibold"
                   dangerouslySetInnerHTML={{ __html: htmlContent }}
                 />
               ) : (
@@ -161,8 +161,9 @@ export function UltimaAgreement() {
           )}
         </section>
 
-        <div className="ultima-mobile-dock-footer">
-          <div className="ultima-nav-dock">{bottomNav}</div>
+        {/* Fixed Bottom Navigation Dock */}
+        <div className="pointer-events-none fixed bottom-0 left-0 right-0 z-40 px-3 pb-[max(env(safe-area-inset-bottom),12px)] pt-2 lg:hidden">
+          <div className="pointer-events-auto mx-auto max-w-[540px]">{bottomNav}</div>
         </div>
       </div>
     </div>

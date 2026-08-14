@@ -753,7 +753,7 @@ export function UltimaSubscription() {
           <div className="ultima-shell-aura" />
           <div className="ultima-shell-inner lg:max-w-[1200px]">
             <div className="flex min-h-[calc(100dvh-48px)] items-center justify-center">
-              <div className="h-8 w-8 animate-spin rounded-full border-2 border-emerald-300/[0.35] border-t-transparent" />
+              <div className="border-[#d4b37f]/40/[0.35] h-8 w-8 animate-spin rounded-full border-2 border-t-transparent" />
             </div>
           </div>
         </div>

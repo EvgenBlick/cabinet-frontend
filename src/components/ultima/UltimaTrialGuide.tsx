@@ -86,13 +86,13 @@ export function UltimaTrialGuide({
         <div className="ultima-mobile-overlay-backdrop" />
         <div className="ultima-mobile-overlay" data-testid="ultima-trial-guide-overlay">
           <div className="ultima-mobile-overlay-panel">
-            <div className="relative overflow-hidden rounded-[30px] border border-emerald-200/20 bg-[linear-gradient(160deg,rgba(7,16,25,0.96),rgba(4,11,18,0.98))] p-5 shadow-[0_28px_60px_rgba(0,0,0,0.52),inset_0_1px_0_rgba(255,255,255,0.08)]">
-              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(45,212,191,0.22),transparent_48%),radial-gradient(circle_at_bottom_right,rgba(16,185,129,0.12),transparent_42%)]" />
-              <div className="pointer-events-none absolute -right-16 top-[-72px] h-44 w-44 rounded-full bg-emerald-300/[0.12] blur-3xl" />
+            <div className="border-[#d4b37f]/40/20 relative overflow-hidden rounded-[30px] border bg-[linear-gradient(160deg,rgba(7,16,25,0.96),rgba(4,11,18,0.98))] p-5 shadow-[0_28px_60px_rgba(0,0,0,0.52),inset_0_1px_0_rgba(255,255,255,0.08)]">
+              <div className="bg-[radial-gradient(circle_at_top,rgba(45,212,191,0.22),transparent_48%),radial-gradient(circle_at_bottom_right,rgba(212, 179, 127,0.12),transparent_42%)] pointer-events-none absolute inset-0" />
+              <div className="pointer-events-none absolute -right-16 top-[-72px] h-44 w-44 rounded-full bg-[#d4b37f]/[0.12] blur-3xl" />
 
               <div className="relative">
-                <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200/20 bg-emerald-300/10 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.22em] text-emerald-100/[0.92]">
-                  <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-200" />
+                <div className="border-[#d4b37f]/40/20 inline-flex items-center gap-2 rounded-full border bg-[#d4b37f]/10 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.22em] text-[#d4b37f]/[0.92]">
+                  <span className="h-2 w-2 animate-pulse rounded-full bg-[#d4b37f]" />
                   {t('ultima.trialGuide.badge', { defaultValue: 'Триал активирован' })}
                 </div>
 
@@ -134,7 +134,7 @@ export function UltimaTrialGuide({
                       <span
                         key={index}
                         className={`h-2.5 rounded-full ${
-                          index === 0 ? 'w-7 bg-emerald-200' : 'w-2.5 bg-white/[0.16]'
+                          index === 0 ? 'w-7 bg-[#d4b37f]' : 'w-2.5 bg-white/[0.16]'
                         }`}
                       />
                     ))}
@@ -169,7 +169,7 @@ export function UltimaTrialGuide({
   }
 
   return (
-    <div className="mb-4 overflow-hidden rounded-[28px] border border-emerald-200/[0.18] bg-[linear-gradient(160deg,rgba(10,34,36,0.48),rgba(6,16,24,0.62))] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_12px_28px_rgba(3,14,24,0.24)] backdrop-blur-xl">
+    <div className="border-[#d4b37f]/40/[0.18] mb-4 overflow-hidden rounded-[28px] border bg-[linear-gradient(160deg,rgba(10,34,36,0.48),rgba(6,16,24,0.62))] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_12px_28px_rgba(3,14,24,0.24)] backdrop-blur-xl">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-[16px] font-semibold leading-tight text-white/95">
@@ -185,7 +185,7 @@ export function UltimaTrialGuide({
             })}
           </p>
         </div>
-        <span className="rounded-full border border-emerald-200/[0.18] bg-emerald-300/[0.12] px-2.5 py-1 text-[11px] font-medium uppercase tracking-[0.16em] text-emerald-100/[0.88]">
+        <span className="border-[#d4b37f]/40/[0.18] rounded-full border bg-[#d4b37f]/[0.12] px-2.5 py-1 text-[11px] font-medium uppercase tracking-[0.16em] text-[#d4b37f]/[0.88]">
           {t('ultima.trialGuide.stepLabel', { defaultValue: 'Шаг 1 из 3' })}
         </span>
       </div>

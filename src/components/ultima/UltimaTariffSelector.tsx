@@ -93,7 +93,7 @@ export function UltimaTariffSelector({
                         {tariff.name}
                       </div>
                       {current ? (
-                        <span className="shrink-0 rounded-full border border-emerald-200/[0.24] bg-emerald-300/[0.1] px-2 py-0.5 text-[9px] font-semibold text-emerald-50">
+                        <span className="border-[#d4b37f]/40/[0.24] shrink-0 rounded-full border bg-[#d4b37f]/[0.1] px-2 py-0.5 text-[9px] font-semibold text-[#d4b37f]">
                           {t('subscription.currentTariff')}
                         </span>
                       ) : null}
@@ -137,7 +137,7 @@ export function UltimaTariffSelector({
                   ) : null}
                   <span className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-white/[0.1] bg-white/[0.04] text-white/[0.58]">
                     {selected ? (
-                      <Check className="h-3.5 w-3.5 text-emerald-100" />
+                      <Check className="h-3.5 w-3.5 text-[#d4b37f]" />
                     ) : (
                       <ArrowRight className="h-3.5 w-3.5" />
                     )}

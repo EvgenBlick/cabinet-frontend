@@ -207,11 +207,11 @@ export default function SuccessNotificationModal() {
     } else if (data.type === 'devices_purchased') {
       title = t('successNotification.devicesPurchased.title', 'Devices added!');
       icon = <DevicesIcon />;
-      gradientClass = 'from-blue-500 to-cyan-600';
+      gradientClass = 'from-[#d4b37f] to-[#b89358]';
     } else if (data.type === 'traffic_purchased') {
       title = t('successNotification.trafficPurchased.title', 'Traffic added!');
       icon = <TrafficIcon />;
-      gradientClass = 'from-success-500 to-success-600';
+      gradientClass = 'from-[#d4b37f] to-[#b89358]';
     }
   }
 
@@ -243,16 +243,16 @@ export default function SuccessNotificationModal() {
     : 'flex min-w-0 items-center justify-between rounded-xl bg-dark-800/50 px-4 py-3';
   const primaryButtonClassName = isUltimaTheme
     ? 'ultima-btn-pill ultima-btn-primary flex w-full items-center justify-center gap-2 px-4 py-3.5 text-center text-[15px] font-semibold leading-snug'
-    : 'flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-accent-500 to-accent-600 py-3.5 text-center font-bold leading-snug text-white shadow-lg shadow-accent-500/25 transition-all hover:from-accent-400 hover:to-accent-500 active:from-accent-600 active:to-accent-700';
+    : 'flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#d4b37f] to-[#b89358] py-3.5 text-center font-bold leading-snug text-[#0a0c0f] shadow-lg shadow-[#b89358]/25 transition-all hover:brightness-110 active:scale-95';
   const balanceButtonClassName = isUltimaTheme
     ? 'ultima-btn-pill ultima-btn-secondary flex w-full items-center justify-center gap-2 px-4 py-3.5 text-center text-[15px] font-semibold leading-snug'
-    : 'flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-success-500 to-success-600 py-3.5 text-center font-bold leading-snug text-white shadow-lg shadow-success-500/25 transition-all hover:from-success-400 hover:to-success-500 active:from-success-600 active:to-success-700';
+    : 'flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#d4b37f] to-[#b89358] py-3.5 text-center font-bold leading-snug text-[#0a0c0f] shadow-lg shadow-[#b89358]/25 transition-all hover:brightness-110 active:scale-95';
   const devicesButtonClassName = isUltimaTheme
     ? 'ultima-btn-pill ultima-btn-primary flex w-full items-center justify-center gap-2 px-4 py-3.5 text-center text-[15px] font-semibold leading-snug'
-    : 'flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-600 py-3.5 text-center font-bold leading-snug text-white shadow-lg shadow-blue-500/25 transition-all hover:from-blue-400 hover:to-cyan-500 active:from-blue-600 active:to-cyan-700';
+    : 'flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#d4b37f] to-[#b89358] py-3.5 text-center font-bold leading-snug text-[#0a0c0f] shadow-lg shadow-[#b89358]/25 transition-all hover:brightness-110 active:scale-95';
   const trafficButtonClassName = isUltimaTheme
     ? 'ultima-btn-pill ultima-btn-primary flex w-full items-center justify-center gap-2 px-4 py-3.5 text-center text-[15px] font-semibold leading-snug'
-    : 'flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-success-500 to-success-600 py-3.5 text-center font-bold leading-snug text-white shadow-lg shadow-success-500/25 transition-all hover:from-success-400 hover:to-success-500 active:from-success-600 active:to-success-700';
+    : 'flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#d4b37f] to-[#b89358] py-3.5 text-center font-bold leading-snug text-[#0a0c0f] shadow-lg shadow-[#b89358]/25 transition-all hover:brightness-110 active:scale-95';
   const secondaryButtonClassName = isUltimaTheme
     ? 'ultima-btn-pill ultima-btn-secondary flex w-full items-center justify-center gap-2 px-4 py-3.5 text-center text-[15px] font-semibold leading-snug'
     : 'w-full rounded-xl bg-dark-800 py-3 text-center font-semibold leading-snug text-dark-300 transition-colors hover:bg-dark-700 hover:text-dark-100';

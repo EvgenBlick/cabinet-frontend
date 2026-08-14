@@ -43,7 +43,7 @@ const defaultCardStyle: CSSProperties = ultimaSurfaceStyle;
 const accentCardStyle: CSSProperties = ultimaAccentSurfaceStyle;
 
 const statusClassMap: Record<string, string> = {
-  completed: 'border-emerald-200/25 bg-emerald-300/[0.1] text-emerald-100',
+  completed: 'border-[#d4b37f]/40/25 bg-[#d4b37f]/[0.1] text-[#d4b37f]',
   approved: 'border-sky-200/25 bg-sky-300/[0.1] text-sky-100',
   pending: 'border-amber-200/25 bg-amber-300/[0.1] text-amber-100',
   rejected: 'border-rose-200/25 bg-rose-300/[0.1] text-rose-100',
@@ -71,7 +71,7 @@ function Metric({ icon, label, value, tone = 'default' }: MetricProps) {
         className={cn(
           'mt-1.5 truncate text-[13px] font-semibold',
           tone === 'success'
-            ? 'text-emerald-100'
+            ? 'text-[#d4b37f]'
             : tone === 'info'
               ? 'text-sky-100'
               : 'text-white/[0.94]',
@@ -86,7 +86,7 @@ function Metric({ icon, label, value, tone = 'default' }: MetricProps) {
 function SectionHeading({ icon, title, hint }: { icon: ReactNode; title: string; hint?: string }) {
   return (
     <div className="flex items-start gap-3">
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[7px] border border-white/[0.08] bg-white/[0.04] text-emerald-100/[0.82]">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[7px] border border-white/[0.08] bg-white/[0.04] text-[#d4b37f]/[0.82]">
         {icon}
       </span>
       <div className="min-w-0">
@@ -331,7 +331,7 @@ export function UltimaReferral() {
       style={accentCardStyle}
     >
       <div className="flex items-start gap-3 lg:gap-4">
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[8px] border border-emerald-100/[0.12] bg-emerald-300/[0.08] text-emerald-100 lg:h-12 lg:w-12">
+        <span className="border-[#d4b37f]/40/[0.12] flex h-11 w-11 shrink-0 items-center justify-center rounded-[8px] border bg-[#d4b37f]/[0.08] text-[#d4b37f] lg:h-12 lg:w-12">
           <Gift className="h-5 w-5 lg:h-6 lg:w-6" strokeWidth={1.8} />
         </span>
         <div className="min-w-0 flex-1">
@@ -339,7 +339,7 @@ export function UltimaReferral() {
             <span className="text-[9px] font-semibold uppercase text-white/[0.42]">
               {t('referral.linkReady', { defaultValue: 'Ссылка готова' })}
             </span>
-            <span className="rounded-full border border-emerald-200/[0.18] bg-emerald-300/[0.1] px-2.5 py-1 text-[10px] font-semibold text-emerald-50">
+            <span className="border-[#d4b37f]/40/[0.18] rounded-full border bg-[#d4b37f]/[0.1] px-2.5 py-1 text-[10px] font-semibold text-[#d4b37f]">
               {info?.commission_percent || 0}%
             </span>
           </div>
@@ -430,7 +430,7 @@ export function UltimaReferral() {
             defaultValue: 'Бонусы начисляются после выполнения условий программы.',
           })}
         />
-        <span className="shrink-0 rounded-full border border-emerald-200/[0.18] bg-emerald-300/[0.1] px-2.5 py-1 text-[11px] font-semibold text-emerald-50">
+        <span className="border-[#d4b37f]/40/[0.18] shrink-0 rounded-full border bg-[#d4b37f]/[0.1] px-2.5 py-1 text-[11px] font-semibold text-[#d4b37f]">
           {terms.commission_percent}%
         </span>
       </div>
@@ -456,12 +456,12 @@ export function UltimaReferral() {
               {value}
             </p>
             {index === 1 && firstTopupBonus?.secondary ? (
-              <p className="mt-0.5 text-[10px] text-emerald-100/[0.72]">
+              <p className="mt-0.5 text-[10px] text-[#d4b37f]/[0.72]">
                 {firstTopupBonus.secondary}
               </p>
             ) : null}
             {index === 3 && inviterBonus?.secondary ? (
-              <p className="mt-0.5 text-[10px] text-emerald-100/[0.72]">{inviterBonus.secondary}</p>
+              <p className="mt-0.5 text-[10px] text-[#d4b37f]/[0.72]">{inviterBonus.secondary}</p>
             ) : null}
           </div>
         ))}
@@ -510,7 +510,7 @@ export function UltimaReferral() {
                 className={cn(
                   'shrink-0 rounded-full border px-2.5 py-1 text-[9px] font-semibold',
                   ref.has_paid
-                    ? 'border-emerald-200/[0.18] bg-emerald-300/[0.1] text-emerald-100'
+                    ? 'border-[#d4b37f]/40/[0.18] bg-[#d4b37f]/[0.1] text-[#d4b37f]'
                     : 'border-white/[0.1] bg-white/[0.04] text-white/[0.58]',
                 )}
               >
@@ -535,7 +535,7 @@ export function UltimaReferral() {
             type="button"
             onClick={shareLink}
             disabled={!referralLink}
-            className="mt-3 inline-flex items-center gap-2 text-[12px] font-medium text-emerald-100 disabled:opacity-40"
+            className="mt-3 inline-flex items-center gap-2 text-[12px] font-medium text-[#d4b37f] disabled:opacity-40"
           >
             {t('referral.shareButton')}
             <ArrowUpRight className="h-4 w-4" />
@@ -577,7 +577,7 @@ export function UltimaReferral() {
                   {formatDate(earning.created_at)}
                 </p>
               </div>
-              <p className="shrink-0 text-[13px] font-semibold text-emerald-100">
+              <p className="shrink-0 text-[13px] font-semibold text-[#d4b37f]">
                 {formatPositive(earning.amount_rubles)}
               </p>
             </div>
@@ -668,7 +668,7 @@ export function UltimaReferral() {
               <p className="text-[9px] uppercase text-white/[0.4]">
                 {t('referral.withdrawal.available')}
               </p>
-              <p className="mt-1.5 truncate text-[15px] font-semibold text-emerald-100">
+              <p className="mt-1.5 truncate text-[15px] font-semibold text-[#d4b37f]">
                 {formatWithCurrency(withdrawalBalance.available_total / 100)}
               </p>
             </div>
@@ -882,7 +882,7 @@ export function UltimaReferral() {
                 {t('referral.title')}
               </h1>
             </div>
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[7px] border border-white/[0.08] bg-white/[0.04] text-emerald-100/[0.8]">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[7px] border border-white/[0.08] bg-white/[0.04] text-[#d4b37f]/[0.8]">
               <Share2 className="h-4 w-4" />
             </span>
           </header>
