@@ -38,7 +38,7 @@ export const CyberProfilePage: React.FC = () => {
   const subscription = subData?.subscription;
   const daysLeft = subscription?.days_left ?? 30;
   const accent = config.accentColor || '#00ff66';
-  const isAdmin = (user as any)?.role === 'admin' || (user as any)?.username === 'EvgenBlick';
+  const isAdmin = useAuthStore((state) => state.isAdmin);
 
   const refLink =
     (refData as any)?.referral_link ||
@@ -137,7 +137,7 @@ export const CyberProfilePage: React.FC = () => {
 
             <button
               type="button"
-              onClick={() => navigate('/topup/method?amount=500')}
+              onClick={() => navigate('/balance/top-up?amount=500')}
               className="flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 text-xs font-black text-black shadow-xl transition-transform hover:scale-105"
               style={{
                 backgroundColor: accent,

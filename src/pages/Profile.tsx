@@ -76,6 +76,7 @@ const PencilIcon = () => (
 
 import { useThemeEngine } from '@/themes/core/ThemeEngineContext';
 import { CyberProfilePage } from '@/themes/cyber-matrix/pages/CyberProfilePage';
+import { FreshProfilePage } from '@/themes/fresh/pages/FreshProfilePage';
 
 export default function Profile() {
   const { isUltimaMode } = useUltimaMode();
@@ -83,6 +84,10 @@ export default function Profile() {
 
   if (activeTheme === 'cyber_matrix') {
     return <CyberProfilePage />;
+  }
+
+  if (activeTheme === 'fresh') {
+    return <FreshProfilePage />;
   }
 
   if (activeTheme === 'samurai_gold' || isUltimaMode) {

@@ -28,7 +28,7 @@ export const CyberMobileDashboard: React.FC = () => {
 
   const accent = config.accentColor || '#00ff66';
   const brandName = config.customBrandName || 'DOTDNA';
-  const isAdmin = (user as any)?.role === 'admin' || (user as any)?.username === 'EvgenBlick';
+  const isAdmin = useAuthStore((state) => state.isAdmin);
 
   return (
     <div

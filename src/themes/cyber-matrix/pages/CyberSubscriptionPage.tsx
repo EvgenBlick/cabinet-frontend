@@ -106,8 +106,7 @@ export const CyberSubscriptionPage: React.FC = () => {
 
   const handleProceedToPayment = () => {
     setIsProcessing(true);
-    // Navigate to topup or checkout
-    navigate(`/topup/method?amount=${selectedPlan.priceRub}&plan=${selectedPlan.id}`);
+    navigate(`/balance/top-up?amount=${selectedPlan.priceRub}&plan=${selectedPlan.id}`);
   };
 
   return (

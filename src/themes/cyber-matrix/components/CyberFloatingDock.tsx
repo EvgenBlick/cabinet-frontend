@@ -20,7 +20,10 @@ export const CyberFloatingDock: React.FC = () => {
   return (
     <nav
       aria-label="Плавающая панель навигации"
-      className="fixed bottom-6 left-1/2 z-40 -translate-x-1/2"
+      className="fixed left-1/2 z-40 -translate-x-1/2"
+      style={{
+        bottom: 'calc(env(safe-area-inset-bottom, 0px) + 1.25rem)',
+      }}
     >
       <div className="flex items-center gap-1 rounded-full border border-white/10 bg-[#080d0a]/85 p-2 shadow-2xl backdrop-blur-2xl">
         {NAV_ITEMS.map((item) => {

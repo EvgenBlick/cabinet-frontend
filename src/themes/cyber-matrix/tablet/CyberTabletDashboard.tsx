@@ -12,7 +12,6 @@ import { CyberFloatingDock } from '../components/CyberFloatingDock';
 
 export const CyberTabletDashboard: React.FC = () => {
   const navigate = useNavigate();
-  const { user } = useAuthStore();
   const { config, toggleStudio } = useThemeEngine();
 
   const { data: subData } = useQuery({
@@ -28,7 +27,7 @@ export const CyberTabletDashboard: React.FC = () => {
 
   const accent = config.accentColor || '#00ff66';
   const brandName = config.customBrandName || 'DOTDNA CYBER';
-  const isAdmin = (user as any)?.role === 'admin' || (user as any)?.username === 'EvgenBlick';
+  const isAdmin = useAuthStore((state) => state.isAdmin);
 
   return (
     <div className="relative min-h-[100dvh] bg-[#040705] pb-28 text-[#f5f5f7] selection:bg-emerald-500/30 selection:text-white">
