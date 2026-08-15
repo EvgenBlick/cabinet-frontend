@@ -203,18 +203,23 @@ const CountdownTimer = memo(function CountdownTimer({
   );
 });
 
-import { useActiveTheme } from '@/hooks/useActiveTheme';
+import { useThemeEngine } from '@/themes/core/ThemeEngineContext';
 import { FreshSubscriptionPage } from '@/themes/fresh/pages/FreshSubscriptionPage';
+import { CyberSubscriptionPage } from '@/themes/cyber-matrix/pages/CyberSubscriptionPage';
 
 export default function Subscription() {
   const { isLiteMode } = useLiteMode();
-  const { isFresh, isUltima } = useActiveTheme();
+  const { activeTheme } = useThemeEngine();
 
-  if (isFresh) {
+  if (activeTheme === 'cyber_matrix') {
+    return <CyberSubscriptionPage />;
+  }
+
+  if (activeTheme === 'fresh') {
     return <FreshSubscriptionPage />;
   }
 
-  if (isUltima) {
+  if (activeTheme === 'samurai_gold') {
     return <UltimaSubscription />;
   }
 

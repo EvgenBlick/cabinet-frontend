@@ -917,10 +917,18 @@ function SupportContent() {
   );
 }
 
+import { useThemeEngine } from '@/themes/core/ThemeEngineContext';
+import { CyberSupportPage } from '@/themes/cyber-matrix/pages/CyberSupportPage';
+
 export default function Support() {
   const { isUltimaMode } = useUltimaMode();
+  const { activeTheme } = useThemeEngine();
 
-  if (isUltimaMode) {
+  if (activeTheme === 'cyber_matrix') {
+    return <CyberSupportPage />;
+  }
+
+  if (activeTheme === 'samurai_gold' || isUltimaMode) {
     return <UltimaSupport />;
   }
 
