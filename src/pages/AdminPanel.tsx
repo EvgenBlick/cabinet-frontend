@@ -1028,8 +1028,9 @@ export default function AdminPanel() {
           {
             to: '/admin/fresh-theme',
             icon: <SparklesIcon />,
-            title: 'Кастомизация FRESH',
-            description: 'Логотип, цвета, фоновые изображения и пресеты темы FRESH',
+            title: 'Управление темами оформления (Hub)',
+            description:
+              'Полная кастомизация всех тем (FRESH, Samurai Gold, Classic): фоны, логотипы, цвета, анимации',
             permission: 'settings:read',
           },
           {
