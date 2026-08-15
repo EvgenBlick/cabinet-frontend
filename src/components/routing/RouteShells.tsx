@@ -13,27 +13,15 @@ import { useBlockingStore } from '../../store/blocking';
 import { saveReturnUrl } from '../../utils/token';
 import { getCachedUltimaMode } from '../../hooks/useUltimaMode';
 
+import { getStoredActiveTheme } from '@/hooks/useActiveTheme';
+
 const resolveLoaderVariant = (pathname: string): 'dark' | 'light' | 'ultima' | 'fresh' => {
-  if (
-    pathname.startsWith('/fresh') ||
-    (typeof window !== 'undefined' && localStorage.getItem('cabinet_active_theme') === 'fresh')
-  ) {
+  const activeTheme = getStoredActiveTheme();
+  if (activeTheme === 'fresh' || pathname.startsWith('/fresh')) {
     return 'fresh';
   }
 
-  const cachedUltima = getCachedUltimaMode();
-  if (cachedUltima === true) {
-    return 'ultima';
-  }
-
-  // For first-open in Ultima flow there may be no cache yet.
-  if (
-    cachedUltima === null &&
-    (pathname === '/' ||
-      pathname === '/subscription' ||
-      pathname === '/connection' ||
-      pathname.startsWith('/ultima/'))
-  ) {
+  if (activeTheme === 'ultima' || getCachedUltimaMode() === true) {
     return 'ultima';
   }
 

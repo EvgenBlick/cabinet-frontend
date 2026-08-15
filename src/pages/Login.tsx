@@ -13,8 +13,12 @@ import { useUltimaMode } from '@/hooks/useUltimaMode';
 import { Navigate } from 'react-router';
 import { useAuthStore } from '@/store/auth';
 
+import { useActiveTheme } from '@/hooks/useActiveTheme';
+import { FreshLoginPage } from '@/themes/fresh/pages/FreshLoginPage';
+
 export default function Login() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const { isFresh } = useActiveTheme();
   const { isUltimaMode, isUltimaModeReady } = useUltimaMode();
   const {
     safeTop,
@@ -65,6 +69,10 @@ export default function Login() {
 
   if (isAuthenticated) {
     return <Navigate to="/" replace />;
+  }
+
+  if (isFresh) {
+    return <FreshLoginPage />;
   }
 
   if (!isUltimaModeReady) {

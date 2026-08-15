@@ -58,7 +58,6 @@ import {
 
 // Import lite mode hook and component
 import { useLiteMode } from '../hooks/useLiteMode';
-import { useUltimaMode } from '../hooks/useUltimaMode';
 import { LiteSubscription } from './LiteSubscription';
 import { UltimaSubscription } from './UltimaSubscription';
 
@@ -204,11 +203,18 @@ const CountdownTimer = memo(function CountdownTimer({
   );
 });
 
+import { useActiveTheme } from '@/hooks/useActiveTheme';
+import { FreshSubscriptionPage } from '@/themes/fresh/pages/FreshSubscriptionPage';
+
 export default function Subscription() {
   const { isLiteMode } = useLiteMode();
-  const { isUltimaMode } = useUltimaMode();
+  const { isFresh, isUltima } = useActiveTheme();
 
-  if (isUltimaMode) {
+  if (isFresh) {
+    return <FreshSubscriptionPage />;
+  }
+
+  if (isUltima) {
     return <UltimaSubscription />;
   }
 

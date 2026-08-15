@@ -1,9 +1,12 @@
 import { useState } from 'react';
 import {
   Check,
+  Crown,
   Eye,
+  Globe,
   Image as ImageIcon,
   Laptop,
+  Layers,
   Palette,
   RefreshCw,
   Save,
@@ -14,6 +17,7 @@ import {
   X,
 } from 'lucide-react';
 import { useFreshTheme } from '@/hooks/useFreshTheme';
+import { useActiveTheme } from '@/hooks/useActiveTheme';
 import { DEFAULT_FRESH_PRESETS } from '@/types/freshTheme';
 import { FreshDesktopDashboard } from '../desktop/FreshDesktopDashboard';
 import { FreshMobileDashboard } from '../mobile/FreshMobileDashboard';
@@ -29,6 +33,8 @@ const COLOR_PALETTES = [
 export function FreshThemeAdminSettings() {
   const { config, updateConfig, setPreset, setCustomBackground, setCustomLogo, setAccentColor } =
     useFreshTheme();
+
+  const { activeTheme, setActiveTheme } = useActiveTheme();
 
   const [previewDevice, setPreviewDevice] = useState<'desktop' | 'mobile'>('desktop');
   const [customBgInput, setCustomBgInput] = useState(config.customBgUrl || '');
@@ -64,7 +70,6 @@ export function FreshThemeAdminSettings() {
     setTimeout(() => setIsSaved(false), 2000);
   };
 
-  // Mock subscription and metrics for simulator
   const mockSub = {
     id: 1,
     url: 'https://samuraiservice.org/sub/demo',
@@ -76,7 +81,119 @@ export function FreshThemeAdminSettings() {
 
   return (
     <div className="space-y-8 p-6 text-[#f5f5f7]">
-      {/* 1. Header */}
+      {/* 1. Top Global Theme Switcher */}
+      <div className="rounded-3xl border border-white/10 bg-[#0e1410]/90 p-6 shadow-2xl backdrop-blur-2xl">
+        <div className="flex flex-col gap-2 border-b border-white/10 pb-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="flex items-center gap-2">
+              <Layers className="h-5 w-5 text-[#d7ff3b]" />
+              <h2 className="text-lg font-bold tracking-tight text-white">
+                Выбор активной темы кабинета
+              </h2>
+            </div>
+            <p className="mt-0.5 text-xs text-[#8e929b]">
+              Все 3 темы интегрированы в единую систему без конфликтов. Выберите тему, которая будет
+              отображаться пользователям.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-[#8e929b]">Текущая активная тема:</span>
+            <span className="rounded-full border border-[#d7ff3b]/40 bg-[#d7ff3b]/10 px-3 py-1 text-xs font-bold text-[#d7ff3b]">
+              {activeTheme === 'fresh'
+                ? '🌿 FRESH (Verdant)'
+                : activeTheme === 'ultima'
+                  ? '🥇 Samurai Gold (Ultima)'
+                  : '🏛 Classic'}
+            </span>
+          </div>
+        </div>
+
+        {/* 3 Theme Choice Cards */}
+        <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
+          {/* Theme 1: FRESH */}
+          <button
+            type="button"
+            onClick={() => setActiveTheme('fresh')}
+            className={`flex flex-col rounded-2xl border p-4 text-left transition-all duration-200 ${
+              activeTheme === 'fresh'
+                ? 'border-[#d7ff3b] bg-[#d7ff3b]/10 shadow-[0_0_25px_rgba(215,255,59,0.2)]'
+                : 'border-white/10 bg-white/[0.02] hover:border-white/20 hover:bg-white/[0.06]'
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="flex h-3 w-3 rounded-full bg-[#d7ff3b] shadow-[0_0_8px_#d7ff3b]" />
+                <span className="text-sm font-bold text-white">FRESH (Verdant)</span>
+              </div>
+              {activeTheme === 'fresh' && (
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#d7ff3b] text-black">
+                  <Check className="h-3 w-3 stroke-[3]" />
+                </span>
+              )}
+            </div>
+            <p className="mt-2 text-xs text-[#8e929b]">
+              Новая неоновая тема: темный лес/мох, светящиеся Bento-виджеты,Happ/Incy в 1 клик,
+              живая телеметрия.
+            </p>
+          </button>
+
+          {/* Theme 2: SAMURAI GOLD (Ultima) */}
+          <button
+            type="button"
+            onClick={() => setActiveTheme('ultima')}
+            className={`flex flex-col rounded-2xl border p-4 text-left transition-all duration-200 ${
+              activeTheme === 'ultima'
+                ? 'border-[#d4b37f] bg-[#d4b37f]/10 shadow-[0_0_25px_rgba(212,179,127,0.2)]'
+                : 'border-white/10 bg-white/[0.02] hover:border-white/20 hover:bg-white/[0.06]'
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Crown className="h-4 w-4 text-[#d4b37f]" />
+                <span className="text-sm font-bold text-white">Samurai Gold (Ultima)</span>
+              </div>
+              {activeTheme === 'ultima' && (
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#d4b37f] text-black">
+                  <Check className="h-3 w-3 stroke-[3]" />
+                </span>
+              )}
+            </div>
+            <p className="mt-2 text-xs text-[#8e929b]">
+              Премиальная золотая тема: вращающиеся кольца, аура шампанского, графитовые карточки и
+              статус подписки.
+            </p>
+          </button>
+
+          {/* Theme 3: CLASSIC */}
+          <button
+            type="button"
+            onClick={() => setActiveTheme('classic')}
+            className={`flex flex-col rounded-2xl border p-4 text-left transition-all duration-200 ${
+              activeTheme === 'classic'
+                ? 'border-sky-400 bg-sky-400/10 shadow-[0_0_25px_rgba(56,189,248,0.2)]'
+                : 'border-white/10 bg-white/[0.02] hover:border-white/20 hover:bg-white/[0.06]'
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Globe className="h-4 w-4 text-sky-400" />
+                <span className="text-sm font-bold text-white">Classic</span>
+              </div>
+              {activeTheme === 'classic' && (
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-sky-400 text-black">
+                  <Check className="h-3 w-3 stroke-[3]" />
+                </span>
+              )}
+            </div>
+            <p className="mt-2 text-xs text-[#8e929b]">
+              Классический минималистичный интерфейс кабинета со светлой и тёмной версией.
+            </p>
+          </button>
+        </div>
+      </div>
+
+      {/* 2. Header & Action Controls for FRESH Customization */}
       <div className="flex flex-col gap-2 border-b border-white/10 pb-5 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center gap-2">
@@ -123,7 +240,6 @@ export function FreshThemeAdminSettings() {
             </div>
 
             <div className="space-y-4">
-              {/* Custom Logo URL / Image */}
               <div>
                 <label className="text-xs font-medium text-[#8e929b]">
                   URL пользовательского логотипа (PNG/SVG):
@@ -206,7 +322,7 @@ export function FreshThemeAdminSettings() {
                 </label>
                 <input
                   type="text"
-                  placeholder="Например: VERDANT или MY SERVICE"
+                  placeholder="Например: VERDANT или SAMURAI"
                   value={brandNameInput}
                   onChange={(e) => setBrandNameInput(e.target.value)}
                   className="mt-1 w-full rounded-xl border border-white/10 bg-black/40 px-3.5 py-2 text-xs text-white placeholder:text-[#52575e] focus:border-[#d7ff3b] focus:outline-none"
@@ -363,7 +479,7 @@ export function FreshThemeAdminSettings() {
           <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-[#0e1410]/80 p-3 backdrop-blur-xl">
             <div className="flex items-center gap-2 text-xs font-bold text-white">
               <Eye className="h-4 w-4" style={{ color: config.accentColor || '#d7ff3b' }} />
-              <span>Интерактивный симулятор</span>
+              <span>Интерактивный симулятор темы FRESH</span>
             </div>
 
             <div className="flex items-center gap-1.5 rounded-xl border border-white/10 bg-black/40 p-1">

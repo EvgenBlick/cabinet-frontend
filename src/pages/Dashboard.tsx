@@ -13,7 +13,6 @@ import Onboarding, { useOnboarding } from '../components/Onboarding';
 import PromoOffersSection from '../components/PromoOffersSection';
 import NewsSection from '../components/news/NewsSection';
 import { useLiteMode } from '../hooks/useLiteMode';
-import { getCachedUltimaMode, useUltimaMode } from '../hooks/useUltimaMode';
 import { LiteDashboard } from './LiteDashboard';
 import { UltimaDashboard } from './UltimaDashboard';
 import SubscriptionCardExpired from '../components/dashboard/SubscriptionCardExpired';
@@ -61,19 +60,26 @@ function getTrafficColor(percent: number): string {
   return 'bg-success-500';
 }
 
+import { useActiveTheme } from '../hooks/useActiveTheme';
+import { FreshDashboardPage } from '@/themes/fresh/pages/FreshDashboardPage';
+
 export default function Dashboard() {
   const { i18n } = useTranslation();
   const { isLiteMode, isLiteModeReady } = useLiteMode();
-  const { isUltimaMode, isUltimaModeReady } = useUltimaMode();
+  const { isFresh, isUltima } = useActiveTheme();
   const isI18nReady =
     i18n.isInitialized &&
     (typeof i18n.hasLoadedNamespace !== 'function' || i18n.hasLoadedNamespace('translation'));
 
-  if (!isLiteModeReady || !isUltimaModeReady || !isI18nReady) {
-    return <PageLoader variant={getCachedUltimaMode() ? 'ultima' : 'dark'} />;
+  if (!isLiteModeReady || !isI18nReady) {
+    return <PageLoader variant={isFresh ? 'fresh' : isUltima ? 'ultima' : 'dark'} />;
   }
 
-  if (isUltimaMode) {
+  if (isFresh) {
+    return <FreshDashboardPage />;
+  }
+
+  if (isUltima) {
     return <UltimaDashboard />;
   }
 
