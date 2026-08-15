@@ -52,7 +52,7 @@ export function FreshDashboardPage() {
         <div className="flex justify-center">
           <button
             type="button"
-            onClick={() => navigate('/fresh/connection')}
+            onClick={() => navigate('/connection')}
             className="fresh-release-badge group mb-8 inline-flex items-center gap-2.5 rounded-full p-1 pr-4 text-xs transition-all hover:border-white/20"
           >
             <span
@@ -101,7 +101,7 @@ export function FreshDashboardPage() {
               />
               <button
                 type="button"
-                onClick={() => navigate('/fresh/connection')}
+                onClick={() => navigate('/connection')}
                 className="fresh-glow-btn relative z-10 flex items-center justify-center gap-2 rounded-full px-9 py-4 text-[15px] font-bold text-black transition-all"
               >
                 <span>Подключить устройство</span>
@@ -238,7 +238,7 @@ export function FreshDashboardPage() {
 
           {/* Card 2: Тариф и трафик (Surface what matters) */}
           <div
-            onClick={() => navigate('/fresh/subscription')}
+            onClick={() => navigate('/subscription')}
             className="fresh-bento-card group flex cursor-pointer flex-col justify-between p-7"
           >
             <div>

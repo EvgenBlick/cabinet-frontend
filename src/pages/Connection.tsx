@@ -19,14 +19,33 @@ import { CyberConnectionPage } from '@/themes/cyber-matrix/pages/CyberConnection
 import { useThemeEngine } from '@/themes/core/ThemeEngineContext';
 
 export default function Connection() {
+  const { isUltimaMode } = useUltimaMode();
+  const { activeTheme } = useThemeEngine();
+
+  if (activeTheme === 'cyber_matrix') {
+    return <CyberConnectionPage />;
+  }
+
+  if (activeTheme === 'fresh') {
+    return <FreshConnectionPage />;
+  }
+
+  return <FullConnection isUltimaMode={isUltimaMode} activeTheme={activeTheme} />;
+}
+
+function FullConnection({
+  isUltimaMode,
+  activeTheme,
+}: {
+  isUltimaMode: boolean;
+  activeTheme: string;
+}) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
   const isAdmin = useAuthStore((state) => state.isAdmin);
   const { isTelegramWebApp, safeAreaInset, contentSafeAreaInset, isFullscreen, isMobile } =
     useTelegramSDK();
-  const { isUltimaMode } = useUltimaMode();
-  const { activeTheme } = useThemeEngine();
   const queryClient = useQueryClient();
   const telegramTopOffset =
     isTelegramWebApp && isFullscreen ? Math.max(safeAreaInset.top, contentSafeAreaInset.top) : 0;
@@ -188,14 +207,6 @@ export default function Connection() {
         </button>
       </div>
     );
-  }
-
-  if (activeTheme === 'cyber_matrix') {
-    return <CyberConnectionPage />;
-  }
-
-  if (activeTheme === 'fresh') {
-    return <FreshConnectionPage />;
   }
 
   if (activeTheme === 'samurai_gold' || isUltimaMode) {

@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Headphones, Send, X } from 'lucide-react';
 import { useFreshThemeContext } from '../FreshThemeContext';
+import { infoApi } from '@/api/info';
 
 export function FreshSupportModal() {
   const { activeModal, closeModal, config } = useFreshThemeContext();
@@ -8,9 +10,16 @@ export function FreshSupportModal() {
   const [ticketMessage, setTicketMessage] = useState('');
   const [sentSuccess, setSentSuccess] = useState(false);
 
+  const { data: supportConfig } = useQuery({
+    queryKey: ['support-config'],
+    queryFn: infoApi.getSupportConfig,
+    staleTime: 60000,
+  });
+
   if (activeModal !== 'support') return null;
 
   const accentLime = config.accentColor || '#d7ff3b';
+  const supportUrl = (supportConfig as any)?.support_url || 'https://t.me/Zeropingvpn_bot';
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,7 +72,7 @@ export function FreshSupportModal() {
               </div>
             </div>
             <a
-              href="https://t.me/support"
+              href={supportUrl}
               target="_blank"
               rel="noreferrer"
               className="rounded-xl px-4 py-2 text-xs font-bold text-black transition-transform hover:scale-105"
