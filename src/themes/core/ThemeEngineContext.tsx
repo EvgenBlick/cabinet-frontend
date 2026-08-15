@@ -119,6 +119,7 @@ interface ThemeEngineContextValue {
   isStudioOpen: boolean;
   setIsStudioOpen: (open: boolean) => void;
   toggleStudio: () => void;
+  openThemeStudio: () => void;
   applyForEveryone: () => Promise<void>;
   isSaving: boolean;
 }
@@ -233,6 +234,7 @@ export const ThemeEngineProvider: React.FC<{ children: React.ReactNode }> = ({ c
   };
 
   const toggleStudio = () => setIsStudioOpen((prev) => !prev);
+  const openThemeStudio = () => setIsStudioOpen(true);
 
   const applyForEveryone = async () => {
     setIsSaving(true);
@@ -256,6 +258,7 @@ export const ThemeEngineProvider: React.FC<{ children: React.ReactNode }> = ({ c
       isStudioOpen,
       setIsStudioOpen,
       toggleStudio,
+      openThemeStudio,
       applyForEveryone,
       isSaving,
     }),

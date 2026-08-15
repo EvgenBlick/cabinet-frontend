@@ -58,13 +58,24 @@ export const CyberMobileDashboard: React.FC = () => {
 
         <div className="flex items-center gap-2">
           {isAdmin && (
-            <button
-              type="button"
-              onClick={toggleStudio}
-              className="flex h-8 w-8 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white"
-            >
-              <Settings className="h-4 w-4" style={{ color: accent }} />
-            </button>
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => navigate('/admin')}
+                className="flex items-center gap-1 rounded-xl border border-amber-500/40 bg-amber-500/15 px-2 py-1 text-[10px] font-bold text-amber-300"
+                title="Панель администратора"
+              >
+                <span>Admin</span>
+              </button>
+              <button
+                type="button"
+                onClick={toggleStudio}
+                className="flex h-8 w-8 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white"
+                title="Theme Studio"
+              >
+                <Settings className="h-4 w-4" style={{ color: accent }} />
+              </button>
+            </div>
           )}
 
           <span className="rounded-full border border-white/10 bg-black/50 px-2.5 py-1 font-mono text-[10px] text-emerald-400">

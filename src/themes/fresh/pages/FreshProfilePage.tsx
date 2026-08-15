@@ -109,17 +109,28 @@ export function FreshProfilePage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             {isAdmin && (
-              <button
-                type="button"
-                onClick={toggleStudio}
-                className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-2.5 text-xs font-bold text-white transition-transform hover:scale-105"
-                style={{ borderColor: `${accentLime}40` }}
-              >
-                <Settings className="h-4 w-4" style={{ color: accentLime }} />
-                <span>Theme Studio</span>
-              </button>
+              <>
+                <button
+                  type="button"
+                  onClick={() => navigate('/admin')}
+                  className="flex items-center gap-2 rounded-2xl border border-amber-500/40 bg-amber-500/10 px-4 py-2.5 text-xs font-bold text-amber-300 transition-transform hover:scale-105 hover:bg-amber-500/20"
+                >
+                  <ShieldCheck className="h-4 w-4 text-amber-300" />
+                  <span>Панель управления</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={toggleStudio}
+                  className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-2.5 text-xs font-bold text-white transition-transform hover:scale-105"
+                  style={{ borderColor: `${accentLime}40` }}
+                >
+                  <Settings className="h-4 w-4" style={{ color: accentLime }} />
+                  <span>Theme Studio</span>
+                </button>
+              </>
             )}
 
             <button

@@ -6,7 +6,9 @@ import {
   Headphones,
   HelpCircle,
   Laptop,
+  LayoutDashboard,
   LogOut,
+  Palette,
   Shield,
   Smartphone,
   Tv,
@@ -289,8 +291,21 @@ export function FreshNavbar() {
             </div>
           </nav>
 
-          {/* 3. Right: User Profile & Connect CTA Button */}
-          <div className="flex items-center gap-3">
+          {/* 3. Right: User Profile, Admin CTA & Connect CTA Button */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Quick Admin Direct Link if isAdmin */}
+            {isAdmin && (
+              <button
+                type="button"
+                onClick={() => navigate('/admin')}
+                className="flex items-center gap-1.5 rounded-full border border-amber-500/40 bg-amber-500/10 px-3 py-1.5 text-xs font-bold text-amber-300 transition-all hover:border-amber-500/70 hover:bg-amber-500/20 focus:outline-none"
+                title="Панель администратора"
+              >
+                <Shield className="h-3.5 w-3.5 text-amber-300" />
+                <span className="hidden md:inline">Админка</span>
+              </button>
+            )}
+
             {/* Quick Connect CTA Button */}
             <button
               type="button"
@@ -322,11 +337,18 @@ export function FreshNavbar() {
               </button>
 
               {activeDropdown === 'profile' && (
-                <div className="fresh-bento-card animate-in fade-in slide-in-from-top-2 absolute right-0 top-11 w-56 p-3 shadow-2xl backdrop-blur-3xl duration-200">
+                <div className="fresh-bento-card animate-in fade-in slide-in-from-top-2 absolute right-0 top-11 w-64 p-3 shadow-2xl backdrop-blur-3xl duration-200">
                   <div className="space-y-1.5 text-xs">
                     <div className="border-b border-white/10 px-1 pb-2">
-                      <div className="font-bold text-white">
-                        {user?.first_name || 'Пользователь'}
+                      <div className="flex items-center justify-between">
+                        <div className="font-bold text-white">
+                          {user?.first_name || 'Пользователь'}
+                        </div>
+                        {isAdmin && (
+                          <span className="rounded-full bg-amber-400/20 px-1.5 py-0.5 text-[9px] font-black text-amber-300">
+                            ADMIN
+                          </span>
+                        )}
                       </div>
                       <div className="mt-0.5 text-[11px] text-[#8e9690]">
                         Баланс: <span className="font-semibold text-white">{balanceRub} ₽</span>
@@ -342,7 +364,7 @@ export function FreshNavbar() {
                       className="flex w-full items-center gap-2 rounded-xl p-2 text-left text-[#f5f5f7] hover:bg-white/10"
                     >
                       <UserIcon className="h-4 w-4 text-[#8e9690]" />
-                      <span>Мой профиль и слоты</span>
+                      <span>Мой профиль и подписка</span>
                     </button>
 
                     <button
@@ -354,21 +376,45 @@ export function FreshNavbar() {
                       className="flex w-full items-center gap-2 rounded-xl p-2 text-left text-[#f5f5f7] hover:bg-white/10"
                     >
                       <CreditCard className="h-4 w-4 text-[#8e9690]" />
-                      <span>Пополнить баланс</span>
+                      <span>Пополнить баланс и тарифы</span>
                     </button>
 
                     {isAdmin && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setActiveDropdown(null);
-                          navigate('/admin/fresh-theme');
-                        }}
-                        className="flex w-full items-center gap-2 rounded-xl p-2 text-left text-amber-300 hover:bg-white/10"
-                      >
-                        <Shield className="h-4 w-4" />
-                        <span>Настройки тем (Админ)</span>
-                      </button>
+                      <div className="my-1 border-t border-white/10 pt-1">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setActiveDropdown(null);
+                            navigate('/admin');
+                          }}
+                          className="flex w-full items-center gap-2 rounded-xl p-2 text-left text-amber-300 hover:bg-amber-500/10"
+                        >
+                          <LayoutDashboard className="h-4 w-4 text-amber-300" />
+                          <div>
+                            <div className="font-semibold">Панель управления</div>
+                            <div className="text-[10px] text-amber-200/60">
+                              Пользователи, серверы, тарифы
+                            </div>
+                          </div>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setActiveDropdown(null);
+                            openModal('studio');
+                          }}
+                          className="flex w-full items-center gap-2 rounded-xl p-2 text-left text-emerald-300 hover:bg-emerald-500/10"
+                        >
+                          <Palette className="h-4 w-4 text-emerald-300" />
+                          <div>
+                            <div className="font-semibold">Theme Studio</div>
+                            <div className="text-[10px] text-emerald-200/60">
+                              Редактор тем и оформления
+                            </div>
+                          </div>
+                        </button>
+                      </div>
                     )}
 
                     <button

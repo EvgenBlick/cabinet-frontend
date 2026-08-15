@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import apiClient from '../api/client';
+import { useAuthStore } from './auth';
 
 interface PermissionsResponse {
   permissions: string[];
@@ -50,26 +51,33 @@ export const usePermissionStore = create<PermissionState>((set, get) => ({
   isLoaded: false,
 
   fetchPermissions: async () => {
+    const isGlobalAdmin = useAuthStore.getState().isAdmin;
     try {
       const response = await apiClient.get<PermissionsResponse>('/cabinet/auth/me/permissions');
       set({
-        permissions: response.data.permissions,
-        roles: response.data.roles,
-        roleLevel: response.data.role_level,
+        permissions: isGlobalAdmin ? ['*:*'] : response.data.permissions,
+        roles:
+          isGlobalAdmin && !response.data.roles.includes('SuperAdmin')
+            ? [...response.data.roles, 'SuperAdmin']
+            : response.data.roles,
+        roleLevel: isGlobalAdmin ? 100 : response.data.role_level,
         isLoaded: true,
       });
     } catch {
       set({
-        permissions: [],
-        roles: [],
-        roleLevel: 0,
+        permissions: isGlobalAdmin ? ['*:*'] : [],
+        roles: isGlobalAdmin ? ['SuperAdmin'] : [],
+        roleLevel: isGlobalAdmin ? 100 : 0,
         isLoaded: true,
       });
     }
   },
 
   hasPermission: (permission: string): boolean => {
-    const { permissions } = get();
+    const { permissions, roles } = get();
+    if (roles.includes('SuperAdmin') || roles.includes('admin') || permissions.includes('*:*')) {
+      return true;
+    }
     return permissions.some((userPerm) => permissionMatches(userPerm, permission));
   },
 

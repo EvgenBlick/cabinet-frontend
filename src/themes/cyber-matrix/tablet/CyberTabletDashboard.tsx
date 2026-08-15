@@ -51,14 +51,25 @@ export const CyberTabletDashboard: React.FC = () => {
 
           <div className="flex items-center gap-3">
             {isAdmin && (
-              <button
-                type="button"
-                onClick={toggleStudio}
-                className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-1.5 text-xs font-semibold text-white"
-              >
-                <Settings className="h-3.5 w-3.5" style={{ color: accent }} />
-                <span>Theme Studio</span>
-              </button>
+              <>
+                <button
+                  type="button"
+                  onClick={() => navigate('/admin')}
+                  className="flex items-center gap-1.5 rounded-full border border-amber-500/40 bg-amber-500/10 px-3.5 py-1.5 text-xs font-bold text-amber-300 transition-all hover:scale-105 hover:bg-amber-500/20"
+                >
+                  <ShieldCheck className="h-3.5 w-3.5 text-amber-300" />
+                  <span>Панель Admin</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={toggleStudio}
+                  className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-1.5 text-xs font-semibold text-white"
+                >
+                  <Settings className="h-3.5 w-3.5" style={{ color: accent }} />
+                  <span>Theme Studio</span>
+                </button>
+              </>
             )}
 
             <button

@@ -64,17 +64,28 @@ export const CyberDesktopDashboard: React.FC = () => {
 
           {/* Right Action buttons */}
           <div className="flex items-center gap-3">
-            {/* Live Studio Button for Admin */}
+            {/* Live Admin and Studio Buttons for Admin */}
             {isAdmin && (
-              <button
-                type="button"
-                onClick={toggleStudio}
-                className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-1.5 text-xs font-semibold text-white transition-all hover:scale-105 hover:bg-white/10"
-                style={{ borderColor: `${accent}40` }}
-              >
-                <Settings className="h-3.5 w-3.5 animate-spin" style={{ color: accent }} />
-                <span>Theme Studio</span>
-              </button>
+              <>
+                <button
+                  type="button"
+                  onClick={() => navigate('/admin')}
+                  className="flex items-center gap-1.5 rounded-full border border-amber-500/40 bg-amber-500/10 px-3.5 py-1.5 text-xs font-bold text-amber-300 transition-all hover:scale-105 hover:bg-amber-500/20"
+                >
+                  <ShieldCheck className="h-3.5 w-3.5 text-amber-300" />
+                  <span>Панель Admin</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={toggleStudio}
+                  className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-1.5 text-xs font-semibold text-white transition-all hover:scale-105 hover:bg-white/10"
+                  style={{ borderColor: `${accent}40` }}
+                >
+                  <Settings className="h-3.5 w-3.5" style={{ color: accent }} />
+                  <span>Theme Studio</span>
+                </button>
+              </>
             )}
 
             <button
