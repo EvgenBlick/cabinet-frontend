@@ -326,7 +326,7 @@ export function FreshConnectionPage() {
                   </div>
                 </button>
                 <p className="mt-3 text-xs text-[#8e9690]">
-                  Наведите камеру в Happ или v2rayNG для моментального добавления
+                  Наведите камеру в приложении Happ или Incy для моментального добавления
                 </p>
               </div>
 
@@ -337,6 +337,27 @@ export function FreshConnectionPage() {
               >
                 <span>Развернуть на весь экран</span>
               </button>
+            </div>
+
+            {/* 🔥 Наша фишка: Умная маршрутизация Яндекса и РФ сервисов */}
+            <div className="fresh-bento-card border border-[#d7ff3b]/30 p-5 shadow-xl">
+              <div className="flex items-center gap-2.5">
+                <div
+                  className="flex h-7 w-7 items-center justify-center rounded-lg text-xs font-black text-black"
+                  style={{ backgroundColor: accentLime }}
+                >
+                  Я
+                </div>
+                <span className="text-xs font-black uppercase tracking-wider text-white">
+                  Умная маршрутизация Яндекса и РФ
+                </span>
+              </div>
+              <p className="mt-2.5 text-xs leading-relaxed text-[#c4ceca]">
+                Все сервисы <strong className="text-white">Яндекса</strong> (Музыка, Кинопоиск,
+                Поиск, Карты, Такси), а также <strong>Госуслуги и Банки</strong> работают напрямую
+                на максимальной скорости вашего провайдера без VPN. Трафик не расходуется, а
+                YouTube, Instagram и ChatGPT защищены на 100%.
+              </p>
             </div>
 
             {/* Server Nodes Card */}

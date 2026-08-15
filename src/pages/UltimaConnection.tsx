@@ -46,7 +46,8 @@ const DEFAULT_PLATFORM_APPS: Record<
   ios: [
     {
       name: 'Happ (Рекомендуется)',
-      description: 'Официальный современный клиент с поддержкой авто-подключения и умной защиты.',
+      description:
+        'Современный клиент для iOS & iPadOS с авто-подключением и умным обходом блокировок.',
       recommended: true,
       downloads: [
         {
@@ -57,13 +58,13 @@ const DEFAULT_PLATFORM_APPS: Record<
       ],
     },
     {
-      name: 'Streisand',
-      description: 'Быстрый и надежный VPN-клиент для iOS и iPadOS с поддержкой Xray.',
+      name: 'Incy',
+      description: 'Удобный клиент Incy с поддержкой быстрых крипто-ссылок и маршрутизации.',
       recommended: false,
       downloads: [
         {
           label: 'App Store',
-          url: 'https://apps.apple.com/app/streisand/id6450534064',
+          url: 'https://apps.apple.com',
           kind: 'store',
         },
       ],
@@ -89,18 +90,18 @@ const DEFAULT_PLATFORM_APPS: Record<
       ],
     },
     {
-      name: 'v2rayNG',
-      description: 'Классический проверенный клиент с тонкой настройкой маршрутизации.',
+      name: 'Incy for Android',
+      description: 'Официальное приложение Incy для Android.',
       recommended: false,
       downloads: [
         {
           label: 'Google Play',
-          url: 'https://play.google.com/store/apps/details?id=com.v2ray.ang',
+          url: 'https://play.google.com',
           kind: 'store',
         },
         {
-          label: 'GitHub APK',
-          url: 'https://github.com/2dust/v2rayNG/releases/latest',
+          label: 'Скачать APK',
+          url: 'https://github.com',
           kind: 'apk',
         },
       ],
@@ -109,24 +110,25 @@ const DEFAULT_PLATFORM_APPS: Record<
   windows: [
     {
       name: 'Happ for Windows',
-      description: 'Удобное приложение для Windows 10/11 с системным прокси и авто-запуском.',
+      description:
+        'Удобное приложение для Windows 10/11 с системным треем и авто-обновлением серверов.',
       recommended: true,
       downloads: [
         {
           label: 'Скачать установщик (.exe)',
-          url: 'https://github.com/happ-proxy/happ-desktop/releases/latest',
+          url: 'https://github.com/happ-proxy/happ-windows/releases/latest',
           kind: 'direct',
         },
       ],
     },
     {
-      name: 'v2rayN',
-      description: 'Мощный полнофункциональный клиент для опытных пользователей.',
+      name: 'Incy Desktop',
+      description: 'Приложение Incy для Windows ПК.',
       recommended: false,
       downloads: [
         {
-          label: 'GitHub Release (.zip)',
-          url: 'https://github.com/2dust/v2rayN/releases/latest',
+          label: 'Скачать для Windows',
+          url: 'https://github.com',
           kind: 'direct',
         },
       ],
@@ -135,7 +137,7 @@ const DEFAULT_PLATFORM_APPS: Record<
   macos: [
     {
       name: 'Happ for Mac',
-      description: 'Нативное приложение с поддержкой Apple Silicon M1/M2/M3/M4 и Intel.',
+      description: 'Нативное приложение с поддержкой Apple Silicon (M1/M2/M3/M4) и Intel.',
       recommended: true,
       downloads: [
         {
@@ -146,13 +148,13 @@ const DEFAULT_PLATFORM_APPS: Record<
       ],
     },
     {
-      name: 'Streisand for Mac',
-      description: 'Легкий и удобный клиент с быстрой интеграцией в строку меню.',
+      name: 'Incy for macOS',
+      description: 'Клиент Incy для компьютеров Apple Mac.',
       recommended: false,
       downloads: [
         {
-          label: 'Mac App Store',
-          url: 'https://apps.apple.com/app/streisand/id6450534064',
+          label: 'App Store',
+          url: 'https://apps.apple.com',
           kind: 'store',
         },
       ],
@@ -161,12 +163,29 @@ const DEFAULT_PLATFORM_APPS: Record<
   tv: [
     {
       name: 'Happ Android TV',
-      description: 'Адаптированный интерфейс для телевизоров и ТВ-приставок с управлением пультом.',
+      description: 'Специальная версия Happ под пульт телевизора и приставки.',
       recommended: true,
       downloads: [
         {
-          label: 'Скачать APK для Android TV',
+          label: 'Google Play TV',
+          url: 'https://play.google.com/store/apps/details?id=com.happproxy',
+          kind: 'store',
+        },
+        {
+          label: 'Скачать APK',
           url: 'https://github.com/happ-proxy/happ-android/releases/latest',
+          kind: 'apk',
+        },
+      ],
+    },
+    {
+      name: 'Incy Smart TV',
+      description: 'Приложение Incy для Smart TV.',
+      recommended: false,
+      downloads: [
+        {
+          label: 'Скачать APK',
+          url: 'https://github.com',
           kind: 'apk',
         },
       ],
@@ -288,7 +307,7 @@ export function UltimaConnection({
                   <QRCodeSVG value={subscriptionUrl} size={190} level="M" includeMargin={false} />
                 </div>
                 <p className="mt-3 text-center text-xs font-medium text-[#8e929b]">
-                  Наведите камеру в приложении Happ, v2rayNG или Streisand
+                  Наведите камеру в приложении Happ или Incy
                 </p>
               </div>
 
@@ -302,7 +321,7 @@ export function UltimaConnection({
                     className="btn-gold-beam-inner flex min-h-[50px] w-full items-center justify-center gap-2 px-4 py-3 text-sm font-bold text-[#0a0c0f]"
                   >
                     <Radio className="h-4 w-4 shrink-0" />
-                    <span>Открыть в приложении Happ</span>
+                    <span>Открыть в приложении Happ (1 клик)</span>
                     <ChevronRight className="h-4 w-4 opacity-80" />
                   </button>
                 </div>
@@ -326,6 +345,24 @@ export function UltimaConnection({
                   )}
                 </button>
               </div>
+            </div>
+
+            {/* 🔥 Наша фишка: Умная маршрутизация Яндекса и РФ сервисов */}
+            <div className="rounded-[22px] border border-[#d4b37f]/30 bg-gradient-to-br from-[#1a160f]/90 to-[#0e0c08]/95 p-5 shadow-xl">
+              <div className="flex items-center gap-2.5 text-[#d4b37f]">
+                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#d4b37f]/20 text-xs font-black">
+                  Я
+                </div>
+                <span className="text-xs font-black uppercase tracking-wider text-white">
+                  Умная маршрутизация Яндекса и РФ
+                </span>
+              </div>
+              <p className="mt-2 text-xs leading-relaxed text-[#c4b5a0]">
+                Все сервисы <strong className="text-white">Яндекса</strong> (Музыка, Кинопоиск,
+                Поиск, Карты), а также <strong>Госуслуги и Банки</strong> работают напрямую на
+                максимальной скорости вашего провайдера без VPN. Трафик не расходуется, а YouTube и
+                заблокированные сайты защищены на 100%.
+              </p>
             </div>
 
             {/* Support CTA Banner */}
