@@ -74,6 +74,11 @@ const AdminUltimaTrafficWarning = lazy(() => import('../AdminUltimaTrafficWarnin
 const AdminUltimaMeteredTraffic = lazy(() => import('../AdminUltimaMeteredTraffic'));
 const AdminUltimaCategorySettings = lazy(() => import('../AdminUltimaCategorySettings'));
 const AdminUltimaTheme = lazy(() => import('../AdminUltimaTheme'));
+const FreshThemeAdminSettings = lazy(() =>
+  import('../../components/themes/fresh/admin/FreshThemeAdminSettings').then((m) => ({
+    default: m.FreshThemeAdminSettings,
+  })),
+);
 
 const withAdminLayout = (element: React.ReactNode) => (
   <AdminRoute>
@@ -87,6 +92,7 @@ export const adminRoutes: RouteConfig[] = [
   { path: '/admin/account-linking', element: withAdminLayout(<AdminAccountLinking />) },
   { path: '/admin/tickets/settings', element: withAdminLayout(<AdminTicketSettings />) },
   { path: '/admin/settings', element: withAdminLayout(<AdminSettings />) },
+  { path: '/admin/fresh-theme', element: withAdminLayout(<FreshThemeAdminSettings />) },
   { path: '/admin/ultima-settings', element: withAdminLayout(<AdminUltimaSettings />) },
   {
     path: '/admin/ultima-settings/agreement',

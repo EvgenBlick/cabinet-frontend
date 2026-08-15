@@ -33,8 +33,12 @@
             meta.setAttribute('content', theme === 'light' ? '#fef9f0' : '#0a0f1a');
           }
 
-          const ultimaEnabled = localStorage.getItem(ULTIMA_MODE_KEY) === 'true';
-          if (ultimaEnabled) {
+          const isFresh =
+            window.location.pathname.startsWith('/fresh') ||
+            localStorage.getItem('cabinet_active_theme') === 'fresh';
+          if (isFresh) {
+            document.documentElement.classList.add('fresh-prepaint');
+          }
             const ultimaRaw = localStorage.getItem(ULTIMA_THEME_CONFIG_KEY);
             let ultimaConfig = ultimaRaw ? JSON.parse(ultimaRaw) : null;
             const hasGreen = /1bd29f|00d285|1ed6bf|21d09a|10b981|0c2d2a|0c2528|0f3a38|92f4d8|49e9b3|b8ffec|emerald/i.test(ultimaRaw || '');
@@ -137,12 +141,19 @@
       html.light #app-startup-overlay {
         background: radial-gradient(circle at 70% 45%, rgba(212, 179, 127, 0.12), #f7e7ce 60%);
       }
-      html.ultima-prepaint #app-startup-overlay {
-        background: radial-gradient(
-          circle at 70% 45%,
-          color-mix(in srgb, var(--ultima-color-aura) 28%, transparent),
-          color-mix(in srgb, var(--ultima-color-bg-top) 82%, #000) 60%
-        );
+      html.fresh-prepaint body {
+        background-color: #060907;
+      }
+      html.fresh-prepaint #app-startup-overlay {
+        background: radial-gradient(circle at 50% 45%, rgba(215, 255, 59, 0.22), #060907 65%);
+      }
+      html.fresh-prepaint .startup-loader-mark {
+        border-color: rgba(215, 255, 59, 0.4);
+        box-shadow: 0 0 50px rgba(215, 255, 59, 0.35);
+        background: rgba(13, 22, 16, 0.6);
+      }
+      html.fresh-prepaint .startup-loader-core {
+        border-top-color: #d7ff3b;
       }
       html.app-ready #app-startup-overlay {
         opacity: 0;

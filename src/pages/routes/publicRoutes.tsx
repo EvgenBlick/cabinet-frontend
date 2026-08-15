@@ -8,7 +8,20 @@ import VerifyEmail from '../VerifyEmail';
 import ResetPassword from '../ResetPassword';
 import GuestSupport from '../GuestSupport';
 
+import { FreshAppShell } from '@/themes/fresh/FreshAppShell';
+import { FreshThemeProvider } from '@/themes/fresh/FreshThemeContext';
+import { FreshLoginPage } from '@/themes/fresh/pages/FreshLoginPage';
+
 export const publicRoutes: RouteConfig[] = [
+  {
+    path: '/fresh/login',
+    element: (
+      <FreshThemeProvider>
+        <FreshLoginPage />
+      </FreshThemeProvider>
+    ),
+  },
+  { path: '/fresh/*', element: <FreshAppShell /> },
   { path: '/login', element: <Login /> },
   { path: '/auth/telegram/callback', element: <TelegramCallback /> },
   { path: '/auth/telegram', element: <TelegramRedirect /> },

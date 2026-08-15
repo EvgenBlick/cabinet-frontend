@@ -1026,6 +1026,13 @@ export default function AdminPanel() {
             permission: 'settings:read',
           },
           {
+            to: '/admin/fresh-theme',
+            icon: <SparklesIcon />,
+            title: 'Кастомизация FRESH',
+            description: 'Логотип, цвета, фоновые изображения и пресеты темы FRESH',
+            permission: 'settings:read',
+          },
+          {
             to: '/admin/ultima-settings',
             icon: <MainMenuButtonsIcon />,
             title: t('admin.nav.ultimaSettings', { defaultValue: 'Ultima настройки' }),

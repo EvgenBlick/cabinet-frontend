@@ -168,10 +168,21 @@ export function AppStartupGate({
   const isBootstrapReady = !isStarting && !authIsLoading && isLocaleReady;
 
   useEffect(() => {
-    if (!isBootstrapReady) return;
-
-    setIsContentMounted(true);
+    if (isBootstrapReady || window.location.pathname.startsWith('/fresh')) {
+      setIsContentMounted(true);
+      document.documentElement.classList.add('app-ready');
+      document.getElementById('app-startup-overlay')?.remove();
+    }
   }, [isBootstrapReady]);
+
+  useEffect(() => {
+    const safetyTimer = window.setTimeout(() => {
+      setIsContentMounted(true);
+      document.documentElement.classList.add('app-ready');
+      document.getElementById('app-startup-overlay')?.remove();
+    }, 400);
+    return () => window.clearTimeout(safetyTimer);
+  }, []);
 
   useEffect(() => {
     if (!isContentMounted) return;
