@@ -17,9 +17,10 @@ interface Plan {
   discountBadge?: string;
   isPopular?: boolean;
   pricePerMonth: number;
+  features?: string[];
 }
 
-const PLANS: Plan[] = [
+const DEFAULT_PLANS: Plan[] = [
   {
     id: 'plan_1m',
     name: '1 Месяц',
@@ -69,10 +70,39 @@ export const CyberSubscriptionPage: React.FC = () => {
     queryFn: subscriptionApi.getSubscription,
   });
 
-  const subscription = subData?.subscription;
-  const daysLeft = subscription?.days_left ?? 30;
+  const { data: purchaseOptions } = useQuery({
+    queryKey: ['purchase-options'],
+    queryFn: subscriptionApi.getPurchaseOptions,
+  });
+
+  const plans: Plan[] = React.useMemo(() => {
+    if (
+      purchaseOptions &&
+      (purchaseOptions as any).tariffs &&
+      (purchaseOptions as any).tariffs.length > 0
+    ) {
+      return (purchaseOptions as any).tariffs.map((t: any) => {
+        const months = Math.max(1, Math.round((t.duration_days || 30) / 30));
+        const price = t.price_rubles ?? Math.round((t.price_kopeks || 0) / 100);
+        return {
+          id: String(t.id),
+          name: t.name,
+          durationMonths: months,
+          priceRub: price,
+          oldPriceRub: t.old_price_rubles,
+          discountBadge: t.discount_badge,
+          isPopular: !!t.is_popular,
+          pricePerMonth: Math.round(price / months),
+          features: t.features,
+        };
+      });
+    }
+    return DEFAULT_PLANS;
+  }, [purchaseOptions]);
+
+  const daysLeft = subData?.subscription?.days_left ?? 30;
   const accent = config.accentColor || '#00ff66';
-  const selectedPlan = PLANS.find((p) => p.id === selectedPlanId) || PLANS[3];
+  const selectedPlan = plans.find((p) => p.id === selectedPlanId) || plans[0] || DEFAULT_PLANS[0];
 
   const handleProceedToPayment = () => {
     setIsProcessing(true);
@@ -141,7 +171,7 @@ export const CyberSubscriptionPage: React.FC = () => {
 
         {/* Pricing Cards Grid (4 Plans) */}
         <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {PLANS.map((plan) => {
+          {plans.map((plan) => {
             const isSelected = selectedPlanId === plan.id;
             return (
               <div

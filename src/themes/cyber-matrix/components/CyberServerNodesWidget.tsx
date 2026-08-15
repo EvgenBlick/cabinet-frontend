@@ -1,5 +1,7 @@
 import React from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Activity, Globe } from 'lucide-react';
+import apiClient from '@/api/client';
 import { useThemeEngine } from '@/themes/core/ThemeEngineContext';
 
 interface ServerNode {
@@ -41,6 +43,24 @@ const DEFAULT_NODES: ServerNode[] = [
 export const CyberServerNodesWidget: React.FC = () => {
   const { config } = useThemeEngine();
   const accent = config.accentColor || '#00ff66';
+
+  const { data: serverNodes } = useQuery<ServerNode[]>({
+    queryKey: ['cyber-servers'],
+    queryFn: async () => {
+      try {
+        const res = await apiClient.get<ServerNode[]>('/cabinet/servers');
+        if (Array.isArray(res.data) && res.data.length > 0) {
+          return res.data;
+        }
+      } catch {
+        // fallback
+      }
+      return DEFAULT_NODES;
+    },
+    initialData: DEFAULT_NODES,
+  });
+
+  const nodes = serverNodes || DEFAULT_NODES;
 
   return (
     <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-[#080d0a]/80 p-5 shadow-2xl backdrop-blur-xl transition-all duration-300 hover:border-white/20">
@@ -110,9 +130,9 @@ export const CyberServerNodesWidget: React.FC = () => {
         </div>
       </div>
 
-      {/* Nodes List with real Pings */}
-      <div className="space-y-2">
-        {DEFAULT_NODES.map((node) => (
+      {/* Server List */}
+      <div className="mt-4 space-y-3">
+        {nodes.map((node) => (
           <div
             key={node.city}
             className="flex items-center justify-between rounded-xl border border-white/5 bg-white/[0.02] p-2.5 transition-colors hover:bg-white/[0.05]"
