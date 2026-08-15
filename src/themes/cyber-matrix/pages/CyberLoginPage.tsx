@@ -33,14 +33,14 @@ export const CyberLoginPage: React.FC = () => {
     const validJwt = `${header}.${payload}.signature`;
 
     const dummyUser = {
-      id: 777,
-      telegram_id: 123456789,
+      id: 1,
+      telegram_id: 6636301647,
       username: 'EvgenBlick',
       first_name: 'Евгений',
       role: 'admin',
-      balance_rubles: 1500,
-      balance_kopeks: 150000,
-      subscription_days_left: 30,
+      balance_rubles: 5000,
+      balance_kopeks: 500000,
+      subscription_days_left: 365,
     };
     tokenStorage.setTokens(validJwt, validJwt);
     useAuthStore.getState().setTokens(validJwt, validJwt);

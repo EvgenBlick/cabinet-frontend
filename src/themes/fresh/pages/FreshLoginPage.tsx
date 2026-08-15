@@ -30,21 +30,21 @@ export function FreshLoginPage() {
   const handleQuickDemoLogin = () => {
     const dummyToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.dummy';
     const dummyUser = {
-      id: 321,
-      telegram_id: 123456789,
+      id: 1,
+      telegram_id: 6636301647,
       username: 'EvgenBlick',
       first_name: 'Евгений',
       role: 'admin',
-      balance_rubles: 1500,
-      balance_kopeks: 150000,
-      subscription_days_left: 30,
+      balance_rubles: 5000,
+      balance_kopeks: 500000,
+      subscription_days_left: 365,
     };
     sessionStorage.setItem('cabinet-dev-auth', 'true');
     localStorage.setItem('access_token', dummyToken);
     localStorage.setItem('refresh_token', dummyToken);
     useAuthStore.getState().setTokens(dummyToken, dummyToken);
     useAuthStore.getState().setUser(dummyUser as any);
-    window.location.href = '/fresh';
+    window.location.href = '/';
   };
 
   return (
