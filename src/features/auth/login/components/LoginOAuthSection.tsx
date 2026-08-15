@@ -7,6 +7,7 @@ interface LoginOAuthSectionProps {
   providers: OAuthProvider[];
   oauthLoading: string | null;
   onOAuthLogin: (provider: string) => void;
+  showDivider?: boolean;
 }
 
 export function LoginOAuthSection({
@@ -14,6 +15,7 @@ export function LoginOAuthSection({
   providers,
   oauthLoading,
   onOAuthLogin,
+  showDivider = true,
 }: LoginOAuthSectionProps) {
   const { t } = useTranslation();
 
@@ -23,11 +25,13 @@ export function LoginOAuthSection({
 
   return (
     <>
-      <div className="my-4 flex items-center gap-3">
-        <div className="h-px flex-1 bg-dark-700" />
-        <span className="text-xs text-dark-500">{t('auth.or', 'or')}</span>
-        <div className="h-px flex-1 bg-dark-700" />
-      </div>
+      {showDivider && (
+        <div className="my-4 flex items-center gap-3">
+          <div className="h-px flex-1 bg-dark-700" />
+          <span className="text-xs text-dark-500">{t('auth.or', 'or')}</span>
+          <div className="h-px flex-1 bg-dark-700" />
+        </div>
+      )}
 
       <div className="flex items-stretch gap-2">
         {isLoading

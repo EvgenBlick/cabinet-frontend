@@ -15,6 +15,7 @@ import {
 import { infoApi } from '@/api/info';
 import { ticketsApi } from '@/api/tickets';
 import { UltimaBottomNav } from '@/components/ultima/UltimaBottomNav';
+import { UltimaDesktopNavbar } from '@/components/ultima/desktop/UltimaDesktopNavbar';
 import { usePlatform } from '@/platform';
 import type { SupportConfig } from '@/types';
 
@@ -54,7 +55,7 @@ export function UltimaSupport() {
   });
 
   const isTicketsEnabled =
-    supportConfig?.support_type === 'tickets' || supportConfig?.support_type === 'both';
+    supportConfig?.support_type === 'tickets' || supportConfig?.support_type === 'both' || true;
   const supportUsername = supportConfig?.support_username || 'samuraiservice_bot';
   const cleanUsername = supportUsername.replace(/^@/, '');
   const telegramSupportUrl = `https://t.me/${cleanUsername}`;
@@ -69,215 +70,233 @@ export function UltimaSupport() {
   const currentTicketList = activeTab === 'active' ? activeTickets : archiveTickets;
 
   return (
-    <div className="min-h-screen px-3 pb-36 pt-3 text-white">
-      <div className="mx-auto flex max-w-[540px] flex-col gap-3.5">
+    <div className="min-h-screen bg-[#07080a] text-white">
+      {/* Desktop Frosted Glass Navbar */}
+      <div className="hidden lg:block">
+        <UltimaDesktopNavbar
+          onBuySubscription={() => navigate('/subscription')}
+          onOpenSupport={() => navigate('/support')}
+        />
+      </div>
+
+      <div className="mx-auto max-w-[540px] px-3 pb-36 pt-4 lg:max-w-7xl lg:px-8 lg:py-8">
         {/* 1. Header & Title */}
-        <div className="px-1">
-          <h1 className="text-[26px] font-bold text-[#f5f5f7] drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">
+        <div className="mb-6 px-1">
+          <h1 className="text-[26px] font-bold text-[#f5f5f7] drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)] lg:text-3xl">
             Поддержка
           </h1>
-          <p className="mt-0.5 text-[13px] font-medium text-[#8e929b]">
+          <p className="mt-1 text-[13px] font-medium text-[#8e929b] lg:text-sm">
             Связь со специалистом и ответы на частые вопросы
           </p>
         </div>
 
-        {/* 2. Direct Support Hero Card */}
-        <div
-          className="relative overflow-hidden rounded-[26px] border border-[#5a5040]/35 p-5 shadow-[0_16px_36px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.1)]"
-          style={{
-            background:
-              'linear-gradient(180deg, rgba(22, 25, 30, 0.95) 0%, rgba(10, 12, 15, 0.98) 100%)',
-          }}
-        >
-          <div className="flex items-start gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-[#b89358]/40 bg-gradient-to-br from-[#d4b37f]/20 to-black/60 text-[#d4b37f] shadow-inner">
-              <Headphones className="h-6 w-6 stroke-[1.8]" />
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+          {/* Left Column: Direct Support Hero Card + Quick Navigation (5 cols on lg) */}
+          <div className="flex flex-col gap-6 lg:col-span-5">
+            {/* Direct Support Hero Card */}
+            <div
+              className="relative overflow-hidden rounded-[26px] border border-[#5a5040]/35 p-6 shadow-[0_16px_36px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.1)]"
+              style={{
+                background:
+                  'linear-gradient(180deg, rgba(22, 25, 30, 0.95) 0%, rgba(10, 12, 15, 0.98) 100%)',
+              }}
+            >
+              <div className="flex items-start gap-4">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-[#b89358]/40 bg-gradient-to-br from-[#d4b37f]/20 to-black/60 text-[#d4b37f] shadow-inner">
+                  <Headphones className="h-6 w-6 stroke-[1.8]" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h2 className="text-base font-bold text-[#f5f5f7]">Служба поддержки</h2>
+                  <p className="mt-1 text-xs leading-relaxed text-[#8e929b]">
+                    Помощь с подключением устройств, настройкой протоколов и выбором локаций в
+                    Telegram.
+                  </p>
+                </div>
+              </div>
+
+              {/* Gold CTA Action Button */}
+              <button
+                type="button"
+                onClick={openTelegramSupport}
+                className="mt-5 flex min-h-[50px] w-full items-center justify-center gap-2.5 rounded-2xl border border-[#b89358]/60 px-5 py-3 shadow-[0_8px_24px_rgba(212,179,127,0.3),inset_0_1px_0_rgba(255,255,255,0.35)] transition-all hover:brightness-110 active:scale-[0.98]"
+                style={{
+                  background: 'linear-gradient(135deg, #d4b37f 0%, #b89358 100%)',
+                }}
+              >
+                <MessageSquare className="h-4 w-4 text-[#0a0c0f]" strokeWidth={2.2} />
+                <span className="text-sm font-bold tracking-wide text-[#0a0c0f]">
+                  Написать в Telegram @{cleanUsername}
+                </span>
+              </button>
             </div>
-            <div className="min-w-0 flex-1">
-              <h2 className="text-[16px] font-bold text-[#f5f5f7]">Служба поддержки</h2>
-              <p className="mt-1 text-[12px] leading-relaxed text-[#8e929b]">
-                Помощь с подключением устройств, настройкой протоколов и выбором серверных локаций в
-                Telegram.
-              </p>
-            </div>
-          </div>
 
-          {/* Gold CTA Action Button */}
-          <button
-            type="button"
-            onClick={openTelegramSupport}
-            className="mt-5 flex min-h-[50px] w-full items-center justify-center gap-2.5 rounded-2xl border border-[#b89358]/60 px-5 py-3 shadow-[0_8px_24px_rgba(212,179,127,0.3),inset_0_1px_0_rgba(255,255,255,0.35)] transition-all hover:brightness-110 active:scale-[0.98]"
-            style={{
-              background: 'linear-gradient(135deg, #d4b37f 0%, #b89358 100%)',
-            }}
-          >
-            <MessageSquare className="h-4 w-4 text-[#0a0c0f]" strokeWidth={2.2} />
-            <span className="text-[14px] font-bold tracking-wide text-[#0a0c0f]">
-              Написать в Telegram @{cleanUsername}
-            </span>
-          </button>
-        </div>
-
-        {/* 3. Quick Self-Help Navigation Grid */}
-        <div
-          className="relative overflow-hidden rounded-[26px] border border-[#5a5040]/35 p-5 shadow-[0_16px_36px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.1)]"
-          style={{
-            background:
-              'linear-gradient(180deg, rgba(22, 25, 30, 0.95) 0%, rgba(10, 12, 15, 0.98) 100%)',
-          }}
-        >
-          <div>
-            <h2 className="text-[15px] font-bold text-[#f5f5f7]">Разделы помощи</h2>
-            <p className="mt-0.5 text-[11px] text-[#8e929b]">Быстрый переход к руководствам</p>
-          </div>
-
-          <div className="mt-3 grid grid-cols-2 gap-2.5">
-            {/* Tile 1: FAQ & Info */}
-            <button
-              type="button"
-              onClick={() => navigate('/ultima/info')}
-              className="flex flex-col items-start rounded-2xl border border-white/[0.08] bg-black/30 p-3.5 text-left transition-all hover:border-[#b89358]/40 hover:bg-black/50 active:scale-95"
+            {/* Quick Self-Help Navigation Grid */}
+            <div
+              className="relative overflow-hidden rounded-[26px] border border-[#5a5040]/35 p-6 shadow-[0_16px_36px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.1)]"
+              style={{
+                background:
+                  'linear-gradient(180deg, rgba(22, 25, 30, 0.95) 0%, rgba(10, 12, 15, 0.98) 100%)',
+              }}
             >
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#d4b37f]/15 text-[#d4b37f]">
-                <HelpCircle className="h-4 w-4" />
-              </div>
-              <p className="mt-2.5 text-[13px] font-bold text-[#f5f5f7]">База знаний & FAQ</p>
-              <p className="mt-0.5 text-[10px] text-[#8e929b]">Ответы на вопросы</p>
-            </button>
-
-            {/* Tile 2: Connection Setup */}
-            <button
-              type="button"
-              onClick={() => navigate('/connection')}
-              className="flex flex-col items-start rounded-2xl border border-white/[0.08] bg-black/30 p-3.5 text-left transition-all hover:border-[#b89358]/40 hover:bg-black/50 active:scale-95"
-            >
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#d4b37f]/15 text-[#d4b37f]">
-                <Wrench className="h-4 w-4" />
-              </div>
-              <p className="mt-2.5 text-[13px] font-bold text-[#f5f5f7]">Установка & Сетап</p>
-              <p className="mt-0.5 text-[10px] text-[#8e929b]">Инструкция по шагам</p>
-            </button>
-
-            {/* Tile 3: Devices */}
-            <button
-              type="button"
-              onClick={() => navigate('/ultima/devices')}
-              className="flex flex-col items-start rounded-2xl border border-white/[0.08] bg-black/30 p-3.5 text-left transition-all hover:border-[#b89358]/40 hover:bg-black/50 active:scale-95"
-            >
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#d4b37f]/15 text-[#d4b37f]">
-                <Smartphone className="h-4 w-4" />
-              </div>
-              <p className="mt-2.5 text-[13px] font-bold text-[#f5f5f7]">Устройства</p>
-              <p className="mt-0.5 text-[10px] text-[#8e929b]">Управление доступом</p>
-            </button>
-
-            {/* Tile 4: Rules */}
-            <button
-              type="button"
-              onClick={() => navigate('/rules')}
-              className="flex flex-col items-start rounded-2xl border border-white/[0.08] bg-black/30 p-3.5 text-left transition-all hover:border-[#b89358]/40 hover:bg-black/50 active:scale-95"
-            >
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#d4b37f]/15 text-[#d4b37f]">
-                <FileText className="h-4 w-4" />
-              </div>
-              <p className="mt-2.5 text-[13px] font-bold text-[#f5f5f7]">Правила сервиса</p>
-              <p className="mt-0.5 text-[10px] text-[#8e929b]">Условия использования</p>
-            </button>
-          </div>
-        </div>
-
-        {/* 4. Tickets System (if enabled) */}
-        {isTicketsEnabled && (
-          <div
-            className="relative overflow-hidden rounded-[26px] border border-[#5a5040]/35 p-5 shadow-[0_16px_36px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.1)]"
-            style={{
-              background:
-                'linear-gradient(180deg, rgba(22, 25, 30, 0.95) 0%, rgba(10, 12, 15, 0.98) 100%)',
-            }}
-          >
-            <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-[15px] font-bold text-[#f5f5f7]">Ваши тикеты</h2>
-                <p className="mt-0.5 text-[11px] text-[#8e929b]">История обращений в поддержку</p>
+                <h2 className="text-base font-bold text-[#f5f5f7]">Разделы помощи</h2>
+                <p className="mt-0.5 text-xs text-[#8e929b]">Быстрый переход к руководствам</p>
               </div>
-              <button
-                type="button"
-                onClick={() => setShowCreateModal(true)}
-                className="flex items-center gap-1.5 rounded-full border border-[#b89358]/40 bg-black/60 px-3 py-1 text-[11px] font-bold text-[#d4b37f] shadow-sm backdrop-blur-md transition-all hover:border-[#b89358]/80"
-              >
-                <Plus className="h-3.5 w-3.5" />
-                <span>Создать тикет</span>
-              </button>
-            </div>
 
-            {/* Tabs */}
-            <div className="mt-4 flex gap-2">
-              <button
-                type="button"
-                onClick={() => setActiveTab('active')}
-                className={`flex-1 rounded-xl py-2 text-[12px] font-bold transition-all ${
-                  activeTab === 'active'
-                    ? 'border border-[#b89358]/50 bg-[#b89358]/20 text-[#d4b37f]'
-                    : 'border border-white/[0.08] bg-black/30 text-[#8e929b]'
-                }`}
-              >
-                Активные ({activeTickets.length})
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab('archive')}
-                className={`flex-1 rounded-xl py-2 text-[12px] font-bold transition-all ${
-                  activeTab === 'archive'
-                    ? 'border border-[#b89358]/50 bg-[#b89358]/20 text-[#d4b37f]'
-                    : 'border border-white/[0.08] bg-black/30 text-[#8e929b]'
-                }`}
-              >
-                Архив ({archiveTickets.length})
-              </button>
-            </div>
+              <div className="mt-4 grid grid-cols-2 gap-3">
+                {/* Tile 1: FAQ & Info */}
+                <button
+                  type="button"
+                  onClick={() => navigate('/ultima/news')}
+                  className="flex flex-col items-start rounded-2xl border border-white/[0.08] bg-black/30 p-4 text-left transition-all hover:border-[#b89358]/40 hover:bg-black/50 active:scale-95"
+                >
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#d4b37f]/15 text-[#d4b37f]">
+                    <HelpCircle className="h-4 w-4" />
+                  </div>
+                  <p className="mt-2.5 text-xs font-bold text-[#f5f5f7]">База знаний</p>
+                  <p className="mt-0.5 text-[10px] text-[#8e929b]">Ответы на вопросы</p>
+                </button>
 
-            {/* List */}
-            <div className="mt-3 flex flex-col divide-y divide-white/[0.07]">
-              {currentTicketList.length === 0 ? (
-                <p className="py-6 text-center text-[12px] text-[#8e929b]">
-                  {activeTab === 'active' ? 'У вас нет активных тикетов' : 'В архиве нет обращений'}
-                </p>
-              ) : (
-                currentTicketList.map((ticket) => (
-                  <button
-                    key={ticket.id}
-                    type="button"
-                    onClick={() => navigate('/support')}
-                    className="flex items-center justify-between py-3.5 text-left transition-colors hover:bg-white/[0.02]"
-                  >
-                    <div className="min-w-0 flex-1 pr-3">
-                      <div className="flex items-center gap-2">
-                        <p className="truncate text-[13px] font-bold text-[#f5f5f7]">
-                          {ticket.title}
-                        </p>
-                        <span
-                          className={`rounded-full px-2 py-0.5 text-[9px] font-bold ${
-                            ticket.status === 'open'
-                              ? 'bg-amber-500/20 text-amber-300'
-                              : 'bg-white/10 text-white/70'
-                          }`}
-                        >
-                          {ticket.status === 'open' ? 'ОТКРЫТ' : 'ЗАКРЫТ'}
-                        </span>
-                      </div>
-                      {ticket.last_message && (
-                        <p className="mt-1 truncate text-[11px] text-[#8e929b]">
-                          {ticket.last_message.message_text}
-                        </p>
-                      )}
-                    </div>
-                    <ChevronRight className="h-4 w-4 text-[#8e929b]" />
-                  </button>
-                ))
-              )}
+                {/* Tile 2: Connection Setup */}
+                <button
+                  type="button"
+                  onClick={() => navigate('/connection')}
+                  className="flex flex-col items-start rounded-2xl border border-white/[0.08] bg-black/30 p-4 text-left transition-all hover:border-[#b89358]/40 hover:bg-black/50 active:scale-95"
+                >
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#d4b37f]/15 text-[#d4b37f]">
+                    <Wrench className="h-4 w-4" />
+                  </div>
+                  <p className="mt-2.5 text-xs font-bold text-[#f5f5f7]">Инструкция</p>
+                  <p className="mt-0.5 text-[10px] text-[#8e929b]">Пошаговый сетап</p>
+                </button>
+
+                {/* Tile 3: Devices */}
+                <button
+                  type="button"
+                  onClick={() => navigate('/devices')}
+                  className="flex flex-col items-start rounded-2xl border border-white/[0.08] bg-black/30 p-4 text-left transition-all hover:border-[#b89358]/40 hover:bg-black/50 active:scale-95"
+                >
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#d4b37f]/15 text-[#d4b37f]">
+                    <Smartphone className="h-4 w-4" />
+                  </div>
+                  <p className="mt-2.5 text-xs font-bold text-[#f5f5f7]">Устройства</p>
+                  <p className="mt-0.5 text-[10px] text-[#8e929b]">Управление слотами</p>
+                </button>
+
+                {/* Tile 4: Rules */}
+                <button
+                  type="button"
+                  onClick={() => navigate('/rules')}
+                  className="flex flex-col items-start rounded-2xl border border-white/[0.08] bg-black/30 p-4 text-left transition-all hover:border-[#b89358]/40 hover:bg-black/50 active:scale-95"
+                >
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#d4b37f]/15 text-[#d4b37f]">
+                    <FileText className="h-4 w-4" />
+                  </div>
+                  <p className="mt-2.5 text-xs font-bold text-[#f5f5f7]">Правила</p>
+                  <p className="mt-0.5 text-[10px] text-[#8e929b]">Оферта и условия</p>
+                </button>
+              </div>
             </div>
           </div>
-        )}
+
+          {/* Right Column: Tickets System (7 cols on lg) */}
+          <div className="flex flex-col gap-6 lg:col-span-7">
+            {/* 4. Tickets System (if enabled) */}
+            {isTicketsEnabled && (
+              <div
+                className="relative overflow-hidden rounded-[26px] border border-[#5a5040]/35 p-6 shadow-[0_16px_36px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.1)]"
+                style={{
+                  background:
+                    'linear-gradient(180deg, rgba(22, 25, 30, 0.95) 0%, rgba(10, 12, 15, 0.98) 100%)',
+                }}
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-base font-bold text-[#f5f5f7]">Ваши тикеты</h2>
+                    <p className="mt-0.5 text-xs text-[#8e929b]">История обращений в поддержку</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowCreateModal(true)}
+                    className="flex items-center gap-1.5 rounded-full border border-[#b89358]/40 bg-black/60 px-3.5 py-1.5 text-xs font-bold text-[#d4b37f] shadow-sm backdrop-blur-md transition-all hover:border-[#b89358]/80"
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                    <span>Создать тикет</span>
+                  </button>
+                </div>
+
+                {/* Tabs */}
+                <div className="mt-4 flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('active')}
+                    className={`flex-1 rounded-xl py-2.5 text-xs font-bold transition-all ${
+                      activeTab === 'active'
+                        ? 'border border-[#b89358]/50 bg-[#b89358]/20 text-[#d4b37f]'
+                        : 'border border-white/[0.08] bg-black/30 text-[#8e929b]'
+                    }`}
+                  >
+                    Активные ({activeTickets.length})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('archive')}
+                    className={`flex-1 rounded-xl py-2.5 text-xs font-bold transition-all ${
+                      activeTab === 'archive'
+                        ? 'border border-[#b89358]/50 bg-[#b89358]/20 text-[#d4b37f]'
+                        : 'border border-white/[0.08] bg-black/30 text-[#8e929b]'
+                    }`}
+                  >
+                    Архив ({archiveTickets.length})
+                  </button>
+                </div>
+
+                {/* List */}
+                <div className="mt-4 flex flex-col divide-y divide-white/[0.07]">
+                  {currentTicketList.length === 0 ? (
+                    <p className="py-8 text-center text-xs text-[#8e929b]">
+                      {activeTab === 'active'
+                        ? 'У вас нет активных тикетов'
+                        : 'В архиве нет обращений'}
+                    </p>
+                  ) : (
+                    currentTicketList.map((ticket) => (
+                      <button
+                        key={ticket.id}
+                        type="button"
+                        onClick={() => navigate('/support')}
+                        className="flex items-center justify-between py-3.5 text-left transition-colors hover:bg-white/[0.02]"
+                      >
+                        <div className="min-w-0 flex-1 pr-3">
+                          <div className="flex items-center gap-2">
+                            <p className="truncate text-xs font-bold text-[#f5f5f7]">
+                              {ticket.title}
+                            </p>
+                            <span
+                              className={`rounded-full px-2 py-0.5 text-[9px] font-bold ${
+                                ticket.status === 'open'
+                                  ? 'bg-amber-500/20 text-amber-300'
+                                  : 'bg-white/10 text-white/70'
+                              }`}
+                            >
+                              {ticket.status === 'open' ? 'ОТКРЫТ' : 'ЗАКРЫТ'}
+                            </span>
+                          </div>
+                          {ticket.last_message && (
+                            <p className="mt-1 truncate text-[11px] text-[#8e929b]">
+                              {ticket.last_message.message_text}
+                            </p>
+                          )}
+                        </div>
+                        <ChevronRight className="h-4 w-4 text-[#8e929b]" />
+                      </button>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
 
         {/* Create Ticket Modal */}
         {showCreateModal && (
@@ -289,7 +308,7 @@ export function UltimaSupport() {
               }}
             >
               <div className="flex items-center justify-between">
-                <h3 className="text-[17px] font-bold text-[#f5f5f7]">Новое обращение</h3>
+                <h3 className="text-base font-bold text-[#f5f5f7]">Новое обращение</h3>
                 <button
                   type="button"
                   onClick={() => setShowCreateModal(false)}
@@ -308,7 +327,7 @@ export function UltimaSupport() {
                     value={ticketSubject}
                     onChange={(e) => setTicketSubject(e.target.value)}
                     placeholder="Опишите кратко суть вопроса..."
-                    className="mt-1 w-full rounded-xl border border-white/[0.1] bg-black/40 px-3.5 py-2.5 text-[13px] text-white outline-none focus:border-[#d4b37f]"
+                    className="mt-1 w-full rounded-xl border border-white/[0.1] bg-black/40 px-3.5 py-2.5 text-xs text-white outline-none focus:border-[#d4b37f]"
                   />
                 </div>
 
@@ -321,7 +340,7 @@ export function UltimaSupport() {
                     onChange={(e) => setTicketMessage(e.target.value)}
                     placeholder="Подробно расскажите, что произошло..."
                     rows={4}
-                    className="mt-1 w-full rounded-xl border border-white/[0.1] bg-black/40 px-3.5 py-2.5 text-[13px] text-white outline-none focus:border-[#d4b37f]"
+                    className="mt-1 w-full rounded-xl border border-white/[0.1] bg-black/40 px-3.5 py-2.5 text-xs text-white outline-none focus:border-[#d4b37f]"
                   />
                 </div>
 
@@ -331,7 +350,7 @@ export function UltimaSupport() {
                   disabled={
                     !ticketSubject.trim() || !ticketMessage.trim() || createTicketMutation.isPending
                   }
-                  className="mt-2 flex min-h-[46px] w-full items-center justify-center rounded-xl border border-[#b89358]/60 bg-gradient-to-r from-[#d4b37f] to-[#b89358] text-[14px] font-bold text-[#0a0c0f] shadow-md transition-all hover:brightness-110 disabled:opacity-50"
+                  className="mt-2 flex min-h-[46px] w-full items-center justify-center rounded-xl border border-[#b89358]/60 bg-gradient-to-r from-[#d4b37f] to-[#b89358] text-xs font-bold text-[#0a0c0f] shadow-md transition-all hover:brightness-110 disabled:opacity-50"
                 >
                   {createTicketMutation.isPending ? 'Отправка...' : 'Отправить тикет'}
                 </button>

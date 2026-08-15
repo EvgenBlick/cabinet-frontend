@@ -244,7 +244,7 @@ export function AppShell({ children }: AppShellProps) {
   const { referralEnabled, wheelEnabled, hasContests, hasPolls, giftEnabled } = useFeatureFlags();
   const { isLiteMode, isLiteModeReady } = useLiteMode();
   const { isUltimaMode, isUltimaModeReady } = useUltimaMode();
-  const isDesktopViewport = useMediaQuery('(min-width: 1024px)');
+  const isDesktopViewport = useMediaQuery('(min-width: 768px)');
   const isCompactMode = isLiteMode || isUltimaMode;
   const ultimaTopLevelTab = getUltimaTopLevelTab(location.pathname);
   const isUltimaTopLevelRoute = isUltimaMode && ultimaTopLevelTab !== null;

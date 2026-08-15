@@ -95,7 +95,7 @@ export function UltimaDashboard() {
   const isAdmin = useAuthStore((state) => state.isAdmin);
   const user = useAuthStore((state) => state.user);
   const refreshUser = useAuthStore((state) => state.refreshUser);
-  const isDesktopViewport = useMediaQuery('(min-width: 1024px)');
+  const isTabletOrDesktop = useMediaQuery('(min-width: 768px)');
   const { pendingTopUp } = usePendingTopUpFollowUpState();
   const rippleIdRef = useRef(0);
   const digitIdRef = useRef(0);
@@ -1061,7 +1061,7 @@ export function UltimaDashboard() {
 
   const shellClassName = cn(
     'ultima-shell ultima-shell-shared-nav-docked',
-    isDesktopViewport && 'ultima-flat-frames ultima-shell-dashboard-desktop',
+    isTabletOrDesktop && 'ultima-flat-frames ultima-shell-dashboard-desktop',
   );
   const bottomNav = <UltimaBottomNav active="home" onSupportClick={openSupport} />;
   const PrimaryCtaIcon = primaryActionKind === 'setup' ? Wrench : Globe2;
@@ -1466,7 +1466,7 @@ export function UltimaDashboard() {
   ) : null;
 
   if (!isI18nReady || !isSubscriptionReady || shouldHoldForAutoTrial) {
-    if (isDesktopViewport) {
+    if (isTabletOrDesktop) {
       return (
         <div className={shellClassName}>
           <div className="ultima-shell-aura" />
@@ -1510,44 +1510,40 @@ export function UltimaDashboard() {
     );
   }
 
-  if (isDesktopViewport) {
+  if (isTabletOrDesktop) {
     return (
-      <div className={shellClassName}>
-        <div className="ultima-shell-aura" />
-        <UltimaDesktopDashboard
-          heroButton={renderShieldButton('h-[108px] w-[108px] lg:h-[124px] lg:w-[124px]')}
-          referralCta={desktopActionCtaStack}
-          devicesCta={shouldShowTrafficWarning ? null : renderDevicesHomeCta()}
-          trafficWarning={desktopTrafficWarning}
-          subscription={subscription}
-          connectedDevicesCount={connectedDevicesCount}
-          isDevicesLoading={isDashboardDevicesPending}
-          expiryLabel={expiryLabel}
-          statusLabel={statusLabel}
-          statusTone={statusToneKey}
-          daysLeft={daysLeft}
-          connectionStep={connectionStep}
-          isConnectionCompleted={isConnectionCompleted}
-          primaryActionKind={primaryActionKind}
-          primaryCtaLabel={primaryCtaLabel}
-          primaryCtaMeta={primaryCtaMeta}
-          promoMessage={promoMessage}
-          activeDiscount={activeDiscount}
-          firstPromoOffer={firstPromoOffer}
-          showTrialSetupCard={desktopShowTrialSetupCard}
-          trialGuide={desktopTrialGuide}
-          showConnectionCtaHighlight={showConnectionCtaHighlight}
-          onPrimaryAction={handlePrimaryAction}
-          onBuySubscription={openSubscriptionPurchase}
-          onOpenConnection={() => openConnection()}
-          onOpenSupport={openSupport}
-          onActivateOffer={
-            firstPromoOffer ? () => claimOfferMutation.mutate(firstPromoOffer.id) : null
-          }
-          isActivatingOffer={claimOfferMutation.isPending}
-          bottomNav={bottomNav}
-        />
-      </div>
+      <UltimaDesktopDashboard
+        heroButton={renderShieldButton('h-[108px] w-[108px] lg:h-[124px] lg:w-[124px]')}
+        referralCta={desktopActionCtaStack}
+        devicesCta={shouldShowTrafficWarning ? null : renderDevicesHomeCta()}
+        trafficWarning={desktopTrafficWarning}
+        subscription={subscription}
+        connectedDevicesCount={connectedDevicesCount}
+        isDevicesLoading={isDashboardDevicesPending}
+        expiryLabel={expiryLabel}
+        statusLabel={statusLabel}
+        statusTone={statusToneKey}
+        daysLeft={daysLeft}
+        connectionStep={connectionStep}
+        isConnectionCompleted={isConnectionCompleted}
+        primaryActionKind={primaryActionKind}
+        primaryCtaLabel={primaryCtaLabel}
+        primaryCtaMeta={primaryCtaMeta}
+        promoMessage={promoMessage}
+        activeDiscount={activeDiscount}
+        firstPromoOffer={firstPromoOffer}
+        showTrialSetupCard={desktopShowTrialSetupCard}
+        trialGuide={desktopTrialGuide}
+        showConnectionCtaHighlight={showConnectionCtaHighlight}
+        onPrimaryAction={handlePrimaryAction}
+        onBuySubscription={openSubscriptionPurchase}
+        onOpenConnection={() => openConnection()}
+        onOpenSupport={openSupport}
+        onActivateOffer={
+          firstPromoOffer ? () => claimOfferMutation.mutate(firstPromoOffer.id) : null
+        }
+        isActivatingOffer={claimOfferMutation.isPending}
+      />
     );
   }
 

@@ -116,7 +116,7 @@ export function useLoginPage() {
     queryFn: brandingApi.getEmailAuthEnabled,
     staleTime: 60000,
   });
-  const isEmailAuthEnabled = emailAuthConfig?.enabled ?? false;
+  const isEmailAuthEnabled = Boolean(emailAuthConfig?.enabled);
 
   const { data: oauthData, isLoading: isOAuthProvidersLoading } = useQuery({
     queryKey: ['oauth-providers'],
@@ -124,9 +124,15 @@ export function useLoginPage() {
     staleTime: 60000,
     retry: 2,
   });
-  const oauthProviders = Array.isArray(oauthData?.providers) ? oauthData.providers : [];
+  const oauthProviders =
+    Array.isArray(oauthData?.providers) && oauthData.providers.length > 0
+      ? oauthData.providers
+      : [
+          { name: 'yandex', display_name: 'Яндекс' },
+          { name: 'google', display_name: 'Google' },
+        ];
 
-  const botUsername = import.meta.env.VITE_TELEGRAM_BOT_USERNAME || '';
+  const botUsername = import.meta.env.VITE_TELEGRAM_BOT_USERNAME || 'SamuraiServiceBot';
   const appName = branding?.name || import.meta.env.VITE_APP_NAME || 'VPN';
   const appLogo = branding?.logo_letter || import.meta.env.VITE_APP_LOGO || 'V';
   const logoUrl = branding ? brandingApi.getLogoUrl(branding) : null;

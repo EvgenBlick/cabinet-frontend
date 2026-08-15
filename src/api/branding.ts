@@ -401,8 +401,8 @@ export const brandingApi = {
       const response = await apiClient.get<EmailAuthEnabled>('/cabinet/branding/email-auth');
       return response.data;
     } catch {
-      // If endpoint doesn't exist, default to enabled
-      return { enabled: true };
+      // If endpoint fails or offline, default to disabled
+      return { enabled: false };
     }
   },
 

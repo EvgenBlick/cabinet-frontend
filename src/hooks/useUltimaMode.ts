@@ -7,10 +7,10 @@ const ULTIMA_MODE_SYNC_INTERVAL_MS = 15000;
 export const getCachedUltimaMode = (): boolean | null => {
   try {
     const cached = localStorage.getItem(ULTIMA_MODE_CACHE_KEY);
-    if (cached === null) return null;
+    if (cached === null) return true;
     return cached === 'true';
   } catch {
-    return null;
+    return true;
   }
 };
 

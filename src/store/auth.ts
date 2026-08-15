@@ -209,6 +209,27 @@ export const useAuthStore = create<AuthState>()(
                 isLoading: false,
               });
             } catch {
+              if (import.meta.env.DEV && localStorage.getItem('cabinet-dev-auth') === 'true') {
+                const storedAuth = localStorage.getItem('cabinet-auth');
+                const parsed = storedAuth ? JSON.parse(storedAuth) : null;
+                set({
+                  accessToken: accessToken || 'dev-token',
+                  refreshToken: refreshToken || 'dev-token',
+                  user: parsed?.state?.user || {
+                    id: 321,
+                    telegram_id: 123456789,
+                    username: 'samurai_master',
+                    first_name: 'Евгений',
+                    balance_rubles: 1500,
+                    balance_kopeks: 150000,
+                    created_at: '2026-01-15T12:00:00Z',
+                  },
+                  isAuthenticated: true,
+                  isAdmin: true,
+                  isLoading: false,
+                });
+                return;
+              }
               // Token might be invalid on server, try to refresh
               const newToken = await tokenRefreshManager.refreshAccessToken();
               if (newToken) {

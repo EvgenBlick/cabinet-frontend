@@ -214,7 +214,7 @@ function ConnectionScene({ device }: { device: UltimaThemePreviewDevice }) {
       <div className={cn('grid gap-2', isDesktop ? 'grid-cols-3' : 'grid-cols-2')}>
         <MetricCard label="Прогресс" value="Готово" />
         <MetricCard label="Устройство" value="iPhone" />
-        {isDesktop ? <MetricCard label="Протокол" value="VLESS" /> : null}
+        {isDesktop ? <MetricCard label="Защита" value="Активна" /> : null}
       </div>
     </div>
   );
