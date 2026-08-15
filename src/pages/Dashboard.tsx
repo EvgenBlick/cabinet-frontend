@@ -12,14 +12,14 @@ import { authApi } from '../api/auth';
 import Onboarding, { useOnboarding } from '../components/Onboarding';
 import PromoOffersSection from '../components/PromoOffersSection';
 import NewsSection from '../components/news/NewsSection';
+import PageLoader from '../components/common/PageLoader';
 import { useLiteMode } from '../hooks/useLiteMode';
-import { LiteDashboard } from './LiteDashboard';
-import { UltimaDashboard } from './UltimaDashboard';
 import SubscriptionCardExpired from '../components/dashboard/SubscriptionCardExpired';
 import TrialOfferCard from '../components/dashboard/TrialOfferCard';
 import StatsGrid from '../components/dashboard/StatsGrid';
 import { API } from '../config/constants';
-import PageLoader from '../components/common/PageLoader';
+import { ThemeDashboardDispatcher } from '@/themes/core/ThemeDispatcher';
+import { useThemeEngine } from '@/themes/core/ThemeEngineContext';
 
 const ChevronRightIcon = () => (
   <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -60,38 +60,32 @@ function getTrafficColor(percent: number): string {
   return 'bg-success-500';
 }
 
-import { useActiveTheme } from '../hooks/useActiveTheme';
-import { FreshDashboardPage } from '@/themes/fresh/pages/FreshDashboardPage';
-
 export default function Dashboard() {
   const { i18n } = useTranslation();
-  const { isLiteMode, isLiteModeReady } = useLiteMode();
-  const { isFresh, isUltima } = useActiveTheme();
+  const { isLiteModeReady } = useLiteMode();
+  const { activeTheme } = useThemeEngine();
   const isI18nReady =
     i18n.isInitialized &&
     (typeof i18n.hasLoadedNamespace !== 'function' || i18n.hasLoadedNamespace('translation'));
 
   if (!isLiteModeReady || !isI18nReady) {
-    return <PageLoader variant={isFresh ? 'fresh' : isUltima ? 'ultima' : 'dark'} />;
+    return (
+      <PageLoader
+        variant={
+          activeTheme === 'fresh' || activeTheme === 'cyber_matrix'
+            ? 'fresh'
+            : activeTheme === 'samurai_gold'
+              ? 'ultima'
+              : 'dark'
+        }
+      />
+    );
   }
 
-  if (isFresh) {
-    return <FreshDashboardPage />;
-  }
-
-  if (isUltima) {
-    return <UltimaDashboard />;
-  }
-
-  // Render Lite Dashboard if lite mode is enabled
-  if (isLiteMode) {
-    return <LiteDashboard />;
-  }
-
-  return <FullDashboard />;
+  return <ThemeDashboardDispatcher />;
 }
 
-function FullDashboard() {
+export function FullDashboard() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);

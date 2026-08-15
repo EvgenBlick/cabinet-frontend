@@ -130,6 +130,9 @@ function TelegramBackButton() {
   return null;
 }
 
+import { ThemeEngineProvider } from './themes/core/ThemeEngineContext';
+import { ThemeStudioDrawer } from './themes/studio/ThemeStudioDrawer';
+
 export function AppWithNavigator() {
   const isTelegram = isInTelegramWebApp();
   const { ready } = useTranslation();
@@ -142,17 +145,20 @@ export function AppWithNavigator() {
       <ErrorBoundary level="page">
         <PlatformProvider>
           <ThemeColorsProvider>
-            <TooltipProvider>
-              <ToastProvider>
-                <WebSocketProvider>
-                  <Twemoji options={TWEMOJI_OPTIONS}>
-                    <AppStartupGate isLocaleReady={ready}>
-                      <App />
-                    </AppStartupGate>
-                  </Twemoji>
-                </WebSocketProvider>
-              </ToastProvider>
-            </TooltipProvider>
+            <ThemeEngineProvider>
+              <TooltipProvider>
+                <ToastProvider>
+                  <WebSocketProvider>
+                    <Twemoji options={TWEMOJI_OPTIONS}>
+                      <AppStartupGate isLocaleReady={ready}>
+                        <App />
+                        <ThemeStudioDrawer />
+                      </AppStartupGate>
+                    </Twemoji>
+                  </WebSocketProvider>
+                </ToastProvider>
+              </TooltipProvider>
+            </ThemeEngineProvider>
           </ThemeColorsProvider>
         </PlatformProvider>
       </ErrorBoundary>

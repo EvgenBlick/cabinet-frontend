@@ -13,12 +13,13 @@ import { useUltimaMode } from '@/hooks/useUltimaMode';
 import { Navigate } from 'react-router';
 import { useAuthStore } from '@/store/auth';
 
-import { useActiveTheme } from '@/hooks/useActiveTheme';
+import { useThemeEngine } from '@/themes/core/ThemeEngineContext';
+import { CyberLoginPage } from '@/themes/cyber-matrix/pages/CyberLoginPage';
 import { FreshLoginPage } from '@/themes/fresh/pages/FreshLoginPage';
 
 export default function Login() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  const { isFresh } = useActiveTheme();
+  const { activeTheme } = useThemeEngine();
   const { isUltimaMode, isUltimaModeReady } = useUltimaMode();
   const {
     safeTop,
@@ -71,7 +72,11 @@ export default function Login() {
     return <Navigate to="/" replace />;
   }
 
-  if (isFresh) {
+  if (activeTheme === 'cyber_matrix') {
+    return <CyberLoginPage />;
+  }
+
+  if (activeTheme === 'fresh') {
     return <FreshLoginPage />;
   }
 

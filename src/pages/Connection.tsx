@@ -13,9 +13,10 @@ import InstallationGuide from '../components/connection/InstallationGuide';
 import { markLiteOnboardingStep } from '@/features/lite/onboardingFlow';
 import { buildTelegramDeepLinkHandoff } from '@/utils/deepLinkHandoff';
 import { useUltimaMode } from '@/hooks/useUltimaMode';
-import { useActiveTheme } from '@/hooks/useActiveTheme';
 import { UltimaConnection } from './UltimaConnection';
 import { FreshConnectionPage } from '@/themes/fresh/pages/FreshConnectionPage';
+import { CyberConnectionPage } from '@/themes/cyber-matrix/pages/CyberConnectionPage';
+import { useThemeEngine } from '@/themes/core/ThemeEngineContext';
 
 export default function Connection() {
   const { t } = useTranslation();
@@ -25,7 +26,7 @@ export default function Connection() {
   const { isTelegramWebApp, safeAreaInset, contentSafeAreaInset, isFullscreen, isMobile } =
     useTelegramSDK();
   const { isUltimaMode } = useUltimaMode();
-  const { isFresh } = useActiveTheme();
+  const { activeTheme } = useThemeEngine();
   const queryClient = useQueryClient();
   const telegramTopOffset =
     isTelegramWebApp && isFullscreen ? Math.max(safeAreaInset.top, contentSafeAreaInset.top) : 0;
@@ -189,11 +190,15 @@ export default function Connection() {
     );
   }
 
-  if (isFresh) {
+  if (activeTheme === 'cyber_matrix') {
+    return <CyberConnectionPage />;
+  }
+
+  if (activeTheme === 'fresh') {
     return <FreshConnectionPage />;
   }
 
-  if (isUltimaMode) {
+  if (activeTheme === 'samurai_gold' || isUltimaMode) {
     return (
       <UltimaConnection
         appConfig={appConfig}

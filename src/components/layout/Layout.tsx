@@ -1,17 +1,17 @@
 import { AppShell } from './AppShell';
+import { useThemeEngine } from '@/themes/core/ThemeEngineContext';
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
-/**
- * Main layout component that wraps all pages.
- * Uses the new AppShell system with:
- * - Desktop sidebar navigation
- * - Mobile bottom navigation
- * - Command palette (⌘K)
- * - Platform-aware features (Telegram integration)
- */
 export default function Layout({ children }: LayoutProps) {
+  const { activeTheme } = useThemeEngine();
+
+  // Modern themes provide their own unified responsive shell & dock
+  if (activeTheme === 'cyber_matrix' || activeTheme === 'fresh' || activeTheme === 'samurai_gold') {
+    return <>{children}</>;
+  }
+
   return <AppShell>{children}</AppShell>;
 }
