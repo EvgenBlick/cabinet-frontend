@@ -254,6 +254,15 @@ apiClient.interceptors.response.use(
         return Promise.reject(error);
       }
 
+      if (
+        typeof window !== 'undefined' &&
+        (localStorage.getItem('cabinet-dev-auth') === 'true' ||
+          sessionStorage.getItem('cabinet-dev-auth') === 'true')
+      ) {
+        // Don't kill dev demo session on mock 401
+        return Promise.reject(error);
+      }
+
       originalRequest._retry = true;
 
       const newToken = await tokenRefreshManager.refreshAccessToken();

@@ -1,7 +1,7 @@
 import { Headphones, Lock, Send, Zap } from 'lucide-react';
 import { useBranding } from '@/hooks/useBranding';
 import { useFreshThemeContext } from '../FreshThemeContext';
-import { useAuthStore } from '@/store/auth';
+import { performDevDemoLogin } from '@/features/auth/shared/devDemoLogin';
 
 export function FreshLoginPage() {
   const { appName, logoUrl } = useBranding();
@@ -28,23 +28,7 @@ export function FreshLoginPage() {
 
   // Quick dev test login bypass
   const handleQuickDemoLogin = () => {
-    const dummyToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.dummy';
-    const dummyUser = {
-      id: 1,
-      telegram_id: 6636301647,
-      username: 'EvgenBlick',
-      first_name: 'Евгений',
-      role: 'admin',
-      balance_rubles: 5000,
-      balance_kopeks: 500000,
-      subscription_days_left: 365,
-    };
-    sessionStorage.setItem('cabinet-dev-auth', 'true');
-    localStorage.setItem('access_token', dummyToken);
-    localStorage.setItem('refresh_token', dummyToken);
-    useAuthStore.getState().setTokens(dummyToken, dummyToken);
-    useAuthStore.getState().setUser(dummyUser as any);
-    window.location.href = '/';
+    performDevDemoLogin('/');
   };
 
   return (

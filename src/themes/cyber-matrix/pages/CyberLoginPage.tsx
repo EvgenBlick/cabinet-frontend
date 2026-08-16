@@ -1,13 +1,10 @@
 import React from 'react';
 import { Headphones, Lock, Send, ShieldCheck, Zap } from 'lucide-react';
-import { useAuthStore } from '@/store/auth';
 import { useThemeEngine } from '@/themes/core/ThemeEngineContext';
 import { CyberParticleCanvas } from '../components/CyberParticleCanvas';
-import { tokenStorage } from '@/utils/token';
-import { useNavigate } from 'react-router';
+import { performDevDemoLogin } from '@/features/auth/shared/devDemoLogin';
 
 export const CyberLoginPage: React.FC = () => {
-  const navigate = useNavigate();
   const { config } = useThemeEngine();
   const accent = config.accentColor || '#00ff66';
   const brandName = config.customBrandName || 'DOTDNA CYBER';
@@ -25,28 +22,7 @@ export const CyberLoginPage: React.FC = () => {
   };
 
   const handleQuickDemoLogin = () => {
-    // Generate valid mock JWT payload with expiration far in the future
-    const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
-    const payload = btoa(
-      JSON.stringify({ exp: Math.floor(Date.now() / 1000) + 86400 * 365, user_id: 777 }),
-    );
-    const validJwt = `${header}.${payload}.signature`;
-
-    const dummyUser = {
-      id: 1,
-      telegram_id: 6636301647,
-      username: 'EvgenBlick',
-      first_name: 'Евгений',
-      role: 'admin',
-      balance_rubles: 5000,
-      balance_kopeks: 500000,
-      subscription_days_left: 365,
-    };
-    tokenStorage.setTokens(validJwt, validJwt);
-    useAuthStore.getState().setTokens(validJwt, validJwt);
-    useAuthStore.getState().setUser(dummyUser as any);
-    useAuthStore.getState().setIsAdmin(true);
-    navigate('/');
+    performDevDemoLogin('/');
   };
 
   return (

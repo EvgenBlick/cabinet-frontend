@@ -12,6 +12,7 @@ import { AuthSupportAction } from '@/features/auth/shared/AuthSupportAction';
 import { useUltimaMode } from '@/hooks/useUltimaMode';
 import { Navigate } from 'react-router';
 import { useAuthStore } from '@/store/auth';
+import { performDevDemoLogin } from '@/features/auth/shared/devDemoLogin';
 
 import { useThemeEngine } from '@/themes/core/ThemeEngineContext';
 import { CyberLoginPage } from '@/themes/cyber-matrix/pages/CyberLoginPage';
@@ -151,35 +152,7 @@ export default function Login() {
   };
 
   const handleDevDemoLogin = () => {
-    const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
-    const payload = btoa(
-      JSON.stringify({ sub: '1', exp: Math.floor(Date.now() / 1000) + 86400 * 365 }),
-    );
-    const dummyToken = `${header}.${payload}.dummy_signature`;
-    const dummyUser = {
-      id: 321,
-      telegram_id: 123456789,
-      first_name: 'Евгений',
-      username: 'samurai_master',
-      has_subscription: true,
-      subscription_days_left: 30,
-      active_devices_count: 1,
-      balance: 1500,
-      balance_rubles: 1500,
-      balance_kopeks: 150000,
-      created_at: new Date().toISOString(),
-    } as any;
-
-    localStorage.setItem('cabinet-dev-auth', 'true');
-    localStorage.setItem('cabinet_ultima_mode', 'true');
-    sessionStorage.setItem('access_token', dummyToken);
-    sessionStorage.setItem('refresh_token', dummyToken);
-    sessionStorage.setItem('user', JSON.stringify(dummyUser));
-
-    useAuthStore.getState().setTokens(dummyToken, dummyToken);
-    useAuthStore.getState().setUser(dummyUser);
-
-    window.location.href = '/';
+    performDevDemoLogin('/');
   };
 
   if (isUltimaMode) {
@@ -300,7 +273,18 @@ export default function Login() {
           />
         </div>
 
-        <section className="card rounded-lg p-5 sm:p-6">{authPanelContent}</section>
+        <section className="card rounded-lg p-5 sm:p-6">
+          {authPanelContent}
+          <div className="mt-6 border-t border-white/10 pt-5">
+            <button
+              type="button"
+              onClick={handleDevDemoLogin}
+              className="w-full rounded-xl border border-dashed border-emerald-500/40 bg-emerald-500/10 py-3 text-center text-xs font-bold text-emerald-400 transition-all hover:bg-emerald-500/20"
+            >
+              ⚡ Войти в кабинет (Быстрый тест)
+            </button>
+          </div>
+        </section>
       </main>
     </div>
   );

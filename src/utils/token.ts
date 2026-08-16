@@ -369,6 +369,12 @@ export function safeRedirectToLogin(): void {
 
   // Проверяем, что мы на том же origin
   if (typeof window !== 'undefined') {
+    if (
+      localStorage.getItem('cabinet-dev-auth') === 'true' ||
+      sessionStorage.getItem('cabinet-dev-auth') === 'true'
+    ) {
+      return;
+    }
     // Prevent hard-refresh loop when we are already on the login page.
     if (window.location.pathname === loginPath) {
       return;
