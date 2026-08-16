@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { useAuthStore } from '@/store/auth';
 import { useBranding } from '@/hooks/useBranding';
+import { useThemeEngine } from '@/themes/core/ThemeEngineContext';
 import { useFreshThemeContext } from '../FreshThemeContext';
 import { FreshSupportModal } from './FreshSupportModal';
 import { cn } from '@/lib/utils';
@@ -24,11 +25,11 @@ import { cn } from '@/lib/utils';
 export function FreshNavbar() {
   const navigate = useNavigate();
   const location = useLocation();
-  const user = useAuthStore((state) => state.user);
+  const { user, logout } = useAuthStore();
   const isAdmin = useAuthStore((state) => state.isAdmin);
-  const logout = useAuthStore((state) => state.logout);
   const { appName, logoUrl } = useBranding();
   const { config, openModal } = useFreshThemeContext();
+  const { openThemeStudio } = useThemeEngine();
 
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -402,7 +403,7 @@ export function FreshNavbar() {
                           type="button"
                           onClick={() => {
                             setActiveDropdown(null);
-                            openModal('studio');
+                            openThemeStudio();
                           }}
                           className="flex w-full items-center gap-2 rounded-xl p-2 text-left text-emerald-300 hover:bg-emerald-500/10"
                         >
