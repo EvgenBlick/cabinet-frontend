@@ -22,32 +22,32 @@ export function FreshDesktopNavbar({
   const navItems = [
     {
       id: 'product',
-      label: 'Product',
+      label: 'Главная',
       path: '/',
       active: location.pathname === '/' || location.pathname === '/fresh',
     },
     {
       id: 'solutions',
-      label: 'Solutions',
+      label: 'Подключение',
       path: '/connection',
       active: location.pathname.startsWith('/connection'),
     },
     {
       id: 'pricing',
-      label: 'Pricing',
+      label: 'Тарифы',
       path: '/subscription',
       active: location.pathname.startsWith('/subscription'),
       onClick: onBuySubscription ? () => onBuySubscription() : undefined,
     },
     {
       id: 'resources',
-      label: 'Resources',
+      label: 'База знаний',
       path: '/news',
       active: location.pathname.startsWith('/news') || location.pathname.startsWith('/ultima/news'),
     },
     {
       id: 'company',
-      label: 'Company',
+      label: 'Поддержка',
       path: '/support',
       active: location.pathname.startsWith('/support'),
       onClick: onOpenSupport ? () => onOpenSupport() : undefined,
@@ -95,7 +95,7 @@ export function FreshDesktopNavbar({
           </span>
         </button>
 
-        {/* 2. Middle Nav Links: Product, Solutions, Pricing, Resources, Company */}
+        {/* 2. Middle Nav Links */}
         <nav className="hidden items-center gap-7 lg:flex">
           {navItems.map((item) => {
             const isActive = item.active;
@@ -124,14 +124,14 @@ export function FreshDesktopNavbar({
           })}
         </nav>
 
-        {/* 3. Right: Log in & Get Started -> */}
+        {/* 3. Right: User Profile & Connect */}
         <div className="flex items-center gap-4">
           <button
             type="button"
             onClick={() => navigate(user ? '/profile' : '/login')}
             className="text-[13px] font-medium tracking-wide text-[#d1d5db] transition-colors hover:text-white"
           >
-            {user ? user.first_name || user.username || 'Account' : 'Log in'}
+            {user ? user.first_name || user.username || 'Кабинет' : 'Войти'}
           </button>
 
           <button
@@ -139,7 +139,7 @@ export function FreshDesktopNavbar({
             onClick={() => navigate('/connection')}
             className="fresh-glow-btn flex items-center gap-1.5 rounded-full px-5 py-2 text-[12px] font-extrabold tracking-wide transition-all"
           >
-            <span>Get Started</span>
+            <span>Подключить</span>
             <span className="text-sm font-bold">→</span>
           </button>
         </div>

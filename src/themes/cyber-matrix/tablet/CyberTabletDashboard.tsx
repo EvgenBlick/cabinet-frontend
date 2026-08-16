@@ -9,6 +9,7 @@ import { CyberParticleCanvas } from '../components/CyberParticleCanvas';
 import { CyberServerNodesWidget } from '../components/CyberServerNodesWidget';
 import { CyberSecurityHelixWidget } from '../components/CyberSecurityHelixWidget';
 import { CyberFloatingDock } from '../components/CyberFloatingDock';
+import { DynamicThemeBackground } from '@/themes/core/DynamicThemeBackground';
 
 export const CyberTabletDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -26,11 +27,14 @@ export const CyberTabletDashboard: React.FC = () => {
   const trafficPercent = Math.min(100, Math.round((trafficUsedGb / trafficLimitGb) * 100));
 
   const accent = config.accentColor || '#00ff66';
-  const brandName = config.customBrandName || 'DOTDNA CYBER';
+  const brandName = config.customBrandName || 'CYBER MATRIX';
   const isAdmin = useAuthStore((state) => state.isAdmin);
 
   return (
-    <div className="relative min-h-[100dvh] bg-[#040705] pb-28 text-[#f5f5f7] selection:bg-emerald-500/30 selection:text-white">
+    <div className="relative min-h-[100dvh] pb-28 text-[#f5f5f7] selection:bg-emerald-500/30 selection:text-white">
+      {/* Dynamic Custom Wallpaper & Overlay */}
+      <DynamicThemeBackground />
+
       <CyberParticleCanvas />
 
       {/* Header */}

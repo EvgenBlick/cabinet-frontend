@@ -31,12 +31,13 @@ export const DEFAULT_THEME_STUDIO_CONFIG: Record<ThemeId, ThemeStudioConfig> = {
   cyber_matrix: {
     activeTheme: 'cyber_matrix',
     bgMode: 'preset',
-    customBgUrl: null,
+    customBgUrl:
+      'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=1920&auto=format&fit=crop',
     bgBlur: 'md',
-    bgOverlayOpacity: 0.75,
+    bgOverlayOpacity: 0.82,
     enableParticles: true,
-    particleCount: 110,
-    particleSpeed: 1.2,
+    particleCount: 90,
+    particleSpeed: 1.1,
     particleColor: '#00ff66',
     enableMeshGrid: true,
     animationSpeed: 'normal',
@@ -44,9 +45,9 @@ export const DEFAULT_THEME_STUDIO_CONFIG: Record<ThemeId, ThemeStudioConfig> = {
     accentGlowColor: 'rgba(0, 255, 102, 0.45)',
     customLogoUrl: null,
     customBrandName: 'DOTDNA CYBER',
-    heroBadgeText: 'CYBER DEFENSE MATRIX • 10 GBPS',
-    heroHeadlineMain: 'Defending the Digital',
-    heroHeadlineAccent: 'on the Dot.',
+    heroBadgeText: '🛡️ КИБЕР-ЗАЩИТА СЛЕДУЮЩЕГО ПОКОЛЕНИЯ • 10 GBPS',
+    heroHeadlineMain: 'Безупречная защита данных',
+    heroHeadlineAccent: 'на максимальной скорости.',
   },
   fresh: {
     activeTheme: 'fresh',
@@ -64,16 +65,17 @@ export const DEFAULT_THEME_STUDIO_CONFIG: Record<ThemeId, ThemeStudioConfig> = {
     accentGlowColor: 'rgba(215, 255, 59, 0.45)',
     customLogoUrl: null,
     customBrandName: 'VERDANT',
-    heroBadgeText: '⚡ НОВОЕ ПОКОЛЕНИЕ VPN',
-    heroHeadlineMain: 'Intelligence that',
-    heroHeadlineAccent: 'grows with you.',
+    heroBadgeText: '⚡ НОВОЕ ПОКОЛЕНИЕ VPN • 10 GBPS',
+    heroHeadlineMain: 'Скоростной доступ, который',
+    heroHeadlineAccent: 'надежно с вами.',
   },
   samurai_gold: {
     activeTheme: 'samurai_gold',
     bgMode: 'preset',
-    customBgUrl: null,
+    customBgUrl:
+      'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?q=80&w=1920&auto=format&fit=crop',
     bgBlur: 'lg',
-    bgOverlayOpacity: 0.85,
+    bgOverlayOpacity: 0.88,
     enableParticles: true,
     particleCount: 50,
     particleSpeed: 0.8,
@@ -83,9 +85,9 @@ export const DEFAULT_THEME_STUDIO_CONFIG: Record<ThemeId, ThemeStudioConfig> = {
     accentColor: '#d4b37f',
     accentGlowColor: 'rgba(212, 179, 127, 0.45)',
     customLogoUrl: null,
-    customBrandName: 'SAMURAI SERVICE',
-    heroBadgeText: '👑 LUXURY EDITION',
-    heroHeadlineMain: 'Премиальная защита',
+    customBrandName: 'SAMURAI ULTIMA',
+    heroBadgeText: '👑 ПРЕМИАЛЬНЫЙ СЕРВИС • ULTIMA',
+    heroHeadlineMain: 'Элитный защищенный доступ',
     heroHeadlineAccent: 'Samurai Ultima.',
   },
   classic: {
@@ -103,10 +105,10 @@ export const DEFAULT_THEME_STUDIO_CONFIG: Record<ThemeId, ThemeStudioConfig> = {
     accentColor: '#3b82f6',
     accentGlowColor: 'rgba(59, 130, 246, 0.45)',
     customLogoUrl: null,
-    customBrandName: 'Cabinet',
-    heroBadgeText: 'VPN Client',
-    heroHeadlineMain: 'Личный кабинет',
-    heroHeadlineAccent: 'клиента',
+    customBrandName: 'ЛИЧНЫЙ КАБИНЕТ',
+    heroBadgeText: '🛡️ Личный кабинет',
+    heroHeadlineMain: 'Управление защищенным',
+    heroHeadlineAccent: 'доступом и подпиской',
   },
 };
 
@@ -127,7 +129,7 @@ interface ThemeEngineContextValue {
 const ThemeEngineContext = createContext<ThemeEngineContextValue | null>(null);
 
 const STORAGE_KEY_ACTIVE = 'cabinet_active_theme_v2';
-const STORAGE_KEY_CONFIGS = 'cabinet_theme_studio_configs_v2';
+const STORAGE_KEY_CONFIGS = 'cabinet_theme_studio_configs_v3';
 
 export const ThemeEngineProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // 1. Initial Active Theme

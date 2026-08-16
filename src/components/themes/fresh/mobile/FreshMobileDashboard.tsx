@@ -16,6 +16,7 @@ import type { Subscription } from '@/types';
 import { useAuthStore } from '@/store/auth';
 import { useBranding } from '@/hooks/useBranding';
 import { useFreshTheme } from '@/hooks/useFreshTheme';
+import { DynamicThemeBackground } from '@/themes/core/DynamicThemeBackground';
 
 export interface FreshMobileDashboardProps {
   subscription: Subscription | null;
@@ -44,7 +45,8 @@ export function FreshMobileDashboard({
   const totalSlots = subscription?.device_limit || 5;
 
   return (
-    <div className="min-h-screen bg-[#060907] px-4 pb-28 pt-5 text-[#f5f5f7]">
+    <div className="relative min-h-screen px-4 pb-28 pt-5 text-[#f5f5f7]">
+      <DynamicThemeBackground />
       {/* 1. Top Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2.5">

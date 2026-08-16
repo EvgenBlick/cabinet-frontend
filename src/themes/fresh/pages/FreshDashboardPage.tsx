@@ -18,6 +18,7 @@ import { useBranding } from '@/hooks/useBranding';
 import { useFreshThemeContext } from '../FreshThemeContext';
 import { FreshNavbar } from '../components/FreshNavbar';
 import { FreshQrModal } from '../components/FreshQrModal';
+import { DynamicThemeBackground } from '@/themes/core/DynamicThemeBackground';
 
 export function FreshDashboardPage() {
   const navigate = useNavigate();
@@ -43,7 +44,8 @@ export function FreshDashboardPage() {
   const daysLeft = subscription?.days_left ?? (user as any)?.subscription_days_left ?? 30;
 
   return (
-    <div className="fresh-backdrop-container min-h-screen font-sans text-[#f5f5f7] selection:bg-[#d7ff3b]/30 selection:text-white">
+    <div className="relative min-h-screen font-sans text-[#f5f5f7] selection:bg-[#d7ff3b]/30 selection:text-white">
+      <DynamicThemeBackground />
       <FreshNavbar />
 
       {/* Main Container */}

@@ -19,56 +19,67 @@ import { useThemeEngine, ThemeId } from '@/themes/core/ThemeEngineContext';
 const THEME_OPTIONS: { id: ThemeId; name: string; tag: string; icon: any; color: string }[] = [
   {
     id: 'cyber_matrix',
-    name: 'CYBER MATRIX (DOTDNA)',
-    tag: 'Кибер-неон, 3D частицы и виджеты',
+    name: 'CYBER MATRIX (Неон)',
+    tag: '3D кинетические частицы, виджеты и темная матрица',
     icon: Zap,
     color: '#00ff66',
   },
   {
     id: 'fresh',
-    name: 'VERDANT FRESH',
-    tag: 'Темный мох, неоновый лайм, Bento',
+    name: 'VERDANT FRESH (Лайм)',
+    tag: 'Органический хвойный мох, лаймовый неон, Bento-сетка',
     icon: Sparkles,
     color: '#d7ff3b',
   },
   {
     id: 'samurai_gold',
     name: 'SAMURAI GOLD (Ultima)',
-    tag: 'Премиальный черный титан и золото',
+    tag: 'Премиальный черный титан, золото и японская эстетика',
     icon: Crown,
     color: '#d4b37f',
   },
   {
     id: 'classic',
-    name: 'CLASSIC MINIMAL',
-    tag: 'Классический интерфейс PEDZEO',
+    name: 'CLASSIC (Минимализм)',
+    tag: 'Классический минималистичный интерфейс',
     icon: Globe,
     color: '#3b82f6',
   },
 ];
 
 const COLOR_PRESETS = [
-  { name: 'Cyber Matrix Green', color: '#00ff66', glow: 'rgba(0, 255, 102, 0.45)' },
-  { name: 'Electric Lime', color: '#d7ff3b', glow: 'rgba(215, 255, 59, 0.45)' },
-  { name: 'Emerald Forest', color: '#10b981', glow: 'rgba(16, 185, 129, 0.45)' },
-  { name: 'Champagne Gold', color: '#d4b37f', glow: 'rgba(212, 179, 127, 0.45)' },
-  { name: 'Cyber Cyan', color: '#06b6d4', glow: 'rgba(6, 182, 212, 0.45)' },
-  { name: 'Neon Purple', color: '#a855f7', glow: 'rgba(168, 85, 247, 0.45)' },
+  { name: 'Кибернетический зелёный', color: '#00ff66', glow: 'rgba(0, 255, 102, 0.45)' },
+  { name: 'Электрический лайм', color: '#d7ff3b', glow: 'rgba(215, 255, 59, 0.45)' },
+  { name: 'Изумрудный лес', color: '#10b981', glow: 'rgba(16, 185, 129, 0.45)' },
+  { name: 'Шампань и золото', color: '#d4b37f', glow: 'rgba(212, 179, 127, 0.45)' },
+  { name: 'Кибер-циан (Лазурь)', color: '#06b6d4', glow: 'rgba(6, 182, 212, 0.45)' },
+  { name: 'Неоновый пурпур', color: '#a855f7', glow: 'rgba(168, 85, 247, 0.45)' },
 ];
 
 const WALLPAPER_PRESETS = [
-  { name: 'Verdant Deep Forest', url: '/backgrounds/verdant_moss_bg.jpg' },
   {
-    name: 'Cyber Matrix Digital Canyon',
+    name: 'Хвойный лес (Verdant)',
+    url: '/backgrounds/verdant_moss_bg.jpg',
+  },
+  {
+    name: 'Цифровой каньон (Cyber)',
     url: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=1920&auto=format&fit=crop',
   },
   {
-    name: 'Obsidian Gold Luxury',
+    name: 'Золотой обсидиан (Luxury)',
     url: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?q=80&w=1920&auto=format&fit=crop',
   },
   {
-    name: 'Dark Abstract Silk',
+    name: 'Тёмный шёлк (Minimal)',
     url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1920&auto=format&fit=crop',
+  },
+  {
+    name: 'Ночной Токио (Cyberpunk)',
+    url: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=1920&auto=format&fit=crop',
+  },
+  {
+    name: 'Без фонового фото (Глубокий чёрный)',
+    url: '',
   },
 ];
 
@@ -108,7 +119,7 @@ export const ThemeStudioDrawer: React.FC = () => {
   };
 
   return (
-    <div className="animate-in fade-in fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-sm duration-200">
+    <div className="animate-in fade-in fixed inset-0 z-50 flex justify-end bg-black/70 backdrop-blur-md duration-200">
       {/* Backdrop click to close */}
       <div className="flex-1" onClick={() => setIsStudioOpen(false)} />
 
@@ -118,16 +129,16 @@ export const ThemeStudioDrawer: React.FC = () => {
         <div className="flex items-center justify-between border-b border-white/10 px-6 py-4">
           <div className="flex items-center gap-2.5">
             <div
-              className="flex h-8 w-8 items-center justify-center rounded-xl border bg-black shadow-md"
+              className="flex h-9 w-9 items-center justify-center rounded-xl border bg-black shadow-md"
               style={{ borderColor: config.accentColor }}
             >
               <Wand2 className="h-4 w-4" style={{ color: config.accentColor }} />
             </div>
             <div>
               <h2 className="text-sm font-black uppercase tracking-wider text-white">
-                Live Theme Studio
+                Студия Оформления
               </h2>
-              <span className="text-[10px] text-[#718076]">Визуальный конструктор тем</span>
+              <span className="text-[10px] text-[#718076]">Визуальный конструктор тем и фона</span>
             </div>
           </div>
 
@@ -228,17 +239,43 @@ export const ThemeStudioDrawer: React.FC = () => {
                 <label className="text-xs font-bold uppercase tracking-wider text-[#8e9690]">
                   Готовые 4K обои:
                 </label>
-                <div className="mt-2.5 grid grid-cols-2 gap-2">
-                  {WALLPAPER_PRESETS.map((wp) => (
-                    <button
-                      key={wp.name}
-                      type="button"
-                      onClick={() => updateConfig({ customBgUrl: wp.url, bgMode: 'custom' })}
-                      className="group relative overflow-hidden rounded-xl border border-white/10 p-2 text-left transition-transform hover:scale-105"
-                    >
-                      <div className="truncate text-[11px] font-semibold text-white">{wp.name}</div>
-                    </button>
-                  ))}
+                <div className="mt-2.5 grid grid-cols-2 gap-2.5">
+                  {WALLPAPER_PRESETS.map((wp) => {
+                    const isSelected = (config.customBgUrl || '') === wp.url;
+                    return (
+                      <button
+                        key={wp.name}
+                        type="button"
+                        onClick={() =>
+                          updateConfig({ customBgUrl: wp.url || null, bgMode: 'custom' })
+                        }
+                        className={`group relative flex h-20 flex-col justify-end overflow-hidden rounded-2xl border p-2.5 text-left transition-all ${
+                          isSelected
+                            ? 'border-emerald-400 ring-2 ring-emerald-400/40'
+                            : 'border-white/10 hover:border-white/30'
+                        }`}
+                        style={{
+                          backgroundImage: wp.url ? `url("${wp.url}")` : undefined,
+                          backgroundSize: 'cover',
+                          backgroundPosition: 'center',
+                          backgroundColor: '#0a0f0c',
+                        }}
+                      >
+                        {/* Dark gradient overlay on thumbnail for text readability */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+                        <div className="relative z-10 flex items-center justify-between">
+                          <span className="truncate text-[11px] font-bold text-white drop-shadow-md">
+                            {wp.name}
+                          </span>
+                          {isSelected && (
+                            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-emerald-400 text-black">
+                              <Check className="h-2.5 w-2.5 stroke-[3]" />
+                            </span>
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 

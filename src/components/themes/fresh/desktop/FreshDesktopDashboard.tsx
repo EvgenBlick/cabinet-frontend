@@ -16,6 +16,7 @@ import type { Subscription } from '@/types';
 import { useBranding } from '@/hooks/useBranding';
 import { useFreshTheme } from '@/hooks/useFreshTheme';
 import { FreshDesktopNavbar } from './FreshDesktopNavbar';
+import { DynamicThemeBackground } from '@/themes/core/DynamicThemeBackground';
 
 export interface FreshDesktopDashboardProps {
   subscription: Subscription | null;
@@ -63,16 +64,18 @@ export function FreshDesktopDashboard({
   };
 
   const accentLime = config.accentColor || '#d7ff3b';
-  const brandDisplay = appName || 'Verdant';
+  const brandDisplay = appName || 'VERDANT';
 
   return (
-    <div className="fresh-backdrop-container min-h-screen font-sans text-[#f5f5f7] selection:bg-[#d7ff3b]/30 selection:text-white">
+    <div className="relative min-h-screen font-sans text-[#f5f5f7] selection:bg-[#d7ff3b]/30 selection:text-white">
+      <DynamicThemeBackground />
+
       {/* 1. Floating Island Navbar */}
       <FreshDesktopNavbar onBuySubscription={onBuySubscription} onOpenSupport={onOpenSupport} />
 
       {/* 2. Main Hero Section */}
       <main className="relative z-10 mx-auto max-w-6xl px-4 pb-24 pt-10 sm:px-6 md:pt-16">
-        {/* Top Release Pill Badge: [● New] Verdant 2.0 is now available > */}
+        {/* Top Release Pill Badge: [● New] Verdant 2.0 • Новое поколение защиты > */}
         <div className="flex justify-center">
           <button
             type="button"
@@ -87,16 +90,16 @@ export function FreshDesktopDashboard({
               <span>New</span>
             </span>
             <span className="text-[13px] font-medium text-[#c8d0ca]">
-              {config.releaseBadgeText || `${brandDisplay} 2.0 is now available`}
+              {config.releaseBadgeText || `${brandDisplay} 2.0 • Новое поколение защиты`}
             </span>
             <ChevronRight className="h-3.5 w-3.5 text-[#8a948c] transition-transform group-hover:translate-x-0.5" />
           </button>
         </div>
 
-        {/* Hero Headline 1:1 matching reference typography */}
+        {/* Hero Headline in Russian */}
         <div className="text-center">
           <h1 className="text-5xl font-bold tracking-tight text-[#f5f5f7] sm:text-7xl md:text-[80px] md:leading-[1.06]">
-            Intelligence that <br />
+            Скоростной доступ, который <br />
             <span
               className="font-serif font-normal italic"
               style={{
@@ -104,13 +107,14 @@ export function FreshDesktopDashboard({
                 textShadow: `0 0 45px ${config.accentGlowColor || 'rgba(215, 255, 59, 0.45)'}`,
               }}
             >
-              {config.heroItalicWord || 'grows'}
+              {config.heroItalicWord || 'надежно'}
             </span>{' '}
-            with you.
+            с вами.
           </h1>
 
           <p className="mx-auto mt-6 max-w-xl text-sm leading-relaxed text-[#9ca59e] sm:text-base md:text-lg">
-            The all-in-one platform for teams who want clarity, speed, and sustainable growth.
+            Единая скоростная сеть для всех ваших устройств. 10 Gbps европейские порты, низкий пинг
+            и умная маршрутизация.
           </p>
 
           {/* Glowing Pill CTA Button */}
@@ -128,7 +132,7 @@ export function FreshDesktopDashboard({
                 onClick={onOpenConnection}
                 className="fresh-glow-btn relative z-10 flex items-center justify-center gap-2 rounded-full px-8 py-3.5 text-[15px] font-bold text-black transition-all"
               >
-                <span>Start Free Trial</span>
+                <span>Подключить устройство</span>
                 <span className="text-base font-normal">→</span>
               </button>
             </div>
@@ -139,27 +143,27 @@ export function FreshDesktopDashboard({
                 <span className="flex h-3.5 w-3.5 items-center justify-center rounded-full border border-[#d7ff3b]/40 text-[9px] text-[#d7ff3b]">
                   ✓
                 </span>
-                <span>No credit card</span>
+                <span>Без рекламы и логов</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="flex h-3.5 w-3.5 items-center justify-center rounded-full border border-[#d7ff3b]/40 text-[9px] text-[#d7ff3b]">
                   ✓
                 </span>
-                <span>14-day free trial</span>
+                <span>10 Gbps порты в Европе</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="flex h-3.5 w-3.5 items-center justify-center rounded-full border border-[#d7ff3b]/40 text-[9px] text-[#d7ff3b]">
                   ✓
                 </span>
-                <span>Cancel anytime</span>
+                <span>Мгновенный импорт в Happ</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* 3. The 3 Verdant Bento Cards (Exact 1:1 Layout) */}
+        {/* 3. The 3 Verdant Bento Cards */}
         <div className="mt-20 grid grid-cols-1 gap-6 md:grid-cols-3">
-          {/* Card 1: Unify your data */}
+          {/* Card 1: Быстрое подключение */}
           <div
             onClick={onOpenConnection}
             className="fresh-bento-card group flex cursor-pointer flex-col justify-between p-7"
@@ -187,9 +191,11 @@ export function FreshDesktopDashboard({
                 </svg>
               </div>
 
-              <h3 className="text-xl font-bold tracking-tight text-[#f5f5f7]">Unify your data</h3>
+              <h3 className="text-xl font-bold tracking-tight text-[#f5f5f7]">
+                Быстрое подключение
+              </h3>
               <p className="mt-2 text-xs leading-relaxed text-[#8e9690]">
-                Connect all your sources and turn scattered data into a single source of truth.
+                Подключите iOS, Android, ПК и Smart TV в один клик через ключ или QR-код.
               </p>
             </div>
 
@@ -271,7 +277,7 @@ export function FreshDesktopDashboard({
             </div>
           </div>
 
-          {/* Card 2: Surface what matters */}
+          {/* Card 2: Тариф и трафик */}
           <div
             onClick={onBuySubscription}
             className="fresh-bento-card group flex cursor-pointer flex-col justify-between p-7"
@@ -289,22 +295,23 @@ export function FreshDesktopDashboard({
               </div>
 
               <h3 className="text-xl font-bold tracking-tight text-[#f5f5f7]">
-                Surface what matters
+                Высокая скорость и безлимит
               </h3>
               <p className="mt-2 text-xs leading-relaxed text-[#8e9690]">
-                AI that cuts through noise and highlights the insights that drive impact.
+                Умная балансировка потоков, моментальный отклик и неограниченная пропускная
+                способность.
               </p>
             </div>
 
             {/* Bottom Graphic: Multi-layer Glowing Wave Chart with Peak Badge */}
             <div className="relative mt-8 flex h-36 flex-col justify-end">
-              {/* Peak Floating Pill Badge: ↑ 32% */}
+              {/* Peak Floating Pill Badge: ↑ 10 Gbps */}
               <div
                 className="absolute right-12 top-2 z-10 flex items-center gap-1 rounded-full border border-white/10 bg-[#0d1610]/90 px-2.5 py-0.5 text-[11px] font-bold shadow-lg"
                 style={{ color: accentLime }}
               >
                 <span>↑</span>
-                <span>32%</span>
+                <span>10 Gbps</span>
               </div>
 
               {/* Multi-layer glowing wave canvas */}
@@ -361,7 +368,7 @@ export function FreshDesktopDashboard({
             </div>
           </div>
 
-          {/* Card 3: Act with confidence */}
+          {/* Card 3: Безопасность и приватность */}
           <div
             onClick={onOpenSupport}
             className="fresh-bento-card group flex cursor-pointer flex-col justify-between p-7"
@@ -379,10 +386,10 @@ export function FreshDesktopDashboard({
               </div>
 
               <h3 className="text-xl font-bold tracking-tight text-[#f5f5f7]">
-                Act with confidence
+                Полная приватность
               </h3>
               <p className="mt-2 text-xs leading-relaxed text-[#8e9690]">
-                Built-in governance and privacy so your team can move fast, without risk.
+                Встроенное шифрование VLESS TLS 1.3 и политика полного отсутствия логов (Zero-Logs).
               </p>
             </div>
 
@@ -435,32 +442,32 @@ export function FreshDesktopDashboard({
           </div>
         </div>
 
-        {/* 4. Footer Trust Logos Bar (1:1 with reference) */}
-        <div className="mt-24 text-center">
+        {/* 4. Footer Feature Bar */}
+        <div className="mt-20 text-center">
           <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[#636d65]">
-            TRUSTED BY INNOVATIVE TEAMS
+            ПОДДЕРЖИВАЕМЫЕ ПРОТОКОЛЫ И КЛИЕНТЫ
           </p>
 
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-10 text-sm font-black tracking-widest text-[#7a857c] sm:gap-16">
-            <div className="flex items-center gap-1.5 transition-colors hover:text-white">
-              <span className="text-xs">▲</span>
-              <span>Acme</span>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-8 text-xs font-bold tracking-wider text-[#7a857c] sm:gap-12">
+            <div className="flex items-center gap-2 transition-colors hover:text-white">
+              <span className="text-[#d7ff3b]">⚡</span>
+              <span>VLESS REALITY</span>
             </div>
-            <div className="flex items-center gap-1.5 transition-colors hover:text-white">
-              <span className="text-xs">✳</span>
-              <span>LUMEN</span>
+            <div className="flex items-center gap-2 transition-colors hover:text-white">
+              <span className="text-[#d7ff3b]">⚡</span>
+              <span>HYSTERIA 2</span>
             </div>
-            <div className="flex items-center gap-1.5 transition-colors hover:text-white">
-              <span className="font-serif text-xs font-normal">N</span>
-              <span>Nova</span>
+            <div className="flex items-center gap-2 transition-colors hover:text-white">
+              <span className="text-[#d7ff3b]">⚡</span>
+              <span>HAPP CLIENT</span>
             </div>
-            <div className="flex items-center gap-1.5 transition-colors hover:text-white">
-              <span className="text-xs">◎</span>
-              <span>PULSE</span>
+            <div className="flex items-center gap-2 transition-colors hover:text-white">
+              <span className="text-[#d7ff3b]">⚡</span>
+              <span>INCY APP</span>
             </div>
-            <div className="flex items-center gap-1.5 transition-colors hover:text-white">
-              <span className="text-xs">∴</span>
-              <span>atelier</span>
+            <div className="flex items-center gap-2 transition-colors hover:text-white">
+              <span className="text-[#d7ff3b]">⚡</span>
+              <span>SMART TV</span>
             </div>
           </div>
         </div>

@@ -9,6 +9,7 @@ import { CyberParticleCanvas } from '../components/CyberParticleCanvas';
 import { CyberServerNodesWidget } from '../components/CyberServerNodesWidget';
 import { CyberSecurityHelixWidget } from '../components/CyberSecurityHelixWidget';
 import { CyberFloatingDock } from '../components/CyberFloatingDock';
+import { DynamicThemeBackground } from '@/themes/core/DynamicThemeBackground';
 
 export const CyberMobileDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -27,16 +28,19 @@ export const CyberMobileDashboard: React.FC = () => {
   const trafficPercent = Math.min(100, Math.round((trafficUsedGb / trafficLimitGb) * 100));
 
   const accent = config.accentColor || '#00ff66';
-  const brandName = config.customBrandName || 'DOTDNA';
+  const brandName = config.customBrandName || 'CYBER MATRIX';
   const isAdmin = useAuthStore((state) => state.isAdmin);
 
   return (
     <div
-      className="relative min-h-[100dvh] bg-[#040705] text-[#f5f5f7] selection:bg-emerald-500/30 selection:text-white"
+      className="relative min-h-[100dvh] text-[#f5f5f7] selection:bg-emerald-500/30 selection:text-white"
       style={{
         paddingBottom: 'calc(env(safe-area-inset-bottom, 16px) + 84px)',
       }}
     >
+      {/* Dynamic Custom Wallpaper & Overlay */}
+      <DynamicThemeBackground />
+
       {/* 3D Particle Swarm Background */}
       <CyberParticleCanvas />
 

@@ -24,27 +24,27 @@ import { FreshDesktopDashboard } from '../desktop/FreshDesktopDashboard';
 import { FreshMobileDashboard } from '../mobile/FreshMobileDashboard';
 
 const COLOR_PALETTES = [
-  { name: 'Electric Lime', color: '#d7ff3b', glow: 'rgba(215, 255, 59, 0.45)' },
-  { name: 'Emerald Forest', color: '#10b981', glow: 'rgba(16, 185, 129, 0.45)' },
-  { name: 'Cyber Matrix Green', color: '#00ff66', glow: 'rgba(0, 255, 102, 0.45)' },
-  { name: 'Cyber Cyan', color: '#06b6d4', glow: 'rgba(6, 182, 212, 0.45)' },
-  { name: 'Champagne Gold', color: '#d4b37f', glow: 'rgba(212, 179, 127, 0.45)' },
-  { name: 'Neon Purple', color: '#a855f7', glow: 'rgba(168, 85, 247, 0.45)' },
+  { name: 'Электрический лайм', color: '#d7ff3b', glow: 'rgba(215, 255, 59, 0.45)' },
+  { name: 'Кибернетический зелёный', color: '#00ff66', glow: 'rgba(0, 255, 102, 0.45)' },
+  { name: 'Изумрудный лес', color: '#10b981', glow: 'rgba(16, 185, 129, 0.45)' },
+  { name: 'Шампань и золото', color: '#d4b37f', glow: 'rgba(212, 179, 127, 0.45)' },
+  { name: 'Кибер-циан (Лазурь)', color: '#06b6d4', glow: 'rgba(6, 182, 212, 0.45)' },
+  { name: 'Неоновый пурпур', color: '#a855f7', glow: 'rgba(168, 85, 247, 0.45)' },
 ];
 
 const PRESET_WALLPAPERS = [
-  { name: 'Verdant Deep Forest', url: '/backgrounds/verdant_moss_bg.jpg' },
+  { name: 'Хвойный лес (Verdant)', url: '/backgrounds/verdant_moss_bg.jpg' },
   {
-    name: 'Cyber Grid Night',
+    name: 'Цифровой каньон (Cyber Matrix)',
     url: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=1920&auto=format&fit=crop',
   },
   {
-    name: 'Emerald Abstract Silk',
-    url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1920&auto=format&fit=crop',
+    name: 'Золотой обсидиан (Luxury)',
+    url: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?q=80&w=1920&auto=format&fit=crop',
   },
   {
-    name: 'Gold Nebula Luxury',
-    url: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?q=80&w=1920&auto=format&fit=crop',
+    name: 'Тёмный шёлк (Minimal)',
+    url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1920&auto=format&fit=crop',
   },
 ];
 
