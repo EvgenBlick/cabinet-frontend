@@ -21,6 +21,8 @@ import { cn } from '@/lib/utils';
 
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import TicketNotificationBell from '@/components/TicketNotificationBell';
+import { Palette } from 'lucide-react';
+import { useThemeEngine } from '@/themes/core/ThemeEngineContext';
 
 // Icons
 import {
@@ -85,6 +87,7 @@ export function AppHeader({
     useShallow((state) => ({ user: state.user, logout: state.logout, isAdmin: state.isAdmin })),
   );
   const { toggleTheme, isDark } = useTheme();
+  const { openThemeStudio } = useThemeEngine();
   const { haptic, platform } = usePlatform();
   const [userPhotoUrl, setUserPhotoUrl] = useState<string | null>(null);
   const [logoLoaded, setLogoLoaded] = useState(() => isLogoPreloaded());
@@ -435,6 +438,18 @@ export function AppHeader({
                 )}
 
                 <div className="divider my-3" />
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    openThemeStudio();
+                  }}
+                  className="nav-item w-full text-emerald-400"
+                >
+                  <Palette className="h-5 w-5" />
+                  <span>Theme Studio</span>
+                </button>
 
                 <Link
                   to="/profile"

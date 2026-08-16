@@ -37,6 +37,8 @@ import TicketNotificationBell from '@/components/TicketNotificationBell';
 import PageLoader from '@/components/common/PageLoader';
 import { BackgroundRenderer } from '@/components/backgrounds/BackgroundRenderer';
 import { SubscriptionIcon } from '@/components/icons';
+import { Palette } from 'lucide-react';
+import { useThemeEngine } from '@/themes/core/ThemeEngineContext';
 import { UltimaBottomNav } from '@/components/ultima/UltimaBottomNav';
 import {
   getUltimaTopLevelPath,
@@ -225,6 +227,7 @@ export function AppShell({ children }: AppShellProps) {
   const queryClient = useQueryClient();
   const isMainPage = location.pathname === '/';
   const { isAdmin, logout } = useAuthStore();
+  const { openThemeStudio } = useThemeEngine();
   const {
     isFullscreen,
     safeAreaInset,
@@ -628,6 +631,18 @@ export function AppShell({ children }: AppShellProps) {
 
           {/* Right side actions */}
           <div className="flex items-center justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                haptic.impact('light');
+                openThemeStudio();
+              }}
+              className="rounded-xl border border-dark-700/50 bg-dark-800/50 p-2 text-emerald-400 transition-all duration-200 hover:bg-dark-700 hover:text-emerald-300"
+              title="Theme Studio"
+              aria-label="Theme Studio"
+            >
+              <Palette className="h-5 w-5" />
+            </button>
             <button
               onClick={() => {
                 haptic.impact('light');

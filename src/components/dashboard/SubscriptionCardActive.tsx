@@ -54,8 +54,8 @@ export default function SubscriptionCardActive({
   const { isDark } = useTheme();
   const g = getGlassColors(isDark);
 
-  const usedPercent = trafficData?.traffic_used_percent ?? subscription.traffic_used_percent;
-  const usedGb = trafficData?.traffic_used_gb ?? subscription.traffic_used_gb;
+  const usedPercent = (trafficData?.traffic_used_percent ?? subscription.traffic_used_percent) || 0;
+  const usedGb = (trafficData?.traffic_used_gb ?? subscription.traffic_used_gb) || 0;
   const isUnlimited = trafficData?.is_unlimited ?? subscription.traffic_limit_gb === 0;
   const zone = useTrafficZone(usedPercent);
   const animatedPercent = useAnimatedNumber(usedPercent);

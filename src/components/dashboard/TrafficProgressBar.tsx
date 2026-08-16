@@ -25,10 +25,10 @@ export default function TrafficProgressBar({
   const { t } = useTranslation();
   const { isDark } = useTheme();
   const g = getGlassColors(isDark);
-  const zone = useTrafficZone(percent);
+  const zone = useTrafficZone(percent || 0);
   // Gradient always starts from the accent color (normal zone)
   const startHex = zone.colors.accent || '#3b82f6';
-  const clampedPercent = Math.min(percent, 100);
+  const clampedPercent = Math.min(percent || 0, 100);
   const barHeight = compact ? 8 : 14;
 
   // Multi-segment gradient matching prototype

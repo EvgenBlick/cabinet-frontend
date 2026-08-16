@@ -15,6 +15,8 @@ import {
 } from '@/api/branding';
 import { cn } from '@/lib/utils';
 import { usePlatform } from '@/platform';
+import { Palette } from 'lucide-react';
+import { useThemeEngine } from '@/themes/core/ThemeEngineContext';
 // Icons
 import {
   HomeIcon,
@@ -53,6 +55,7 @@ export function DesktopSidebar({
   const location = useLocation();
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
+  const { openThemeStudio } = useThemeEngine();
   const { haptic } = usePlatform();
   const { data: linkedIdentitiesData } = useQuery({
     queryKey: ['linked-identities'],
@@ -215,6 +218,18 @@ export function DesktopSidebar({
             </Link>
           </>
         )}
+
+        <button
+          type="button"
+          onClick={() => {
+            haptic.impact('light');
+            openThemeStudio();
+          }}
+          className="group mt-1 flex w-full items-center gap-3 rounded-linear px-3 py-2.5 text-sm font-medium text-emerald-400/90 transition-all duration-200 hover:bg-emerald-500/10 hover:text-emerald-300"
+        >
+          <Palette className="h-5 w-5 shrink-0" />
+          <span>Theme Studio</span>
+        </button>
       </nav>
 
       {/* User section */}

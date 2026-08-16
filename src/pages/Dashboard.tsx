@@ -397,7 +397,7 @@ export function FullDashboard() {
                 </button>
               </div>
               <div className="font-medium text-dark-100">
-                {(trafficData?.traffic_used_gb ?? subscription.traffic_used_gb).toFixed(1)} /{' '}
+                {(trafficData?.traffic_used_gb ?? subscription.traffic_used_gb ?? 0).toFixed(1)} /{' '}
                 {subscription.traffic_limit_gb || '∞'} GB
               </div>
             </div>
@@ -409,36 +409,38 @@ export function FullDashboard() {
             >
               <div className="mb-1 text-sm text-dark-500">{t('subscription.devices')}</div>
               <div className="font-medium text-dark-100 transition-colors hover:text-accent-400">
-                {subscription.device_limit}
+                {subscription.device_limit || 1}
               </div>
             </button>
             <div>
               <div className="mb-1 text-sm text-dark-500">{t('subscription.timeLeft')}</div>
               <div className="font-medium text-dark-100">
-                {subscription.days_left > 0
-                  ? t('subscription.days', { count: subscription.days_left })
-                  : `${t('subscription.hours', { count: subscription.hours_left })} ${t('subscription.minutes', { count: subscription.minutes_left })}`}
+                {(subscription.days_left ?? 0) > 0
+                  ? t('subscription.days', { count: subscription.days_left ?? 0 })
+                  : `${t('subscription.hours', { count: subscription.hours_left ?? 0 })} ${t('subscription.minutes', { count: subscription.minutes_left ?? 0 })}`}
               </div>
             </div>
           </div>
 
           {/* Traffic Progress */}
-          {subscription.traffic_limit_gb > 0 && (
+          {(subscription.traffic_limit_gb ?? 0) > 0 && (
             <div className="mt-6">
               <div className="mb-2 flex justify-between text-sm">
                 <span className="text-dark-400">{t('subscription.trafficUsed')}</span>
                 <span className="text-dark-300">
-                  {(trafficData?.traffic_used_percent ?? subscription.traffic_used_percent).toFixed(
-                    1,
-                  )}
+                  {(
+                    trafficData?.traffic_used_percent ??
+                    subscription.traffic_used_percent ??
+                    0
+                  ).toFixed(1)}
                   %
                 </span>
               </div>
               <div className="progress-bar">
                 <div
-                  className={`progress-fill ${getTrafficColor(trafficData?.traffic_used_percent ?? subscription.traffic_used_percent)}`}
+                  className={`progress-fill ${getTrafficColor(trafficData?.traffic_used_percent ?? subscription.traffic_used_percent ?? 0)}`}
                   style={{
-                    width: `${Math.min(trafficData?.traffic_used_percent ?? subscription.traffic_used_percent, 100)}%`,
+                    width: `${Math.min(trafficData?.traffic_used_percent ?? subscription.traffic_used_percent ?? 0, 100)}%`,
                   }}
                 />
               </div>

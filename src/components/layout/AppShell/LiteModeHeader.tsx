@@ -15,6 +15,8 @@ import { useTheme } from '@/hooks/useTheme';
 import { useAuthStore } from '@/store/auth';
 import { cn } from '@/lib/utils';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
+import { Palette } from 'lucide-react';
+import { useThemeEngine } from '@/themes/core/ThemeEngineContext';
 
 import type { TelegramPlatform } from '@/hooks/useTelegramSDK';
 
@@ -119,6 +121,7 @@ export function LiteModeHeader({
   const location = useLocation();
   const navigate = useNavigate();
   const { isAdmin } = useAuthStore();
+  const { openThemeStudio } = useThemeEngine();
   const { formatWithCurrency } = useCurrency();
   const { toggleTheme, isDark, canToggle } = useTheme();
   const [logoLoaded, setLogoLoaded] = useState(() => isLogoPreloaded());
@@ -305,6 +308,16 @@ export function LiteModeHeader({
                   <AdminIcon />
                 </Link>
               )}
+              <button
+                type="button"
+                onClick={openThemeStudio}
+                className="rounded-xl p-2 text-emerald-400 transition-all duration-200 hover:bg-dark-800 hover:text-emerald-300 min-[360px]:p-2.5"
+                title="Theme Studio"
+                aria-label="Theme Studio"
+              >
+                <Palette className="h-5 w-5" />
+              </button>
+
               <Link
                 to="/profile"
                 className="rounded-xl p-2 text-dark-400 transition-all duration-200 hover:bg-dark-800 hover:text-dark-100 min-[360px]:p-2.5"
