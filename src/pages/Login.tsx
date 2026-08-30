@@ -9,18 +9,13 @@ import {
   useLoginPage,
 } from '@/features/auth/login';
 import { AuthSupportAction } from '@/features/auth/shared/AuthSupportAction';
+import { UltimaAuthBrandMark } from '@/features/auth/shared/UltimaAuthBrandMark';
 import { useUltimaMode } from '@/hooks/useUltimaMode';
 import { Navigate } from 'react-router';
 import { useAuthStore } from '@/store/auth';
-import { performDevDemoLogin } from '@/features/auth/shared/devDemoLogin';
-
-import { useThemeEngine } from '@/themes/core/ThemeEngineContext';
-import { CyberLoginPage } from '@/themes/cyber-matrix/pages/CyberLoginPage';
-import { FreshLoginPage } from '@/themes/fresh/pages/FreshLoginPage';
 
 export default function Login() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  const { activeTheme } = useThemeEngine();
   const { isUltimaMode, isUltimaModeReady } = useUltimaMode();
   const {
     safeTop,
@@ -28,7 +23,6 @@ export default function Login() {
     branding,
     logoShape,
     logoLoaded,
-    appLogo,
     appName,
     logoUrl,
     referralCode,
@@ -73,13 +67,7 @@ export default function Login() {
     return <Navigate to="/" replace />;
   }
 
-  if (activeTheme === 'cyber_matrix') {
-    return <CyberLoginPage />;
-  }
 
-  if (activeTheme === 'fresh') {
-    return <FreshLoginPage />;
-  }
 
   if (!isUltimaModeReady) {
     return <PageLoader variant="ultima" />;
@@ -142,6 +130,22 @@ export default function Login() {
         </div>
       )}
       {!showForgotPassword && <AuthSupportAction visible containerClassName="mt-4" />}
+
+      {import.meta.env.DEV && (
+        <div className="mt-4 pt-2 border-t border-dashed border-amber-500/30">
+          <button
+            type="button"
+            onClick={() => {
+              localStorage.setItem('cabinet-dev-auth', 'true');
+              localStorage.removeItem('samurai_yandex_link_badge_dismissed_ts');
+              window.location.href = '/';
+            }}
+            className="w-full rounded-xl border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-center text-xs font-mono font-medium text-amber-400 hover:bg-amber-500/20 transition-colors"
+          >
+            ⚡ [DEV ONLY] Тестовый вход в кабинет
+          </button>
+        </div>
+      )}
     </>
   );
 
@@ -151,9 +155,6 @@ export default function Login() {
       safeBottom > 0 ? `${safeBottom + 16}px` : 'calc(1rem + env(safe-area-inset-bottom, 0px))',
   };
 
-  const handleDevDemoLogin = () => {
-    performDevDemoLogin('/');
-  };
 
   if (isUltimaMode) {
     return (
@@ -162,7 +163,7 @@ export default function Login() {
         style={safeAreaStyle}
       >
         <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
-          <div className="absolute -top-[20%] left-1/2 h-[600px] w-[800px] -translate-x-1/2 rounded-full bg-gradient-to-b from-[#d4b37f]/15 via-[#1b261e]/20 to-transparent blur-[140px]" />
+          <div className="absolute -top-[20%] left-1/2 h-[600px] w-[800px] -translate-x-1/2 rounded-full bg-gradient-to-b from-[#d4b37f]/15 via-[#14161c]/20 to-transparent blur-[140px]" />
           <div className="absolute bottom-0 right-0 h-[400px] w-[400px] rounded-full bg-[#d4b37f]/5 blur-[100px]" />
         </div>
 
@@ -178,14 +179,13 @@ export default function Login() {
         <main className="relative z-10 mx-auto grid w-full max-w-md gap-8 px-4 pb-16 pt-12 lg:min-h-[calc(100dvh-64px)] lg:max-w-[1100px] lg:grid-cols-[minmax(0,1fr)_minmax(420px,460px)] lg:items-center lg:gap-16 lg:px-8">
           {/* Left Column: Samurai Brand Identity */}
           <header className="flex flex-col items-center text-center lg:items-start lg:text-left">
-            <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-3xl border border-[#d4b37f]/40 bg-gradient-to-b from-[#1c241e] to-[#101412] p-2 shadow-[0_0_35px_rgba(212,179,127,0.2)]">
-              <img
-                src="/samurai_original_medallion.png"
-                alt="Samurai Service"
-                className="h-14 w-14 object-contain"
-                onError={(e) => {
-                  (e.target as HTMLElement).style.display = 'none';
-                }}
+            <div className="mb-6">
+              <UltimaAuthBrandMark
+                appName={appName}
+                logoUrl={logoUrl}
+                showBrandLogo={Boolean(branding?.has_custom_logo)}
+                variant="hero"
+                animated={true}
               />
             </div>
 
@@ -203,7 +203,7 @@ export default function Login() {
                 <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#d4b37f]/15 text-[#d4b37f]">
                   ✓
                 </span>
-                <span>Защита от блокировок и умная маршрутизация</span>
+                <span>Высокоскоростной защищённый доступ</span>
               </div>
               <div className="flex items-center gap-2.5">
                 <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#d4b37f]/15 text-[#d4b37f]">
@@ -221,19 +221,9 @@ export default function Login() {
           </header>
 
           {/* Right Column: Auth Panel Card */}
-          <section className="verdant-bento-card min-w-0 p-6 shadow-2xl backdrop-blur-2xl sm:p-8">
+          <section className="samurai-bento-card min-w-0 p-6 shadow-2xl backdrop-blur-2xl sm:p-8">
             {authPanelContent}
 
-            {/* Quick Demo Test Access Button */}
-            <div className="mt-6 border-t border-white/10 pt-5">
-              <button
-                type="button"
-                onClick={handleDevDemoLogin}
-                className="verdant-glow-btn w-full rounded-2xl py-3 text-center text-xs font-bold uppercase tracking-wide shadow-lg transition-transform hover:scale-[1.01]"
-              >
-                ⚡ Войти в кабинет (Быстрый тест)
-              </button>
-            </div>
           </section>
         </main>
       </div>
@@ -263,7 +253,6 @@ export default function Login() {
             branding={branding}
             logoShape={logoShape}
             logoLoaded={logoLoaded}
-            appLogo={appLogo}
             appName={appName}
             logoUrl={logoUrl}
             onLogoLoad={handleLogoLoad}
@@ -275,15 +264,6 @@ export default function Login() {
 
         <section className="card rounded-lg p-5 sm:p-6">
           {authPanelContent}
-          <div className="mt-6 border-t border-white/10 pt-5">
-            <button
-              type="button"
-              onClick={handleDevDemoLogin}
-              className="w-full rounded-xl border border-dashed border-emerald-500/40 bg-emerald-500/10 py-3 text-center text-xs font-bold text-emerald-400 transition-all hover:bg-emerald-500/20"
-            >
-              ⚡ Войти в кабинет (Быстрый тест)
-            </button>
-          </div>
         </section>
       </main>
     </div>

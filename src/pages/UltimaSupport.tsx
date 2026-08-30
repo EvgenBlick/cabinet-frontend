@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
@@ -8,12 +8,15 @@ import {
   HelpCircle,
   MessageSquare,
   Plus,
+  Send,
   Smartphone,
   Wrench,
   X,
+  Paperclip,
 } from 'lucide-react';
 import { infoApi } from '@/api/info';
 import { ticketsApi } from '@/api/tickets';
+import { useWebSocket } from '@/hooks/useWebSocket';
 import { UltimaBottomNav } from '@/components/ultima/UltimaBottomNav';
 import { UltimaDesktopNavbar } from '@/components/ultima/desktop/UltimaDesktopNavbar';
 import { usePlatform } from '@/platform';
@@ -28,6 +31,20 @@ export function UltimaSupport() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [ticketSubject, setTicketSubject] = useState('');
   const [ticketMessage, setTicketMessage] = useState('');
+  const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
+  const [replyText, setReplyText] = useState('');
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // WebSocket for Realtime Tickets
+  useWebSocket({
+    onMessage: (message) => {
+      if (!message.type.startsWith('ticket.')) return;
+      void queryClient.invalidateQueries({ queryKey: ['tickets'] });
+      if (message.ticket_id) {
+        void queryClient.invalidateQueries({ queryKey: ['ticket', message.ticket_id] });
+      }
+    },
+  });
 
   // 1. Support Config Query
   const { data: supportConfig } = useQuery<SupportConfig>({
@@ -43,14 +60,40 @@ export function UltimaSupport() {
     staleTime: 15000,
   });
 
+  // 3. Active Ticket Detail Query
+  const { data: activeTicket, isLoading: isActiveTicketLoading } = useQuery({
+    queryKey: ['ticket', selectedTicketId],
+    queryFn: () => (selectedTicketId ? ticketsApi.getTicket(selectedTicketId) : null),
+    enabled: !!selectedTicketId,
+  });
+
+  // Auto-scroll on new messages in chat
+  useEffect(() => {
+    if (selectedTicketId && activeTicket?.messages) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [selectedTicketId, activeTicket?.messages]);
+
   // Mutations
   const createTicketMutation = useMutation({
     mutationFn: () => ticketsApi.createTicket(ticketSubject, ticketMessage),
-    onSuccess: () => {
+    onSuccess: (newTicket) => {
       void queryClient.invalidateQueries({ queryKey: ['tickets'] });
       setShowCreateModal(false);
       setTicketSubject('');
       setTicketMessage('');
+      if (newTicket?.id) {
+        setSelectedTicketId(newTicket.id);
+      }
+    },
+  });
+
+  const replyMutation = useMutation({
+    mutationFn: () => ticketsApi.addMessage(selectedTicketId!, replyText.trim()),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['ticket', selectedTicketId] });
+      void queryClient.invalidateQueries({ queryKey: ['tickets'] });
+      setReplyText('');
     },
   });
 
@@ -264,7 +307,7 @@ export function UltimaSupport() {
                       <button
                         key={ticket.id}
                         type="button"
-                        onClick={() => navigate('/support')}
+                        onClick={() => setSelectedTicketId(ticket.id)}
                         className="flex items-center justify-between py-3.5 text-left transition-colors hover:bg-white/[0.02]"
                       >
                         <div className="min-w-0 flex-1 pr-3">
@@ -297,6 +340,142 @@ export function UltimaSupport() {
             )}
           </div>
         </div>
+
+        {/* Ticket Chat Dialog Modal */}
+        {selectedTicketId && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-3 backdrop-blur-md">
+            <div
+              className="relative flex h-[85vh] w-full max-w-[620px] flex-col overflow-hidden rounded-[26px] border border-[#5a5040]/40 shadow-2xl"
+              style={{
+                background: 'linear-gradient(180deg, #16181e 0%, #0d0f13 100%)',
+              }}
+            >
+              {/* Chat Header */}
+              <div className="flex items-center justify-between border-b border-white/[0.08] px-5 py-4">
+                <div className="min-w-0 flex-1 pr-3">
+                  <div className="flex items-center gap-2">
+                    <h3 className="truncate text-sm font-bold text-[#f5f5f7]">
+                      {activeTicket?.title || `Тикет #${selectedTicketId}`}
+                    </h3>
+                    <span
+                      className={`rounded-full px-2 py-0.5 text-[9px] font-bold ${
+                        activeTicket?.status === 'closed'
+                          ? 'bg-white/10 text-white/70'
+                          : 'bg-amber-500/20 text-amber-300'
+                      }`}
+                    >
+                      {activeTicket?.status === 'closed' ? 'ЗАКРЫТ' : 'ОТКРЫТ'}
+                    </span>
+                  </div>
+                  <p className="mt-0.5 text-[11px] text-[#8e929b]">
+                    Реалтайм-диалог с поддержкой
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedTicketId(null);
+                    setReplyText('');
+                  }}
+                  className="flex h-8 w-8 items-center justify-center rounded-full bg-white/[0.05] text-[#8e929b] transition-colors hover:text-white"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              {/* Messages Scrollable Area */}
+              <div className="flex-1 space-y-3 overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-[#b89358]/30">
+                {isActiveTicketLoading ? (
+                  <div className="flex h-full items-center justify-center">
+                    <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#d4b37f] border-t-transparent" />
+                  </div>
+                ) : activeTicket?.messages && activeTicket.messages.length > 0 ? (
+                  activeTicket.messages.map((msg) => (
+                    <div
+                      key={msg.id}
+                      className={`flex flex-col max-w-[85%] rounded-2xl p-3.5 ${
+                        msg.is_from_admin
+                          ? 'self-start border border-[#d4b37f]/25 bg-gradient-to-br from-[#d4b37f]/10 to-transparent text-[#f5f5f7]'
+                          : 'self-end ml-auto border border-white/[0.08] bg-white/[0.04] text-white'
+                      }`}
+                    >
+                      <div className="mb-1 flex items-center justify-between gap-4 text-[10px]">
+                        <span
+                          className={`font-bold ${
+                            msg.is_from_admin ? 'text-[#d4b37f]' : 'text-[#8e929b]'
+                          }`}
+                        >
+                          {msg.is_from_admin ? 'Служба заботы' : 'Вы'}
+                        </span>
+                        <span className="text-[#8e929b]">
+                          {new Date(msg.created_at).toLocaleTimeString([], {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </span>
+                      </div>
+                      <p className="whitespace-pre-wrap text-xs leading-relaxed text-[#e2e4e9]">
+                        {msg.message_text}
+                      </p>
+                      {msg.has_media && msg.media_file_id && (
+                        <div className="mt-2 inline-flex items-center gap-1 text-[11px] text-[#d4b37f]">
+                          <Paperclip className="h-3 w-3" />
+                          <span>Вложение ({msg.media_type || 'файл'})</span>
+                        </div>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <p className="py-12 text-center text-xs text-[#8e929b]">
+                    Нет сообщений
+                  </p>
+                )}
+                <div ref={messagesEndRef} />
+              </div>
+
+              {/* Chat Footer / Input Form */}
+              {activeTicket?.status !== 'closed' ? (
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    if (!replyText.trim() || replyMutation.isPending) return;
+                    replyMutation.mutate();
+                  }}
+                  className="border-t border-white/[0.08] bg-black/40 p-3"
+                >
+                  <div className="flex items-end gap-2">
+                    <textarea
+                      value={replyText}
+                      onChange={(e) => setReplyText(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault();
+                          if (replyText.trim() && !replyMutation.isPending) {
+                            replyMutation.mutate();
+                          }
+                        }
+                      }}
+                      placeholder="Напишите ответ в поддержку..."
+                      rows={2}
+                      className="flex-1 resize-none rounded-xl border border-white/[0.1] bg-black/50 p-2.5 text-xs text-white outline-none transition-colors focus:border-[#d4b37f]"
+                    />
+                    <button
+                      type="submit"
+                      disabled={!replyText.trim() || replyMutation.isPending}
+                      className="flex h-[42px] w-[42px] items-center justify-center rounded-xl border border-[#b89358]/60 bg-gradient-to-r from-[#d4b37f] to-[#b89358] text-[#0a0c0f] shadow-md transition-all hover:brightness-110 disabled:opacity-40"
+                    >
+                      <Send className="h-4 w-4" />
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <div className="border-t border-white/[0.08] bg-black/40 p-3 text-center text-xs text-[#8e929b]">
+                  Обращение закрыто. Для новых вопросов создайте новый тикет.
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Create Ticket Modal */}
         {showCreateModal && (

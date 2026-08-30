@@ -11,6 +11,7 @@ import {
   Coins,
   Copy,
   Gift,
+  Globe,
   HandCoins,
   Share2,
   UserCheck,
@@ -130,7 +131,7 @@ export function UltimaReferral() {
   const queryClient = useQueryClient();
   const { formatPositive, formatWithCurrency } = useCurrency();
   const isDesktop = useMediaQuery('(min-width: 1024px)');
-  const [copied, setCopied] = useState(false);
+  const [copiedType, setCopiedType] = useState<'bot' | 'web' | null>(null);
   const [showAllReferrals, setShowAllReferrals] = useState(false);
   const [showAllEarnings, setShowAllEarnings] = useState(false);
   const [showAllWithdrawals, setShowAllWithdrawals] = useState(false);
@@ -207,25 +208,40 @@ export function UltimaReferral() {
     year: 'numeric',
   });
   const formatDate = (value: string) => dateFormatter.format(new Date(value));
-  const referralLink = info?.referral_code
+  const tgBot = (import.meta.env.VITE_TELEGRAM_BOT_USERNAME || 'OursHopeBot').replace(/^@+/, '');
+  const botReferralLink = info?.referral_code
+    ? `https://t.me/${tgBot}?start=${encodeURIComponent(info.referral_code)}`
+    : '';
+  const webReferralLink = info?.referral_code
     ? `${window.location.origin}/login?ref=${info.referral_code}`
     : '';
 
-  const copyLink = async () => {
-    if (!referralLink) return;
+  const copyBotLink = async () => {
+    if (!botReferralLink) return;
     trackAnalyticsEvent('ultima_referral_link_copy', {
-      source: 'referral_page',
+      source: 'referral_page_bot',
       commission_percent: info?.commission_percent || 0,
     });
-    await copyToClipboard(referralLink);
-    setCopied(true);
-    window.setTimeout(() => setCopied(false), 1600);
+    await copyToClipboard(botReferralLink);
+    setCopiedType('bot');
+    window.setTimeout(() => setCopiedType(null), 1600);
   };
 
-  const shareLink = () => {
-    if (!referralLink) return;
+  const copyWebLink = async () => {
+    if (!webReferralLink) return;
+    trackAnalyticsEvent('ultima_referral_link_copy', {
+      source: 'referral_page_web',
+      commission_percent: info?.commission_percent || 0,
+    });
+    await copyToClipboard(webReferralLink);
+    setCopiedType('web');
+    window.setTimeout(() => setCopiedType(null), 1600);
+  };
+
+  const shareBotLink = () => {
+    if (!botReferralLink) return;
     trackAnalyticsEvent('ultima_referral_link_share', {
-      source: 'referral_page',
+      source: 'referral_page_bot',
       commission_percent: info?.commission_percent || 0,
       native_share: Boolean(navigator.share),
     });
@@ -235,12 +251,12 @@ export function UltimaReferral() {
     });
 
     if (navigator.share) {
-      void navigator.share({ title: t('referral.title'), text: shareText, url: referralLink });
+      void navigator.share({ title: t('referral.title'), text: shareText, url: botReferralLink });
       return;
     }
 
     const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(
-      referralLink,
+      botReferralLink,
     )}&text=${encodeURIComponent(shareText)}`;
     window.open(telegramUrl, '_blank', 'noopener,noreferrer');
   };
@@ -370,35 +386,103 @@ export function UltimaReferral() {
         </div>
       ) : null}
 
-      <div className="mt-4 flex min-w-0 items-center gap-2 rounded-[8px] border border-white/[0.08] bg-black/[0.12] p-2">
-        <p
-          data-testid="ultima-referral-link"
-          className="min-w-0 flex-1 truncate px-1 text-[11px] text-white/[0.68] lg:text-[12px]"
-        >
-          {referralLink || '—'}
-        </p>
-        <button
-          type="button"
-          data-testid="ultima-referral-copy"
-          onClick={copyLink}
-          disabled={!referralLink}
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[7px] border border-white/[0.09] bg-white/[0.05] text-white/[0.78] transition-colors hover:bg-white/[0.09] disabled:opacity-40"
-          aria-label={copied ? t('referral.copied') : t('referral.copyLink')}
-        >
-          {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-        </button>
+      {/* Dual Referral Links: Telegram Bot & Web Cabinet */}
+      <div className="mt-4 space-y-2.5">
+        {/* Telegram Bot Link */}
+        <div className="rounded-[8px] border border-sky-400/20 bg-sky-500/[0.05] p-2.5 transition-all">
+          <div className="mb-1.5 flex items-center justify-between px-0.5">
+            <div className="flex items-center gap-1.5 text-[11px] font-semibold text-sky-400">
+              <svg className="h-3.5 w-3.5 fill-current" viewBox="0 0 24 24">
+                <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" />
+              </svg>
+              <span>{t('referral.links.telegramBot', { defaultValue: 'В Telegram-бота' })}</span>
+            </div>
+            <span className="text-[10px] text-sky-400/80 font-medium">
+              {t('referral.links.fastStart', { defaultValue: 'Рекомендуется для Telegram' })}
+            </span>
+          </div>
+          <div className="flex min-w-0 items-center gap-2 rounded-[6px] border border-white/[0.08] bg-black/[0.25] p-1.5">
+            <p
+              data-testid="ultima-bot-referral-link"
+              className="min-w-0 flex-1 truncate px-1 font-mono text-[11px] text-white/[0.85] lg:text-[12px]"
+            >
+              {botReferralLink || '—'}
+            </p>
+            <button
+              type="button"
+              data-testid="ultima-bot-referral-copy"
+              onClick={copyBotLink}
+              disabled={!botReferralLink}
+              className="flex h-7 px-2 shrink-0 items-center gap-1 rounded-[5px] border border-sky-400/30 bg-sky-500/20 text-[11px] font-medium text-sky-200 transition-all hover:bg-sky-500/30 active:scale-95 disabled:opacity-40"
+              aria-label={copiedType === 'bot' ? t('referral.copied') : t('referral.copyLink')}
+            >
+              {copiedType === 'bot' ? (
+                <>
+                  <Check className="h-3 w-3 text-emerald-400" />
+                  <span className="text-emerald-300 font-semibold">{t('referral.copied', { defaultValue: 'Скопировано' })}</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="h-3 w-3" />
+                  <span>{t('referral.copy', { defaultValue: 'Копировать' })}</span>
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Web Cabinet Link */}
+        <div className="rounded-[8px] border border-white/[0.08] bg-white/[0.03] p-2.5 transition-all">
+          <div className="mb-1.5 flex items-center justify-between px-0.5">
+            <div className="flex items-center gap-1.5 text-[11px] font-semibold text-white/[0.72]">
+              <Globe className="h-3.5 w-3.5 text-white/[0.45]" />
+              <span>{t('referral.links.webSite', { defaultValue: 'На сайт / в кабинет' })}</span>
+            </div>
+            <span className="text-[10px] text-white/[0.4]">
+              {t('referral.links.webHint', { defaultValue: 'Для браузера и соцсетей' })}
+            </span>
+          </div>
+          <div className="flex min-w-0 items-center gap-2 rounded-[6px] border border-white/[0.08] bg-black/[0.25] p-1.5">
+            <p
+              data-testid="ultima-web-referral-link"
+              className="min-w-0 flex-1 truncate px-1 font-mono text-[11px] text-white/[0.7] lg:text-[12px]"
+            >
+              {webReferralLink || '—'}
+            </p>
+            <button
+              type="button"
+              data-testid="ultima-web-referral-copy"
+              onClick={copyWebLink}
+              disabled={!webReferralLink}
+              className="flex h-7 px-2 shrink-0 items-center gap-1 rounded-[5px] border border-white/[0.1] bg-white/[0.06] text-[11px] font-medium text-white/[0.85] transition-all hover:bg-white/[0.12] active:scale-95 disabled:opacity-40"
+              aria-label={copiedType === 'web' ? t('referral.copied') : t('referral.copyLink')}
+            >
+              {copiedType === 'web' ? (
+                <>
+                  <Check className="h-3 w-3 text-emerald-400" />
+                  <span className="text-emerald-300 font-semibold">{t('referral.copied', { defaultValue: 'Скопировано' })}</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="h-3 w-3" />
+                  <span>{t('referral.copy', { defaultValue: 'Копировать' })}</span>
+                </>
+              )}
+            </button>
+          </div>
+        </div>
       </div>
 
       <div className="mt-3">
         <button
           type="button"
           data-testid="ultima-referral-share"
-          onClick={shareLink}
-          disabled={!referralLink}
+          onClick={shareBotLink}
+          disabled={!botReferralLink}
           className="ultima-btn-pill ultima-btn-primary flex min-h-[44px] w-full items-center justify-center gap-2 px-3 text-[12px] disabled:opacity-40"
         >
           <Share2 className="h-4 w-4" />
-          {t('referral.shareButton')}
+          {t('referral.shareInTelegram', { defaultValue: 'Поделиться в Telegram' })}
         </button>
       </div>
     </section>
@@ -533,11 +617,11 @@ export function UltimaReferral() {
           </p>
           <button
             type="button"
-            onClick={shareLink}
-            disabled={!referralLink}
+            onClick={shareBotLink}
+            disabled={!botReferralLink}
             className="mt-3 inline-flex items-center gap-2 text-[12px] font-medium text-[#d4b37f] disabled:opacity-40"
           >
-            {t('referral.shareButton')}
+            {t('referral.shareInTelegram', { defaultValue: 'Поделиться в Telegram' })}
             <ArrowUpRight className="h-4 w-4" />
           </button>
         </div>

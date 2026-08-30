@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
+import { Tag, Gift, Zap } from 'lucide-react';
 import { promoApi, PromoOffer } from '../api/promo';
 import { ClockIcon, CheckIcon } from './icons';
 import { usePlatform } from '@/platform/hooks/usePlatform';
@@ -38,9 +39,9 @@ const formatTimeLeft = (
 };
 
 const getOfferIcon = (effectType: string, discountPercent?: number | null) => {
-  if (effectType === 'test_access') return <span className="text-2xl">🚀</span>;
-  if (discountPercent) return <span className="text-2xl">🏷️</span>;
-  return <span className="text-2xl">🎁</span>;
+  if (effectType === 'test_access') return <Zap className="h-6 w-6 text-amber-400" />;
+  if (discountPercent) return <Tag className="h-6 w-6 text-emerald-400" />;
+  return <Gift className="h-6 w-6 text-[#d4b37f]" />;
 };
 
 const getOfferTitle = (
@@ -219,8 +220,8 @@ export default function PromoOffersSection({
           <div className="flex flex-col gap-4">
             {/* Header */}
             <div className="flex items-center gap-4">
-              <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-success-500/20 text-success-400">
-                <span className="text-2xl">🏷️</span>
+              <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl border border-success-500/30 bg-success-500/20 text-success-400">
+                <Tag className="h-6 w-6" />
               </div>
               <div className="min-w-0 flex-1">
                 <div className="mb-1 flex flex-wrap items-center gap-2">
@@ -325,7 +326,7 @@ export default function PromoOffersSection({
                         </>
                       ) : (
                         <>
-                          <span className="text-lg">🎁</span>
+                          <Gift className="h-4 w-4" />
                           <span>{t('promo.offers.activate')}</span>
                         </>
                       )}

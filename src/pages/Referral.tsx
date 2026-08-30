@@ -96,7 +96,7 @@ function ReferralContent() {
   const navigate = useNavigate();
   const { formatAmount, currencySymbol, formatPositive, formatWithCurrency } = useCurrency();
   const queryClient = useQueryClient();
-  const [copied, setCopied] = useState(false);
+  const [copiedType, setCopiedType] = useState<'bot' | 'web' | null>(null);
   const [copiedLink, setCopiedLink] = useState<string | null>(null);
 
   const { data: info, isLoading } = useQuery({
@@ -104,8 +104,11 @@ function ReferralContent() {
     queryFn: referralApi.getReferralInfo,
   });
 
-  // Build referral link for cabinet registration
-  const referralLink = info?.referral_code
+  const tgBot = (import.meta.env.VITE_TELEGRAM_BOT_USERNAME || 'OursHopeBot').replace(/^@+/, '');
+  const botReferralLink = info?.referral_code
+    ? `https://t.me/${tgBot}?start=${encodeURIComponent(info.referral_code)}`
+    : '';
+  const webReferralLink = info?.referral_code
     ? `${window.location.origin}/login?ref=${info.referral_code}`
     : '';
 
@@ -181,16 +184,24 @@ function ReferralContent() {
     },
   });
 
-  const copyLink = async () => {
-    if (referralLink) {
-      await copyToClipboard(referralLink);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+  const copyBotLink = async () => {
+    if (botReferralLink) {
+      await copyToClipboard(botReferralLink);
+      setCopiedType('bot');
+      setTimeout(() => setCopiedType(null), 2000);
+    }
+  };
+
+  const copyWebLink = async () => {
+    if (webReferralLink) {
+      await copyToClipboard(webReferralLink);
+      setCopiedType('web');
+      setTimeout(() => setCopiedType(null), 2000);
     }
   };
 
   const shareLink = () => {
-    if (!referralLink) return;
+    if (!botReferralLink) return;
     const shareText = t('referral.shareMessage', {
       percent: info?.commission_percent || 0,
       botName: branding?.name || import.meta.env.VITE_APP_NAME || 'Cabinet',
@@ -201,7 +212,7 @@ function ReferralContent() {
         .share({
           title: t('referral.title'),
           text: shareText,
-          url: referralLink,
+          url: botReferralLink,
         })
         .catch(() => {
           // ignore cancellation errors
@@ -210,7 +221,7 @@ function ReferralContent() {
     }
 
     const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(
-      referralLink,
+      botReferralLink,
     )}&text=${encodeURIComponent(shareText)}`;
     window.open(telegramUrl, '_blank', 'noopener,noreferrer');
   };
@@ -281,35 +292,75 @@ function ReferralContent() {
         </div>
       </div>
 
-      {/* Referral Link */}
-      <div className="bento-card">
-        <h2 className="mb-4 text-lg font-semibold text-dark-100">{t('referral.yourLink')}</h2>
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <input type="text" readOnly value={referralLink} className="input flex-1" />
-          <div className="flex gap-2">
+      {/* Referral Links: Dual Telegram Bot & Web */}
+      <div className="bento-card space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-dark-100">{t('referral.yourLinks', { defaultValue: 'Ваши реферальные ссылки' })}</h2>
+          <button
+            onClick={shareLink}
+            disabled={!botReferralLink}
+            className="btn-secondary flex items-center gap-1.5 px-3.5 py-1.5 text-xs"
+          >
+            <ShareIcon />
+            <span>{t('referral.shareInTelegram', { defaultValue: 'Поделиться в Telegram' })}</span>
+          </button>
+        </div>
+
+        {/* Telegram Bot Link */}
+        <div className="rounded-xl border border-sky-500/30 bg-sky-500/10 p-3.5">
+          <div className="mb-2 flex items-center justify-between">
+            <div className="flex items-center gap-2 text-sm font-semibold text-sky-400">
+              <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
+                <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" />
+              </svg>
+              <span>{t('referral.links.telegramBot', { defaultValue: 'В Telegram-бота' })}</span>
+            </div>
+            <span className="text-xs font-medium text-sky-400/80">
+              {t('referral.links.fastStart', { defaultValue: 'Рекомендуется для Telegram' })}
+            </span>
+          </div>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <input type="text" readOnly value={botReferralLink} className="input flex-1 font-mono text-xs" />
             <button
-              onClick={copyLink}
-              disabled={!referralLink}
-              className={`btn-primary px-5 ${
-                copied ? 'bg-success-500 hover:bg-success-500' : ''
-              } ${!referralLink ? 'cursor-not-allowed opacity-50' : ''}`}
+              onClick={copyBotLink}
+              disabled={!botReferralLink}
+              className={`btn-primary px-4 py-2 text-xs flex items-center justify-center gap-1.5 ${
+                copiedType === 'bot' ? 'bg-success-500 hover:bg-success-500' : ''
+              } ${!botReferralLink ? 'cursor-not-allowed opacity-50' : ''}`}
             >
-              {copied ? <CheckIcon /> : <CopyIcon />}
-              <span className="ml-2">{copied ? t('referral.copied') : t('referral.copyLink')}</span>
-            </button>
-            <button
-              onClick={shareLink}
-              disabled={!referralLink}
-              className={`btn-secondary flex items-center px-5 ${
-                !referralLink ? 'cursor-not-allowed opacity-50' : ''
-              }`}
-            >
-              <ShareIcon />
-              <span className="ml-2">{t('referral.shareButton')}</span>
+              {copiedType === 'bot' ? <CheckIcon /> : <CopyIcon />}
+              <span>{copiedType === 'bot' ? t('referral.copied') : t('referral.copyLink')}</span>
             </button>
           </div>
         </div>
-        <p className="mt-3 text-sm text-dark-500">
+
+        {/* Web Site Link */}
+        <div className="rounded-xl border border-dark-700/50 bg-dark-800/30 p-3.5">
+          <div className="mb-2 flex items-center justify-between">
+            <div className="flex items-center gap-2 text-sm font-semibold text-dark-200">
+              <LinkIcon />
+              <span>{t('referral.links.webSite', { defaultValue: 'На сайт / в кабинет' })}</span>
+            </div>
+            <span className="text-xs text-dark-500">
+              {t('referral.links.webHint', { defaultValue: 'Для браузера и соцсетей' })}
+            </span>
+          </div>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <input type="text" readOnly value={webReferralLink} className="input flex-1 font-mono text-xs" />
+            <button
+              onClick={copyWebLink}
+              disabled={!webReferralLink}
+              className={`btn-secondary px-4 py-2 text-xs flex items-center justify-center gap-1.5 ${
+                copiedType === 'web' ? 'bg-success-500/20 text-success-300 border-success-500/40' : ''
+              } ${!webReferralLink ? 'cursor-not-allowed opacity-50' : ''}`}
+            >
+              {copiedType === 'web' ? <CheckIcon /> : <CopyIcon />}
+              <span>{copiedType === 'web' ? t('referral.copied') : t('referral.copyLink')}</span>
+            </button>
+          </div>
+        </div>
+
+        <p className="text-xs text-dark-500">
           {t('referral.shareHint', { percent: info?.commission_percent || 0 })}
         </p>
       </div>

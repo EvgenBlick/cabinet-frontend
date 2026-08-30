@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
+import { Ticket, MessageSquare, Send, Bell } from 'lucide-react';
 import { ticketNotificationsApi } from '../api/ticketNotifications';
 import { useAuthStore } from '../store/auth';
 import { useToast } from './Toast';
@@ -52,11 +53,11 @@ export default function TicketNotificationBell({ isAdmin = false }: TicketNotifi
       const isUserReply = message.type === 'ticket.user_reply';
 
       const icon = isNewTicket ? (
-        <span className="text-lg">🎫</span>
+        <Ticket className="h-5 w-5 text-accent-400" />
       ) : isAdminReply ? (
-        <span className="text-lg">💬</span>
+        <MessageSquare className="h-5 w-5 text-sky-400" />
       ) : (
-        <span className="text-lg">📨</span>
+        <Send className="h-5 w-5 text-emerald-400" />
       );
 
       const ticketTitle = message.title || '';
@@ -230,13 +231,13 @@ export default function TicketNotificationBell({ isAdmin = false }: TicketNotifi
   const getNotificationIcon = (type: string) => {
     switch (type) {
       case 'new_ticket':
-        return <span className="text-lg">🎫</span>;
+        return <Ticket className="h-4 w-4 text-accent-400" />;
       case 'admin_reply':
-        return <span className="text-lg">💬</span>;
+        return <MessageSquare className="h-4 w-4 text-sky-400" />;
       case 'user_reply':
-        return <span className="text-lg">📨</span>;
+        return <Send className="h-4 w-4 text-emerald-400" />;
       default:
-        return <span className="text-lg">🔔</span>;
+        return <Bell className="h-4 w-4 text-dark-400" />;
     }
   };
 

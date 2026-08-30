@@ -1314,8 +1314,7 @@ export function UltimaSubscription() {
   }
 
   return (
-    <div className="ultima-shell ultima-shell-wide ultima-flat-frames">
-      <div className="ultima-shell-aura" />
+    <div className="min-h-screen bg-[#07080a] text-white">
       <UltimaSubscriptionConfigurator
         title={selectedTariff.name}
         subtitle={selectedTariffSubtitle}

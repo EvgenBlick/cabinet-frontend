@@ -19,36 +19,35 @@
   --ultima-color-scrollbar-thumb: #b89358;
   --ultima-color-scrollbar-track: #0e1013;
   --ultima-bg-page-desktop:
-    radial-gradient(circle at 78% 12%, rgba(184, 147, 88, 0.08), transparent 44%),
-    radial-gradient(circle at 16% 86%, rgba(200, 170, 118, 0.06), transparent 50%),
-    linear-gradient(145deg, #08090c 0%, #0d0f12 46%, #08090c 100%);
+    radial-gradient(circle at 75% 14%, rgba(212, 179, 127, 0.22), transparent 60%),
+    linear-gradient(180deg, rgba(6, 7, 10, 0.55) 0%, rgba(9, 12, 18, 0.65) 100%),
+    url('/backgrounds/samurai_gold_smoke_vibrant.jpg');
   --ultima-bg-page-mobile:
-    radial-gradient(70% 42% at 50% 18%, rgba(184, 147, 88, 0.07), transparent 66%),
-    radial-gradient(92% 68% at 76% 62%, rgba(184, 147, 88, 0.05), transparent 62%),
-    linear-gradient(180deg, #08090c 0%, #0b0d10 38%, #07080a 100%);
+    radial-gradient(85% 45% at 50% 12%, rgba(212, 179, 127, 0.22), transparent 70%),
+    linear-gradient(180deg, rgba(5, 6, 8, 0.55) 0%, rgba(8, 10, 15, 0.68) 100%),
+    url('/backgrounds/samurai_gold_smoke_vibrant.jpg');
   --ultima-bg-page-overlay-desktop:
-    radial-gradient(circle at 34% 82%, rgba(184, 147, 88, 0.04), transparent 54%),
-    radial-gradient(circle at 86% 18%, rgba(200, 170, 118, 0.04), transparent 50%);
+    radial-gradient(circle at 34% 82%, rgba(184, 147, 88, 0.06), transparent 54%),
+    radial-gradient(circle at 86% 18%, rgba(212, 179, 127, 0.08), transparent 50%);
   --ultima-bg-page-overlay-mobile:
-    radial-gradient(82% 48% at 28% 80%, rgba(184, 147, 88, 0.06), transparent 58%),
-    radial-gradient(66% 38% at 84% 22%, rgba(200, 170, 118, 0.05), transparent 56%);
+    radial-gradient(82% 48% at 28% 80%, rgba(184, 147, 88, 0.08), transparent 58%),
+    radial-gradient(66% 38% at 84% 22%, rgba(212, 179, 127, 0.09), transparent 56%);
   --ultima-bg-page-scrim-desktop: linear-gradient(
     160deg,
-    rgba(8, 9, 12, 0.8) 0%,
-    rgba(13, 15, 18, 0.6) 44%,
-    rgba(8, 9, 12, 0.9) 100%
+    rgba(8, 9, 12, 0.5) 0%,
+    rgba(13, 15, 18, 0.3) 44%,
+    rgba(8, 9, 12, 0.6) 100%
   );
   --ultima-bg-page-scrim-mobile: linear-gradient(
     180deg,
-    rgba(8, 9, 12, 0.4) 0%,
-    rgba(11, 13, 16, 0.2) 42%,
-    rgba(7, 8, 10, 0.6) 100%
+    rgba(8, 9, 12, 0.2) 0%,
+    rgba(11, 13, 16, 0.1) 42%,
+    rgba(7, 8, 10, 0.3) 100%
   );
-  --ultima-bg-shell: linear-gradient(
-    160deg,
-    color-mix(in srgb, #08090c 70%, var(--ultima-color-bg-top) 30%) 0%,
-    color-mix(in srgb, #0d0f12 66%, var(--ultima-color-bg-bottom) 34%) 100%
-  );
+  --ultima-bg-shell:
+    radial-gradient(85% 45% at 50% 12%, rgba(212, 179, 127, 0.22), transparent 70%),
+    linear-gradient(180deg, rgba(6, 7, 10, 0.55) 0%, rgba(9, 12, 18, 0.65) 100%),
+    url('/backgrounds/samurai_gold_smoke_vibrant.jpg') center / cover fixed no-repeat;
   --ultima-bg-surface: linear-gradient(
     180deg,
     color-mix(in srgb, #16181d 54%, var(--ultima-color-surface) 46%) 0%,
@@ -931,7 +930,7 @@ html:not(.ultima-frames-enabled) .ultima-flat-frames [class*='border'] {
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior-y: contain;
-  background: var(--ultima-bg-shell);
+  background: transparent;
   padding-left: calc(clamp(12px, 3vw, 16px) + env(safe-area-inset-left, 0px));
   padding-right: calc(clamp(12px, 3vw, 16px) + env(safe-area-inset-right, 0px));
   padding-top: var(--ultima-shell-top-gap);
@@ -4718,6 +4717,66 @@ input[type='checkbox']:hover:not(:checked) {
     0 0 35px rgba(212, 179, 127, 0.55),
     inset 0 1px 0 rgba(255, 255, 255, 0.6);
   transform: scale(1.02);
+}
+
+/* SAMURAI GOLD LUXURY DESIGN SYSTEM (Obsidian Titanium & Champagne Gold) */
+.samurai-bento-card {
+  background: linear-gradient(165deg, rgba(14, 17, 24, 0.78) 0%, rgba(7, 9, 14, 0.86) 100%);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(212, 179, 127, 0.22);
+  border-radius: 28px;
+  box-shadow:
+    0 20px 40px -10px rgba(0, 0, 0, 0.80),
+    inset 0 1px 0 rgba(212, 179, 127, 0.25);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.samurai-bento-card:hover {
+  border-color: rgba(212, 179, 127, 0.45);
+  transform: translateY(-2px);
+  box-shadow:
+    0 35px 70px -15px rgba(0, 0, 0, 0.95),
+    0 0 35px -10px rgba(212, 179, 127, 0.3),
+    inset 0 1px 0 rgba(212, 179, 127, 0.4);
+}
+
+.samurai-gold-btn {
+  background: linear-gradient(135deg, #f7ebd7 0%, #d4b37f 50%, #b89358 100%);
+  color: #07080a;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow:
+    0 0 25px rgba(212, 179, 127, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.samurai-gold-btn:hover {
+  box-shadow:
+    0 0 42px rgba(212, 179, 127, 0.65),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  transform: scale(1.02);
+}
+
+.samurai-gold-badge {
+  background: rgba(212, 179, 127, 0.12);
+  border: 1px solid rgba(212, 179, 127, 0.32);
+  color: #d4b37f;
+  box-shadow: 0 0 16px rgba(212, 179, 127, 0.18);
+}
+
+.samurai-hairline-card {
+  background: rgba(14, 16, 21, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(212, 179, 127, 0.15);
+  box-shadow: inset 0 1px 0 rgba(212, 179, 127, 0.15);
+}
+
+.samurai-hairline-card:hover {
+  border-color: rgba(212, 179, 127, 0.35);
 }
 
 /* FRESH Organic Forest & Neon Lime Design System (Verdant 1:1) */

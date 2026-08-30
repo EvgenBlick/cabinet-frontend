@@ -104,15 +104,14 @@ export default {
       },
       fontFamily: {
         sans: [
-          'Manrope',
+          'Onest',
           'system-ui',
           '-apple-system',
           'BlinkMacSystemFont',
           'Segoe UI',
-          'Roboto',
           'sans-serif',
         ],
-        display: ['Outfit', 'Manrope', 'system-ui', 'sans-serif'],
+        display: ['Onest', 'system-ui', 'sans-serif'],
         mono: ['IBM Plex Mono', 'ui-monospace', 'monospace'],
       },
       borderRadius: {

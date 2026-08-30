@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 interface TelegramLoginButtonProps {
@@ -11,110 +11,29 @@ export default function TelegramLoginButton({
   referralCode,
 }: TelegramLoginButtonProps) {
   const { t } = useTranslation();
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [widgetState, setWidgetState] = useState<'idle' | 'loading' | 'ready' | 'failed'>('idle');
-  const normalizedBotUsername = useMemo(() => botUsername.replace(/^@+/, '').trim(), [botUsername]);
+  const normalizedBotUsername = useMemo(
+    () => (botUsername || 'OursHopeBot').replace(/^@+/, '').trim(),
+    [botUsername],
+  );
 
-  // Load widget script
-  useEffect(() => {
-    if (!containerRef.current || !normalizedBotUsername) return;
-
-    setWidgetState('loading');
-
-    // Clear previous widget using safe DOM API
-    while (containerRef.current.firstChild) {
-      containerRef.current.removeChild(containerRef.current.firstChild);
-    }
-
-    // Get current URL for redirect
-    const redirectUrl = `${window.location.origin}/auth/telegram/callback`;
-
-    // Create script element for Telegram Login Widget
-    const script = document.createElement('script');
-    script.src = 'https://telegram.org/js/telegram-widget.js?22';
-    script.setAttribute('data-telegram-login', normalizedBotUsername);
-    script.setAttribute('data-size', 'large');
-    script.setAttribute('data-radius', '8');
-    script.setAttribute('data-auth-url', redirectUrl);
-    script.setAttribute('data-request-access', 'write');
-    script.async = true;
-
-    const timeoutId = window.setTimeout(() => {
-      setWidgetState((prev) => (prev === 'loading' ? 'failed' : prev));
-    }, 6000);
-
-    script.onload = () => {
-      window.clearTimeout(timeoutId);
-      setWidgetState('ready');
-    };
-
-    script.onerror = () => {
-      window.clearTimeout(timeoutId);
-      setWidgetState('failed');
-    };
-
-    containerRef.current.appendChild(script);
-    return () => {
-      window.clearTimeout(timeoutId);
-      script.onload = null;
-      script.onerror = null;
-    };
-  }, [normalizedBotUsername]);
-
-  if (!normalizedBotUsername || normalizedBotUsername === 'your_bot') {
-    return (
-      <div className="py-4 text-center text-sm text-gray-500">
-        {t('auth.telegramNotConfigured')}
-      </div>
-    );
-  }
+  const telegramUrl = referralCode
+    ? `https://t.me/${normalizedBotUsername}?start=${encodeURIComponent(referralCode)}`
+    : `https://t.me/${normalizedBotUsername}`;
 
   return (
-    <div className="flex flex-col items-center space-y-4">
-      {/* Telegram Widget will be inserted here */}
-      <div
-        ref={containerRef}
-        className="flex min-h-[50px] w-full max-w-full justify-center overflow-hidden rounded-2xl"
-      />
-      {widgetState === 'loading' && (
-        <p className="text-center text-xs text-gray-400">
-          {t('auth.telegramWidgetLoading', {
-            defaultValue: 'Загружаем Telegram вход…',
-          })}
-        </p>
-      )}
-      {widgetState === 'failed' && (
-        <p className="max-w-sm text-center text-xs text-amber-400">
-          {t('auth.telegramWidgetUnavailable', {
-            defaultValue:
-              'Вход через Telegram Widget недоступен в вашей сети. Используйте кнопку ниже.',
-          })}
-        </p>
-      )}
-
-      {/* Fallback link for mobile */}
-      <div className="text-center">
-        <p className="mb-2 text-xs text-gray-500">{t('auth.orOpenInApp')}</p>
-        <a
-          href={
-            referralCode
-              ? `https://t.me/${normalizedBotUsername}?start=${encodeURIComponent(referralCode)}`
-              : `https://t.me/${normalizedBotUsername}`
-          }
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-telegram-blue bg-telegram-blue/10 hover:bg-telegram-blue/20 inline-flex items-center gap-2 rounded-xl px-5 py-3 text-base font-semibold transition-colors"
-          aria-label={t('auth.openTelegramBot', 'Открыть Telegram-бота')}
-        >
-          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" />
-          </svg>
-          <span>{t('auth.openTelegramBot', 'Открыть Telegram-бота')}</span>
-        </a>
-        <p className="mt-2 text-xs text-gray-500">
-          {t('auth.openBotHint', 'Нажмите на кнопку, чтобы перейти в бота Telegram')}
-        </p>
-      </div>
+    <div className="w-full">
+      <a
+        href={telegramUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex min-h-[50px] w-full items-center justify-center gap-2.5 rounded-xl bg-[#229ed9] px-5 py-3 text-sm font-bold text-white shadow-[0_4px_16px_rgba(34,158,217,0.25)] transition-all hover:bg-[#1e8cc0] hover:shadow-[0_6px_20px_rgba(34,158,217,0.35)] active:scale-[0.98]"
+        aria-label={t('auth.openTelegramBot', { defaultValue: 'Войти через Telegram' })}
+      >
+        <svg className="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" />
+        </svg>
+        <span>{t('auth.openTelegramBot', { defaultValue: 'Войти через Telegram' })}</span>
+      </a>
     </div>
   );
 }

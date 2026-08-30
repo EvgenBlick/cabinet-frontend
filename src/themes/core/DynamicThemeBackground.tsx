@@ -4,30 +4,26 @@ import { useThemeEngine } from './ThemeEngineContext';
 export const DynamicThemeBackground: React.FC<{ className?: string }> = ({ className = '' }) => {
   const { config, activeTheme } = useThemeEngine();
 
-  const bgUrl = config.customBgUrl;
+  const bgUrl =
+    config.customBgUrl && !config.customBgUrl.includes('unsplash')
+      ? config.customBgUrl
+      : activeTheme === 'fresh'
+        ? '/backgrounds/verdant_moss_bg.jpg'
+        : '/backgrounds/samurai_gold_smoke.jpg';
   const overlayOpacity = config.bgOverlayOpacity ?? 0.75;
-  const blurMap: Record<string, string> = {
-    none: '0px',
-    sm: '6px',
-    md: '16px',
-    lg: '28px',
-    xl: '48px',
-  };
-  const blurPx = blurMap[config.bgBlur] || '16px';
 
   return (
     <div
       aria-hidden="true"
       className={`pointer-events-none fixed inset-0 z-0 h-full w-full overflow-hidden bg-[#040705] transition-colors duration-500 ${className}`}
     >
-      {/* 1. Wallpaper Image Layer with Blur */}
+      {/* 1. Wallpaper Image Layer (Sharp, 0px Blur) */}
       {bgUrl && (
         <div
-          className="absolute inset-[-20px] bg-cover bg-center bg-no-repeat transition-all duration-700 ease-out"
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-all duration-700 ease-out"
           style={{
             backgroundImage: `url("${bgUrl}")`,
-            filter: `blur(${blurPx}) brightness(0.85)`,
-            transform: 'scale(1.04)', // prevents blur edge bleed
+            filter: 'brightness(1.3) contrast(1.2)',
           }}
         />
       )}
@@ -40,9 +36,9 @@ export const DynamicThemeBackground: React.FC<{ className?: string }> = ({ class
             activeTheme === 'fresh'
               ? '#060907'
               : activeTheme === 'samurai_gold'
-                ? '#0a0907'
+                ? '#050608'
                 : '#040705',
-          opacity: overlayOpacity,
+          opacity: activeTheme === 'samurai_gold' ? 0.22 : overlayOpacity,
         }}
       />
 

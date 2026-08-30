@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query';
-import { ShieldCheck } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { brandingApi, getCachedBranding, preloadLogo, setCachedBranding } from '@/api/branding';
 import { useBrandLogoImage } from '@/hooks/useBrandLogoImage';
@@ -149,36 +148,33 @@ export default function PageLoader({ variant = 'dark', contained = false }: Page
         />
 
         <div className="relative z-10 flex w-full max-w-xs flex-col items-center text-center">
-          <div
-            className="relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border bg-black/20 p-3 backdrop-blur-md"
-            style={{
-              borderColor:
-                'color-mix(in srgb, var(--ultima-color-surface-border) 34%, transparent)',
-              boxShadow:
-                '0 0 45px color-mix(in srgb, var(--ultima-color-primary) 18%, transparent)',
-            }}
-          >
-            {showLogo ? (
-              <img
-                src={logoUrl || ''}
-                alt=""
-                className={cn(
-                  'h-12 w-12 object-contain transition-opacity duration-300',
-                  isLoaded ? 'opacity-100' : 'opacity-0',
-                )}
-                onLoad={handleLoad}
-                onError={handleError}
-              />
-            ) : (
-              <ShieldCheck
-                className="h-10 w-10 text-[var(--ultima-color-primary)]"
-                aria-hidden="true"
-              />
-            )}
+          <div className="group relative mb-2 flex h-28 w-28 items-center justify-center">
+            <div className="pointer-events-none absolute -inset-2 rounded-[34px] bg-[#d4b37f]/20 blur-xl transition-all duration-700" />
+            <div className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-[28px] border border-[#d4b37f]/45 bg-gradient-to-b from-[#1e222a] via-[#111318] to-[#07080a] p-2 shadow-[0_16px_40px_rgba(0,0,0,0.85),0_0_35px_rgba(212,179,127,0.22)] backdrop-blur-2xl">
+              <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+              {showLogo ? (
+                <img
+                  src={logoUrl || ''}
+                  alt=""
+                  className={cn(
+                    'h-full w-full rounded-[20px] object-contain transition-opacity duration-300',
+                    isLoaded ? 'opacity-100' : 'opacity-0',
+                  )}
+                  onLoad={handleLoad}
+                  onError={handleError}
+                />
+              ) : (
+                <img
+                  src="/samurai_original_medallion.png"
+                  alt="Samurai"
+                  className="h-full w-full rounded-[20px] object-contain p-1"
+                />
+              )}
+            </div>
           </div>
 
-          <div className="mt-6 text-sm font-semibold uppercase tracking-wider text-[var(--ultima-color-primary)]">
-            {branding?.name || 'Cabinet'}
+          <div className="mt-5 text-sm font-bold uppercase tracking-wider text-[#d4b37f]">
+            {branding?.name || 'Samurai Service'}
           </div>
         </div>
       </div>

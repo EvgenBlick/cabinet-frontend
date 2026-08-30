@@ -9,6 +9,7 @@ import { useNotify } from '@/platform/hooks/useNotify';
 import { Card } from '@/components/data-display/Card/Card';
 import { Button } from '@/components/primitives/Button/Button';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Gift, AlertCircle } from 'lucide-react';
 import { staggerContainer, staggerItem } from '@/components/motion/transitions';
 
 // Icons
@@ -656,8 +657,12 @@ export default function Wheel() {
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-linear bg-dark-700/50 text-2xl">
-                      {spinResult.success ? spinResult.emoji || '🎉' : '😔'}
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-dark-700/50">
+                      {spinResult.success && spinResult.prize_type !== 'nothing' ? (
+                        <Gift className="h-6 w-6 text-amber-400" />
+                      ) : (
+                        <AlertCircle className="h-6 w-6 text-dark-400" />
+                      )}
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="font-semibold text-dark-100">

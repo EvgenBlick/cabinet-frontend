@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import { Lock, Sliders } from 'lucide-react';
 import { contestsApi, ContestInfo, ContestGameData } from '../api/contests';
 
 const GamepadIcon = () => (
@@ -147,7 +148,11 @@ export default function Contests() {
                         disabled={submitAnswerMutation.isPending}
                         className="flex aspect-square items-center justify-center rounded-lg bg-dark-700 text-2xl transition-colors hover:bg-dark-600"
                       >
-                        {gameData.game_type === 'locks' ? '🔒' : '🎛'}
+                        {gameData.game_type === 'locks' ? (
+                          <Lock className="h-6 w-6 text-amber-400" />
+                        ) : (
+                          <Sliders className="h-6 w-6 text-sky-400" />
+                        )}
                       </button>
                     ))}
                   </div>

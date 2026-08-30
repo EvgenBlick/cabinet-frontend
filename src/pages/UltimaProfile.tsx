@@ -134,13 +134,7 @@ export function UltimaProfile() {
           {/* Left Column: User Profile Hero & Yandex ID (5 cols on lg) */}
           <div className="flex flex-col gap-6 lg:col-span-5">
             {/* 1. Main Profile & Balance Card */}
-            <div
-              className="relative overflow-hidden rounded-[26px] border border-[#5a5040]/35 p-6 shadow-[0_16px_36px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.1)]"
-              style={{
-                background:
-                  'linear-gradient(180deg, rgba(22, 25, 30, 0.95) 0%, rgba(10, 12, 15, 0.98) 100%)',
-              }}
-            >
+            <div className="samurai-bento-card relative overflow-hidden p-6 shadow-[0_16px_36px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(212,179,127,0.25)]">
               {/* User Info Header */}
               <div className="flex items-center gap-3.5">
                 {/* Avatar Circle with Champagne Accent */}
@@ -314,13 +308,7 @@ export function UltimaProfile() {
           {/* Right Column: Security & Bonuses (7 cols on lg) */}
           <div className="flex flex-col gap-6 lg:col-span-7">
             {/* 2. Section 1: Account & Security */}
-            <div
-              className="relative overflow-hidden rounded-[26px] border border-[#5a5040]/35 p-6 shadow-[0_16px_36px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.1)]"
-              style={{
-                background:
-                  'linear-gradient(180deg, rgba(22, 25, 30, 0.95) 0%, rgba(10, 12, 15, 0.98) 100%)',
-              }}
-            >
+            <div className="samurai-bento-card relative overflow-hidden p-6 shadow-[0_16px_36px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(212,179,127,0.25)]">
               <div>
                 <h2 className="text-base font-bold text-[#f5f5f7]">Аккаунт и безопасность</h2>
                 <p className="mt-0.5 text-xs text-[#8e929b]">Устройства и способы входа</p>
@@ -377,13 +365,7 @@ export function UltimaProfile() {
             </div>
 
             {/* 3. Section 2: Bonuses & Possibilities */}
-            <div
-              className="relative overflow-hidden rounded-[26px] border border-[#5a5040]/35 p-6 shadow-[0_16px_36px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.1)]"
-              style={{
-                background:
-                  'linear-gradient(180deg, rgba(22, 25, 30, 0.95) 0%, rgba(10, 12, 15, 0.98) 100%)',
-              }}
-            >
+            <div className="samurai-bento-card relative overflow-hidden p-6 shadow-[0_16px_36px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(212,179,127,0.25)]">
               <div>
                 <h2 className="text-base font-bold text-[#f5f5f7]">Бонусы и возможности</h2>
                 <p className="mt-0.5 text-xs text-[#8e929b]">Приглашения, промокоды и подарки</p>

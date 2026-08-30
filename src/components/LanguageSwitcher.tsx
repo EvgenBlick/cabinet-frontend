@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useRef, useEffect } from 'react';
+import { Globe, ChevronDown } from 'lucide-react';
 import { infoApi, type LanguageInfo } from '@/api/info';
 
 export default function LanguageSwitcher() {
@@ -30,7 +31,7 @@ export default function LanguageSwitcher() {
   }, []);
 
   const currentLang = availableLanguages.find((l) => l.code === i18n.language) ||
-    availableLanguages[0] || { code: 'ru', name: 'RU', flag: '🇷🇺' };
+    availableLanguages[0] || { code: 'ru', name: 'RU', flag: 'RU' };
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -60,23 +61,18 @@ export default function LanguageSwitcher() {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`flex items-center gap-1.5 rounded-xl border px-2.5 py-2 text-sm transition-all ${
+        className={`flex items-center gap-1.5 rounded-xl border px-2.5 py-1.5 text-xs font-semibold transition-all ${
           isOpen
-            ? 'border-dark-600 bg-dark-700'
-            : 'border-dark-700/50 bg-dark-800/50 hover:border-dark-600 hover:bg-dark-700'
+            ? 'border-dark-600 bg-dark-700 text-white'
+            : 'border-dark-700/50 bg-dark-800/50 text-dark-200 hover:border-dark-600 hover:bg-dark-700'
         }`}
         aria-label="Change language"
       >
-        <span>{currentLang.flag}</span>
-        <span className="font-medium text-dark-200">{currentLang.code.toUpperCase()}</span>
-        <svg
-          className={`h-3.5 w-3.5 text-dark-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
+        <Globe className="h-3.5 w-3.5 text-dark-400" />
+        <span className="font-mono">{currentLang.code.toUpperCase()}</span>
+        <ChevronDown
+          className={`h-3 w-3 text-dark-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+        />
       </button>
 
       {isOpen && (

@@ -22,10 +22,30 @@ export default defineConfig({
     host: true,
     proxy: {
       '/api': {
-        target: 'http://localhost:8080',
+        target: 'https://samuraiservice.top',
         changeOrigin: true,
-        // Strip /api prefix: /api/cabinet/auth -> /cabinet/auth
-        rewrite: (path) => path.replace(/^\/api/, ''),
+        secure: false,
+      },
+      '/cabinet': {
+        target: 'https://samuraiservice.top/api',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+  },
+  preview: {
+    port: 5173,
+    host: true,
+    proxy: {
+      '/api': {
+        target: 'https://samuraiservice.top',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/cabinet': {
+        target: 'https://samuraiservice.top/api',
+        changeOrigin: true,
+        secure: false,
       },
     },
   },

@@ -2,6 +2,7 @@ import type { Dispatch, SetStateAction } from 'react';
 import type { TFunction } from 'i18next';
 
 import { subscriptionApi } from '@/api/subscription';
+import { Gift } from 'lucide-react';
 import InsufficientBalancePrompt from '@/components/InsufficientBalancePrompt';
 
 import { getFlagEmoji } from '../utils/flags';
@@ -94,11 +95,13 @@ export const ServerManagementSection = ({
               </div>
 
               {countriesData.discount_percent > 0 && (
-                <div className="rounded-lg border border-success-500/30 bg-success-500/10 p-2 text-xs text-success-400">
-                  🎁{' '}
-                  {t('subscription.serverManagement.discountBanner', {
-                    percent: countriesData.discount_percent,
-                  })}
+                <div className="flex items-center gap-1.5 rounded-lg border border-success-500/30 bg-success-500/10 p-2 text-xs text-success-400">
+                  <Gift className="h-4 w-4 shrink-0" />
+                  <span>
+                    {t('subscription.serverManagement.discountBanner', {
+                      percent: countriesData.discount_percent,
+                    })}
+                  </span>
                 </div>
               )}
 

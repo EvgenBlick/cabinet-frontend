@@ -20,6 +20,7 @@ import StatsGrid from '../components/dashboard/StatsGrid';
 import { API } from '../config/constants';
 import { ThemeDashboardDispatcher } from '@/themes/core/ThemeDispatcher';
 import { useThemeEngine } from '@/themes/core/ThemeEngineContext';
+import { YandexLinkingFloatingBadge } from '@/components/ultima/YandexLinkingFloatingBadge';
 
 const ChevronRightIcon = () => (
   <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -491,9 +492,11 @@ export function FullDashboard() {
 
       {/* Fortune Wheel Banner */}
       {wheelConfig?.is_enabled && (
-        <Link to="/wheel" className="bento-card-hover group flex items-center justify-between">
+        <Link to="/wheel" className="bento-card-hover group flex items-center justify-between transition-all duration-300 hover:scale-[1.01] active:scale-[0.99]">
           <div className="flex items-center gap-4">
-            <span className="text-3xl">🎰</span>
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-amber-500/30 bg-gradient-to-br from-amber-500/20 via-amber-600/10 to-transparent text-amber-400 shadow-[0_4px_16px_rgba(245,158,11,0.15)] transition-transform duration-300 group-hover:scale-110">
+              <SparklesIcon />
+            </div>
             <div className="min-w-0 flex-1">
               <h3 className="text-base font-semibold text-dark-100">{t('wheel.banner.title')}</h3>
               <p className="text-sm text-dark-400">{t('wheel.banner.description')}</p>
@@ -516,6 +519,8 @@ export function FullDashboard() {
           onSkip={handleOnboardingComplete}
         />
       )}
+      {/* Floating Yandex Linking Badge */}
+      <YandexLinkingFloatingBadge />
     </div>
   );
 }

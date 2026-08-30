@@ -78,8 +78,18 @@ export function isTelegramMobile(): boolean {
  */
 export function getTelegramInitData(): string | null {
   try {
-    return retrieveRawInitData() || null;
+    const raw = retrieveRawInitData();
+    if (raw) return raw;
+    const tg = typeof window !== 'undefined' ? (window as unknown as { Telegram?: { WebApp?: { initData?: string } } }).Telegram : undefined;
+    if (tg?.WebApp?.initData) {
+      return tg.WebApp.initData;
+    }
+    return null;
   } catch {
+    const tg = typeof window !== 'undefined' ? (window as unknown as { Telegram?: { WebApp?: { initData?: string } } }).Telegram : undefined;
+    if (tg?.WebApp?.initData) {
+      return tg.WebApp.initData;
+    }
     return null;
   }
 }

@@ -471,17 +471,16 @@ export function AppShell({ children }: AppShellProps) {
         <div
           className="ultima-app-backdrop pointer-events-none fixed inset-0 z-0 overflow-hidden"
           style={{
-            backgroundImage:
-              'radial-gradient(circle at 50% 30%, rgba(25, 23, 20, 0.35) 0%, rgba(8, 9, 11, 0.98) 100%), url(/dark_brushed_metal.jpg)',
+            backgroundImage: 'url(/backgrounds/samurai_gold_smoke_vibrant.jpg)',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
           }}
         >
           <div
-            className="absolute inset-0 opacity-30 mix-blend-overlay"
+            className="absolute inset-0"
             style={{
-              backgroundImage: 'url(/dark_brushed_metal.jpg)',
-              backgroundSize: 'cover',
+              background:
+                'radial-gradient(circle at 50% 15%, rgba(212, 179, 127, 0.15) 0%, rgba(6, 8, 12, 0.40) 100%)',
             }}
           />
           <div

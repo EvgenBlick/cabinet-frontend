@@ -45,7 +45,7 @@ export const DEFAULT_THEME_STUDIO_CONFIG: Record<ThemeId, ThemeStudioConfig> = {
     accentGlowColor: 'rgba(0, 255, 102, 0.45)',
     customLogoUrl: null,
     customBrandName: 'DOTDNA CYBER',
-    heroBadgeText: '🛡️ КИБЕР-ЗАЩИТА СЛЕДУЮЩЕГО ПОКОЛЕНИЯ • 10 GBPS',
+    heroBadgeText: 'КИБЕР-ЗАЩИТА СЛЕДУЮЩЕГО ПОКОЛЕНИЯ • 10 GBPS',
     heroHeadlineMain: 'Безупречная защита данных',
     heroHeadlineAccent: 'на максимальной скорости.',
   },
@@ -65,17 +65,16 @@ export const DEFAULT_THEME_STUDIO_CONFIG: Record<ThemeId, ThemeStudioConfig> = {
     accentGlowColor: 'rgba(215, 255, 59, 0.45)',
     customLogoUrl: null,
     customBrandName: 'VERDANT',
-    heroBadgeText: '⚡ НОВОЕ ПОКОЛЕНИЕ VPN • 10 GBPS',
+    heroBadgeText: 'НОВОЕ ПОКОЛЕНИЕ VPN • 10 GBPS',
     heroHeadlineMain: 'Скоростной доступ, который',
     heroHeadlineAccent: 'надежно с вами.',
   },
   samurai_gold: {
     activeTheme: 'samurai_gold',
     bgMode: 'preset',
-    customBgUrl:
-      'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?q=80&w=1920&auto=format&fit=crop',
-    bgBlur: 'lg',
-    bgOverlayOpacity: 0.88,
+    customBgUrl: '/backgrounds/samurai_gold_smoke_softblur.jpg',
+    bgBlur: 'sm',
+    bgOverlayOpacity: 0.4,
     enableParticles: true,
     particleCount: 50,
     particleSpeed: 0.8,
@@ -86,7 +85,7 @@ export const DEFAULT_THEME_STUDIO_CONFIG: Record<ThemeId, ThemeStudioConfig> = {
     accentGlowColor: 'rgba(212, 179, 127, 0.45)',
     customLogoUrl: null,
     customBrandName: 'SAMURAI ULTIMA',
-    heroBadgeText: '👑 ПРЕМИАЛЬНЫЙ СЕРВИС • ULTIMA',
+    heroBadgeText: 'ПРЕМИАЛЬНЫЙ СЕРВИС • ULTIMA',
     heroHeadlineMain: 'Элитный защищенный доступ',
     heroHeadlineAccent: 'Samurai Ultima.',
   },
@@ -106,7 +105,7 @@ export const DEFAULT_THEME_STUDIO_CONFIG: Record<ThemeId, ThemeStudioConfig> = {
     accentGlowColor: 'rgba(59, 130, 246, 0.45)',
     customLogoUrl: null,
     customBrandName: 'ЛИЧНЫЙ КАБИНЕТ',
-    heroBadgeText: '🛡️ Личный кабинет',
+    heroBadgeText: 'Личный кабинет',
     heroHeadlineMain: 'Управление защищенным',
     heroHeadlineAccent: 'доступом и подпиской',
   },
@@ -132,23 +131,16 @@ const STORAGE_KEY_ACTIVE = 'cabinet_active_theme_v2';
 const STORAGE_KEY_CONFIGS = 'cabinet_theme_studio_configs_v3';
 
 export const ThemeEngineProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // 1. Initial Active Theme
+  // 1. Active Theme State - Enforced to Samurai Gold (Ultima)
   const [activeTheme, setActiveThemeState] = useState<ThemeId>(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_KEY_ACTIVE);
-      if (
-        saved &&
-        (saved === 'cyber_matrix' ||
-          saved === 'fresh' ||
-          saved === 'samurai_gold' ||
-          saved === 'classic')
-      ) {
-        return saved as ThemeId;
-      }
+      localStorage.setItem(STORAGE_KEY_ACTIVE, 'samurai_gold');
+      localStorage.setItem('cabinet_active_theme', 'ultima');
+      localStorage.setItem('cabinet_ultima_mode', 'true');
     } catch {
       // ignore
     }
-    return 'cyber_matrix'; // Default to new Cyber Matrix theme
+    return 'samurai_gold';
   });
 
   // 2. All Theme Configs

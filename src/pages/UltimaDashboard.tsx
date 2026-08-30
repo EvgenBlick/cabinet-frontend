@@ -8,6 +8,7 @@ import {
   Globe2,
   Gauge,
   MonitorSmartphone,
+  QrCode,
   ShieldCheck,
   Smartphone,
   Users,
@@ -30,6 +31,10 @@ import {
 import { ticketsApi } from '@/api/tickets';
 import { UltimaBottomNav } from '@/components/ultima/UltimaBottomNav';
 import { UltimaTrialGuide } from '@/components/ultima/UltimaTrialGuide';
+import {
+  YandexLinkingFloatingBadge,
+  YandexLinkingQuickActionRow,
+} from '@/components/ultima/YandexLinkingFloatingBadge';
 import { UltimaTrafficWarningCard } from '@/components/ultima/UltimaTrafficWarningCard';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
@@ -130,6 +135,12 @@ export function UltimaDashboard() {
     queryKey: ['purchase-options'],
     queryFn: subscriptionApi.getPurchaseOptions,
     staleTime: 60000,
+    placeholderData: (previousData) => previousData,
+  });
+  const { data: balanceData } = useQuery({
+    queryKey: ['balance'],
+    queryFn: balanceApi.getBalance,
+    staleTime: 15000,
     placeholderData: (previousData) => previousData,
   });
   const { data: notificationSettings } = useQuery({
@@ -279,6 +290,11 @@ export function UltimaDashboard() {
     const minTariff = Math.min(...periods.map((period) => period.price_kopeks));
     return `от ${Math.round(minTariff / 100)} ${currencySymbol}`;
   }, [purchaseOptions, currencySymbol]);
+
+  const balanceAmount =
+    balanceData?.balance_rubles ??
+    (balanceData?.balance_kopeks ? balanceData.balance_kopeks / 100 : 0);
+  const balanceLabel = `${new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 2 }).format(balanceAmount)} ₽`;
 
   const subEndDate =
     subscription?.end_date ||
@@ -1197,28 +1213,51 @@ export function UltimaDashboard() {
     daysLeft === null ? '—' : trafficNumberFormatter.format(Math.max(daysLeft, 0));
   const mobileOverviewCard = (
     <div className="relative flex flex-col gap-3.5 px-1 py-1">
-      {/* 1. Top Admin Button (if Admin) */}
-      {isAdmin && (
-        <div className="flex justify-end pb-0.5">
+      {/* 1. Brand Header & Quick Top Up on Mobile */}
+      <div className="flex items-center justify-between px-1 pb-1 pt-1">
+        <div className="flex items-center gap-2.5">
+          <div className="relative flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border border-[#d4b37f]/50 bg-[#0c0e14] p-0.5 shadow-[0_0_12px_rgba(212,179,127,0.3)]">
+            <img
+              src="/samurai_exact_circle.png"
+              alt=""
+              className="h-full w-full object-contain rounded-full"
+              onError={(e) => {
+                (e.target as HTMLElement).style.display = 'none';
+              }}
+            />
+          </div>
+          <span className="font-sans text-xs font-black tracking-widest text-white">
+            SAMURAISERVICE
+          </span>
+        </div>
+
+        <div className="flex items-center gap-2">
+          {/* Quick Balance Top Up Pill */}
           <button
             type="button"
-            onClick={() => navigate('/admin')}
-            className="flex items-center gap-1.5 rounded-full border border-[#b89358]/40 bg-black/60 px-3.5 py-1 text-[11px] font-medium tracking-wide text-[#d4b37f] shadow-sm backdrop-blur-md transition-all hover:border-[#b89358]/80 active:scale-95"
+            onClick={() => navigate('/balance/top-up?returnTo=/')}
+            className="flex items-center gap-1.5 rounded-full border border-[#d4b37f]/35 bg-[#d4b37f]/10 px-3 py-1 text-[11px] font-bold text-[#d4b37f] shadow-sm backdrop-blur-md transition-all hover:bg-[#d4b37f]/20 active:scale-95"
           >
-            <ShieldCheck className="h-3.5 w-3.5 text-[#d4b37f]" strokeWidth={1.8} />
-            <span>Админка</span>
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399]" />
+            <span>{balanceLabel}</span>
+            <span className="ml-0.5 text-xs text-[#d4b37f]">+</span>
           </button>
+
+          {isAdmin && (
+            <button
+              type="button"
+              onClick={() => navigate('/admin')}
+              className="flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[11px] font-semibold text-white/80 backdrop-blur-md active:scale-95"
+            >
+              <ShieldCheck className="h-3 w-3 text-[#d4b37f]" strokeWidth={2} />
+              <span>Админ</span>
+            </button>
+          )}
         </div>
-      )}
+      </div>
 
       {/* 2. Main Subscription Card with Full Metrics and Samurai Video Emblem */}
-      <div
-        className="relative overflow-hidden rounded-[26px] border border-[#5a5040]/35 p-5 shadow-[0_16px_36px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.1)]"
-        style={{
-          background:
-            'linear-gradient(180deg, rgba(22, 25, 30, 0.95) 0%, rgba(10, 12, 15, 0.98) 100%)',
-        }}
-      >
+      <div className="samurai-bento-card relative overflow-hidden p-5 shadow-[0_16px_36px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(212,179,127,0.25)]">
         <div className="flex items-start justify-between gap-3">
           {/* Left Column: Plan & Expiry */}
           <div className="min-w-0 flex-1">
@@ -1226,16 +1265,38 @@ export function UltimaDashboard() {
               <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#8e929b]">
                 Ваш тариф
               </span>
-              <span className="flex items-center gap-1 rounded-full border border-[#b89358]/35 bg-black/60 px-2.5 py-0.5 text-[9px] font-semibold tracking-wider text-[#d4b37f] backdrop-blur-md">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#d4b37f] shadow-[0_0_6px_#d4b37f]" />
-                <span>{isActiveTrial ? 'ПРОБНЫЙ ПЕРИОД' : 'АКТИВЕН'}</span>
+              <span
+                className={`flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[9px] font-semibold tracking-wider backdrop-blur-md ${
+                  hasAnySubscription && isActive
+                    ? 'border-[#b89358]/35 bg-black/60 text-[#d4b37f]'
+                    : 'border-white/10 bg-black/40 text-[#8e929b]'
+                }`}
+              >
+                <span
+                  className={`h-1.5 w-1.5 rounded-full ${
+                    hasAnySubscription && isActive
+                      ? 'bg-[#d4b37f] shadow-[0_0_6px_#d4b37f]'
+                      : 'bg-neutral-500'
+                  }`}
+                />
+                <span>
+                  {hasAnySubscription && isActive
+                    ? isActiveTrial
+                      ? 'ПРОБНЫЙ ПЕРИОД'
+                      : 'АКТИВЕН'
+                    : 'НЕ АКТИВЕН'}
+                </span>
               </span>
             </div>
 
             <h1 className="mt-2 text-[24px] font-bold tracking-tight text-[#f5f5f7] drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">
               Samurai Service
             </h1>
-            <p className="mt-0.5 text-[12px] font-medium text-[#8e929b]">{expiryLabel}</p>
+            <p className="mt-0.5 text-[12px] font-medium text-[#8e929b]">
+              {hasAnySubscription && isActive
+                ? expiryLabel
+                : 'Подписка не подключена · выберите тариф'}
+            </p>
           </div>
 
           {/* Right Column: Samurai Video Emblem */}
@@ -1320,19 +1381,36 @@ export function UltimaDashboard() {
       </div>
 
       {/* 3. Quick Actions Card (Быстрые действия) */}
-      <div
-        className="relative overflow-hidden rounded-[26px] border border-[#5a5040]/35 p-5 shadow-[0_16px_36px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.1)]"
-        style={{
-          background:
-            'linear-gradient(180deg, rgba(22, 25, 30, 0.95) 0%, rgba(10, 12, 15, 0.98) 100%)',
-        }}
-      >
+      <div className="samurai-bento-card relative overflow-hidden p-5 shadow-[0_16px_36px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(212,179,127,0.25)]">
         <div>
           <h2 className="text-[15px] font-bold text-[#f5f5f7]">Быстрые действия</h2>
           <p className="mt-0.5 text-[11px] text-[#8e929b]">Приглашения и подключение устройств</p>
         </div>
 
         <div className="mt-3 flex flex-col divide-y divide-white/[0.07]">
+          {/* Action 0: Top Up Balance */}
+          <button
+            type="button"
+            onClick={() => navigate('/balance/top-up?returnTo=/')}
+            className="flex items-center justify-between py-3 text-left transition-colors hover:bg-white/[0.02]"
+          >
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/[0.1] bg-black/40 text-[#d4b37f]">
+                <span className="text-[15px] font-extrabold text-[#d4b37f]">₽</span>
+              </div>
+              <div>
+                <p className="text-[14px] font-bold text-[#f5f5f7]">Пополнить баланс</p>
+                <p className="mt-0.5 text-[11px] text-[#8e929b]">
+                  СБП 0%, банковские карты, криптовалюта
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-1 rounded-full border border-[#b89358]/40 bg-black/60 px-3 py-1 text-[11px] font-bold text-[#d4b37f] shadow-sm">
+              <span>Пополнить</span>
+              <span className="text-[10px]">→</span>
+            </div>
+          </button>
+
           {/* Action 1: Invite Resident */}
           <button
             type="button"
@@ -1375,10 +1453,14 @@ export function UltimaDashboard() {
                 </p>
               </div>
             </div>
-            <span className="rounded-full border border-[#b89358]/35 bg-black/60 px-3 py-1 text-[11px] font-bold text-[#f5f5f7]">
-              QR
+            <span className="flex items-center gap-1.5 rounded-full border border-[#b89358]/40 bg-black/60 px-2.5 py-1 text-[11px] font-bold text-[#d4b37f] shadow-sm">
+              <QrCode className="h-3.5 w-3.5" />
+              <span>QR</span>
             </span>
           </button>
+
+          {/* Action 3: Yandex ID Link Quick Action */}
+          <YandexLinkingQuickActionRow />
         </div>
       </div>
 
@@ -1512,6 +1594,7 @@ export function UltimaDashboard() {
 
   if (isTabletOrDesktop) {
     return (
+      <>
       <UltimaDesktopDashboard
         heroButton={renderShieldButton('h-[108px] w-[108px] lg:h-[124px] lg:w-[124px]')}
         referralCta={desktopActionCtaStack}
@@ -1544,6 +1627,8 @@ export function UltimaDashboard() {
         }
         isActivatingOffer={claimOfferMutation.isPending}
       />
+      <YandexLinkingFloatingBadge />
+      </>
     );
   }
 
@@ -1557,6 +1642,9 @@ export function UltimaDashboard() {
           {mobileOverviewCard}
         </section>
       </div>
+
+      {/* Floating Yandex Linking Badge */}
+      <YandexLinkingFloatingBadge />
 
       {/* Fixed Bottom Navigation Dock */}
       <div className="pointer-events-none fixed bottom-0 left-0 right-0 z-40 px-3 pb-[max(env(safe-area-inset-bottom),12px)] pt-2 lg:hidden">

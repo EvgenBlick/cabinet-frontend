@@ -7,6 +7,7 @@ import { useCallback } from 'react';
 import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
+import { Wallet, AlertCircle, Calendar, RefreshCw, Repeat } from 'lucide-react';
 import { useWebSocket, WSMessage } from '../hooks/useWebSocket';
 import { useToast } from './Toast';
 import { useAuthStore } from '../store/auth';
@@ -65,7 +66,7 @@ export default function WebSocketNotifications() {
                 currency: currencySymbol,
               },
             ),
-          icon: <span className="text-lg">{isPositive ? '💵' : '💸'}</span>,
+          icon: <Wallet className={`h-5 w-5 ${isPositive ? 'text-emerald-400' : 'text-amber-400'}`} />,
           onClick: () => navigate('/balance'),
           duration: 5000,
         });
@@ -134,7 +135,7 @@ export default function WebSocketNotifications() {
             'wsNotifications.subscription.expiredMessage',
             'Your subscription has expired. Renew to continue using the service.',
           ),
-          icon: <span className="text-lg">😢</span>,
+          icon: <AlertCircle className="h-5 w-5 text-rose-400" />,
           onClick: () => navigate('/subscription'),
           duration: 10000,
         });
@@ -156,7 +157,7 @@ export default function WebSocketNotifications() {
               currency: currencySymbol,
             },
           ),
-          icon: <span className="text-lg">📅</span>,
+          icon: <Calendar className="h-5 w-5 text-sky-400" />,
           duration: 5000,
         });
         queryClient.invalidateQueries({ queryKey: ['balance'] });
@@ -173,7 +174,7 @@ export default function WebSocketNotifications() {
             'wsNotifications.subscription.trafficResetMessage',
             'Your traffic limit has been reset',
           ),
-          icon: <span className="text-lg">🔄</span>,
+          icon: <RefreshCw className="h-5 w-5 text-amber-400" />,
           duration: 5000,
         });
         queryClient.invalidateQueries({ queryKey: ['subscription'] });
@@ -228,7 +229,7 @@ export default function WebSocketNotifications() {
               currency: currencySymbol,
             },
           ),
-          icon: <span className="text-lg">🔁</span>,
+          icon: <Repeat className="h-5 w-5 text-emerald-400" />,
           onClick: () => navigate('/subscription'),
           duration: 8000,
         });

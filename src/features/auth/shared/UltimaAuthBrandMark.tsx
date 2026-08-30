@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useRef, useState, type SyntheticEvent } from 'react';
+import { useRef } from 'react';
+import { motion } from 'framer-motion';
 import { useBrandLogoImage } from '@/hooks/useBrandLogoImage';
 import { cn } from '@/lib/utils';
 
-type LogoShape = 'square' | 'wide' | 'tall';
-type BrandMarkVariant = 'hero' | 'card';
+type BrandMarkVariant = 'hero' | 'card' | 'compact';
 
 interface UltimaAuthBrandMarkProps {
   appName: string;
@@ -11,44 +11,8 @@ interface UltimaAuthBrandMarkProps {
   showBrandLogo: boolean;
   variant?: BrandMarkVariant;
   className?: string;
+  animated?: boolean;
 }
-
-function UltimaLogoShield({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 64 64" fill="none" className={cn('text-white', className)}>
-      <path
-        d="M32 6.5c7 6 15.8 9 24 9v17.2c0 13.8-9.5 22.4-24 24.8-14.5-2.4-24-11-24-24.8V15.5c8.2 0 17-3 24-9Z"
-        stroke="currentColor"
-        strokeWidth="3.4"
-        strokeLinejoin="round"
-      />
-      <path
-        d="m22.5 33 6.2 6.2L42 25.8"
-        stroke="currentColor"
-        strokeWidth="3.4"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
-const dimensionClassNames: Record<BrandMarkVariant, Record<LogoShape, string>> = {
-  hero: {
-    square: 'h-20 w-20',
-    wide: 'h-20 w-32',
-    tall: 'h-24 w-20',
-  },
-  card: {
-    square: 'h-16 w-16',
-    wide: 'h-16 w-28',
-    tall: 'h-20 w-16',
-  },
-};
-
-const iconClassNames: Record<BrandMarkVariant, string> = {
-  hero: 'h-12 w-12',
-  card: 'h-9 w-9',
-};
 
 export function UltimaAuthBrandMark({
   appName,
@@ -56,9 +20,9 @@ export function UltimaAuthBrandMark({
   showBrandLogo,
   variant = 'hero',
   className,
+  animated = true,
 }: UltimaAuthBrandMarkProps) {
   const logoRef = useRef<HTMLImageElement>(null);
-  const [logoShape, setLogoShape] = useState<LogoShape>('square');
   const {
     isLoaded: logoLoaded,
     hasError: logoFailed,
@@ -66,80 +30,124 @@ export function UltimaAuthBrandMark({
     handleError: handleLogoError,
   } = useBrandLogoImage(showBrandLogo ? logoUrl : null);
 
-  const syncLogoShape = useCallback((image: HTMLImageElement) => {
-    const { naturalWidth, naturalHeight } = image;
-    if (naturalWidth > 0 && naturalHeight > 0) {
-      if (naturalWidth > naturalHeight * 1.2) {
-        setLogoShape('wide');
-      } else if (naturalHeight > naturalWidth * 1.2) {
-        setLogoShape('tall');
-      } else {
-        setLogoShape('square');
-      }
-    }
-  }, []);
-
-  useEffect(() => {
-    const image = logoRef.current;
-    if (!showBrandLogo || !image) {
-      setLogoShape('square');
-      return;
-    }
-
-    if (image.complete) {
-      syncLogoShape(image);
-    }
-  }, [logoUrl, showBrandLogo, syncLogoShape]);
-
-  const handleLogoLoad = useCallback(
-    (event: SyntheticEvent<HTMLImageElement>) => {
-      syncLogoShape(event.currentTarget);
-
-      markLogoLoaded(event);
-    },
-    [markLogoLoaded, syncLogoShape],
-  );
-
   const shouldRenderImage = Boolean(showBrandLogo && logoUrl && !logoFailed);
-  const dimensionClassName = shouldRenderImage
-    ? dimensionClassNames[variant][logoShape]
-    : dimensionClassNames[variant].square;
+  const sizeClasses =
+    variant === 'hero'
+      ? 'h-28 w-28 sm:h-32 sm:w-32 rounded-[28px]'
+      : variant === 'card'
+        ? 'h-20 w-20 rounded-2xl'
+        : 'h-14 w-14 rounded-xl';
 
   return (
-    <div
-      className={cn(
-        'relative flex items-center justify-center overflow-hidden rounded-[28px] border',
-        dimensionClassName,
-        className,
+    <div className={cn('group relative mx-auto flex items-center justify-center select-none', className)}>
+      {/* 1. Breathing Ambient Gold & Violet Halo */}
+      {animated ? (
+        <motion.div
+          animate={{
+            scale: [1, 1.14, 1],
+            opacity: [0.3, 0.65, 0.3],
+          }}
+          transition={{
+            duration: 4.5,
+            repeat: Infinity,
+            ease: 'easeInOut',
+          }}
+          className="pointer-events-none absolute -inset-3 rounded-[36px] bg-gradient-to-tr from-[#d4b37f]/30 via-[#a855f7]/25 to-[#d4b37f]/30 blur-2xl"
+        />
+      ) : (
+        <div className="pointer-events-none absolute -inset-2 rounded-[34px] bg-[#d4b37f]/20 blur-xl" />
       )}
-      style={{
-        borderColor: 'color-mix(in srgb, var(--ultima-color-surface-border) 28%, transparent)',
-        background: 'color-mix(in srgb, var(--ultima-color-primary) 16%, transparent)',
-      }}
-    >
-      <span
+
+      {/* 2. Floating Animated Medallion Container */}
+      <motion.div
+        animate={
+          animated
+            ? {
+                y: [-3, 3, -3],
+                rotate: [-0.5, 0.5, -0.5],
+              }
+            : undefined
+        }
+        transition={
+          animated
+            ? {
+                duration: 5,
+                repeat: Infinity,
+                ease: 'easeInOut',
+              }
+            : undefined
+        }
+        whileHover={{ scale: 1.05, rotate: 0 }}
+        whileTap={{ scale: 0.96 }}
         className={cn(
-          'absolute transition-opacity duration-200',
-          iconClassNames[variant],
-          shouldRenderImage && logoLoaded ? 'opacity-0' : 'opacity-100',
+          'relative flex items-center justify-center overflow-hidden border border-[#d4b37f]/45 bg-gradient-to-b from-[#1e222a] via-[#111318] to-[#07080a] p-2 shadow-[0_16px_40px_rgba(0,0,0,0.85),0_0_35px_rgba(212,179,127,0.25)] backdrop-blur-2xl cursor-pointer',
+          sizeClasses,
         )}
       >
-        <UltimaLogoShield className={iconClassNames[variant]} />
-      </span>
+        {/* Top Glare Bevel */}
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/35 to-transparent z-10" />
 
-      {shouldRenderImage ? (
-        <img
-          ref={logoRef}
-          src={logoUrl ?? undefined}
-          alt={appName || 'Logo'}
-          className={cn(
-            'absolute h-full w-full object-contain p-1.5 transition-opacity duration-200',
-            logoLoaded ? 'opacity-100' : 'opacity-0',
+        {/* 3. Traveling Border Light Beam */}
+        {animated && (
+          <motion.div
+            animate={{
+              rotate: [0, 360],
+            }}
+            transition={{
+              duration: 8,
+              repeat: Infinity,
+              ease: 'linear',
+            }}
+            className="pointer-events-none absolute -inset-[150%] opacity-40"
+            style={{
+              background:
+                'conic-gradient(from 0deg at 50% 50%, transparent 0deg, transparent 70deg, #d4b37f 100deg, transparent 130deg, transparent 250deg, #c084fc 280deg, transparent 310deg)',
+            }}
+          />
+        )}
+
+        {/* Inner Obsidian Shield Background to mask the conic beam */}
+        <div className="absolute inset-[1px] rounded-[inherit] bg-gradient-to-b from-[#1c2028] via-[#101217] to-[#08090c] z-0" />
+
+        {/* 4. Diagonal Glass Shimmer Sheen */}
+        {animated && (
+          <motion.div
+            animate={{
+              x: ['-140%', '260%'],
+            }}
+            transition={{
+              duration: 3.5,
+              repeat: Infinity,
+              repeatDelay: 2.5,
+              ease: 'easeInOut',
+            }}
+            className="pointer-events-none absolute inset-0 -skew-x-12 bg-gradient-to-r from-transparent via-white/[0.12] to-transparent z-10"
+          />
+        )}
+
+        {/* 5. Brand Logo Image */}
+        <div className="relative z-10 flex h-full w-full items-center justify-center">
+          {shouldRenderImage ? (
+            <img
+              ref={logoRef}
+              src={logoUrl ?? undefined}
+              alt={appName || 'Samurai Service'}
+              className={cn(
+                'h-full w-full rounded-[20px] object-contain transition-opacity duration-300',
+                logoLoaded ? 'opacity-100' : 'opacity-0',
+              )}
+              onLoad={markLogoLoaded}
+              onError={handleLogoError}
+            />
+          ) : (
+            <img
+              src="/samurai_original_medallion.png"
+              alt={appName || 'Samurai Service'}
+              className="h-full w-full rounded-[20px] object-contain p-1"
+            />
           )}
-          onLoad={handleLogoLoad}
-          onError={handleLogoError}
-        />
-      ) : null}
+        </div>
+      </motion.div>
     </div>
   );
 }

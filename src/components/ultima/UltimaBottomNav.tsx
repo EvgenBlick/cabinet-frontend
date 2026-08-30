@@ -21,95 +21,74 @@ export function UltimaBottomNav({
 }: UltimaBottomNavProps) {
   const navigate = useNavigate();
 
-  const getButtonClassName = (isActive: boolean) =>
-    isActive
-      ? 'relative flex flex-col h-12 flex-1 items-center justify-center text-[#d4b37f] transition-all'
-      : 'relative flex flex-col h-12 flex-1 items-center justify-center text-[#6e727c] transition-all hover:text-[#c8aa76]';
+  const tabs = [
+    {
+      id: 'home' as const,
+      label: 'Главная',
+      icon: LayoutGrid,
+      onClick: onHomeClick ?? (() => navigate('/')),
+    },
+    {
+      id: 'connection' as const,
+      label: 'Настройка',
+      icon: SlidersHorizontal,
+      onClick: onConnectionClick ?? (() => navigate('/connection')),
+    },
+    {
+      id: 'news' as const,
+      label: 'Новости',
+      icon: Newspaper,
+      onClick: onNewsClick ?? (() => navigate('/ultima/news')),
+    },
+    {
+      id: 'profile' as const,
+      label: 'Профиль',
+      icon: User,
+      onClick: onProfileClick ?? (() => navigate('/profile')),
+    },
+    {
+      id: 'support' as const,
+      label: 'Помощь',
+      icon: Headphones,
+      onClick: onSupportClick ?? (() => navigate('/support')),
+    },
+  ];
 
   return (
     <nav
-      className="ultima-bottom-nav mx-auto flex items-center justify-around overflow-hidden rounded-2xl border-t border-[#5a5040]/35 px-2 py-1 shadow-[0_-8px_24px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.12)]"
+      className="ultima-bottom-nav mx-auto flex items-center justify-around overflow-hidden rounded-3xl border border-[#d4b37f]/25 px-1 py-1.5 shadow-[0_16px_40px_rgba(0,0,0,0.9),inset_0_1px_0_rgba(212,179,127,0.22)] backdrop-blur-2xl"
       style={{
-        backgroundImage:
-          'linear-gradient(180deg, rgba(28, 31, 36, 0.92) 0%, rgba(10, 12, 15, 0.98) 100%), url(/horizontal_brushed_steel.jpg)',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
+        background:
+          'linear-gradient(165deg, rgba(18, 21, 28, 0.96) 0%, rgba(9, 11, 15, 0.99) 100%)',
       }}
     >
-      {/* 1. Dashboard (Grid) */}
-      <button
-        type="button"
-        onClick={onHomeClick ?? (() => navigate('/'))}
-        className={getButtonClassName(active === 'home')}
-        aria-label="Главная"
-      >
-        <LayoutGrid
-          className={`h-5 w-5 stroke-[1.8] ${active === 'home' ? 'text-[#d4b37f] drop-shadow-[0_0_8px_rgba(212,179,127,0.5)]' : ''}`}
-        />
-        {active === 'home' && (
-          <span className="absolute bottom-1 h-1 w-1 rounded-full bg-[#d4b37f] shadow-[0_0_6px_#d4b37f]" />
-        )}
-      </button>
-
-      {/* 2. Connection / Settings (Sliders) */}
-      <button
-        type="button"
-        onClick={onConnectionClick ?? (() => navigate('/connection'))}
-        className={getButtonClassName(active === 'connection')}
-        aria-label="Подключение"
-      >
-        <SlidersHorizontal
-          className={`h-5 w-5 stroke-[1.8] ${active === 'connection' ? 'text-[#d4b37f] drop-shadow-[0_0_8px_rgba(212,179,127,0.5)]' : ''}`}
-        />
-        {active === 'connection' && (
-          <span className="absolute bottom-1 h-1 w-1 rounded-full bg-[#d4b37f] shadow-[0_0_6px_#d4b37f]" />
-        )}
-      </button>
-
-      {/* 3. News / Info (Newspaper) */}
-      <button
-        type="button"
-        onClick={onNewsClick ?? (() => navigate('/ultima/news'))}
-        className={getButtonClassName(active === 'news')}
-        aria-label="Инфо"
-      >
-        <Newspaper
-          className={`h-5 w-5 stroke-[1.8] ${active === 'news' ? 'text-[#d4b37f] drop-shadow-[0_0_8px_rgba(212,179,127,0.5)]' : ''}`}
-        />
-        {active === 'news' && (
-          <span className="absolute bottom-1 h-1 w-1 rounded-full bg-[#d4b37f] shadow-[0_0_6px_#d4b37f]" />
-        )}
-      </button>
-
-      {/* 4. Profile (User) */}
-      <button
-        type="button"
-        onClick={onProfileClick ?? (() => navigate('/profile'))}
-        className={getButtonClassName(active === 'profile')}
-        aria-label="Профиль"
-      >
-        <User
-          className={`h-5 w-5 stroke-[1.8] ${active === 'profile' ? 'text-[#d4b37f] drop-shadow-[0_0_8px_rgba(212,179,127,0.5)]' : ''}`}
-        />
-        {active === 'profile' && (
-          <span className="absolute bottom-1 h-1 w-1 rounded-full bg-[#d4b37f] shadow-[0_0_6px_#d4b37f]" />
-        )}
-      </button>
-
-      {/* 5. Support (Headphones) */}
-      <button
-        type="button"
-        onClick={onSupportClick ?? (() => navigate('/support'))}
-        className={getButtonClassName(active === 'support')}
-        aria-label="Поддержка"
-      >
-        <Headphones
-          className={`h-5 w-5 stroke-[1.8] ${active === 'support' ? 'text-[#d4b37f] drop-shadow-[0_0_8px_rgba(212,179,127,0.5)]' : ''}`}
-        />
-        {active === 'support' && (
-          <span className="absolute bottom-1 h-1 w-1 rounded-full bg-[#d4b37f] shadow-[0_0_6px_#d4b37f]" />
-        )}
-      </button>
+      {tabs.map(({ id, label, icon: Icon, onClick }) => {
+        const isActive = active === id;
+        return (
+          <button
+            key={id}
+            type="button"
+            onClick={onClick}
+            aria-label={label}
+            className={`relative flex flex-1 flex-col items-center justify-center gap-0.5 rounded-2xl px-2 py-2 transition-all ${
+              isActive ? 'text-[#d4b37f]' : 'text-[#52565e] hover:text-[#8a7a5e]'
+            }`}
+          >
+            {/* Active indicator — top line */}
+            {isActive && (
+              <span className="absolute top-0 left-1/2 -translate-x-1/2 h-[2px] w-6 rounded-full bg-[#d4b37f] shadow-[0_0_6px_#d4b37f88]" />
+            )}
+            <Icon
+              className={`h-[18px] w-[18px] stroke-[1.7] transition-all ${
+                isActive ? 'drop-shadow-[0_0_5px_rgba(212,179,127,0.55)]' : ''
+              }`}
+            />
+            <span className="text-[9px] font-semibold tracking-wide">
+              {label}
+            </span>
+          </button>
+        );
+      })}
     </nav>
   );
 }

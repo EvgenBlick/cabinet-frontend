@@ -13,6 +13,7 @@ import {
 import { useUltimaMode } from '@/hooks/useUltimaMode';
 import { showSuccessNotification } from '@/store/successNotification';
 import { useAuthStore } from '@/store/auth';
+import { useThemeEngine } from '@/themes/core/ThemeEngineContext';
 import type { LinkCodePreviewResponse, LinkedIdentity } from '@/types';
 import UltimaAccountLinking from './UltimaAccountLinking';
 
@@ -697,8 +698,9 @@ function AccountLinkingContent() {
 
 export default function AccountLinking() {
   const { isUltimaMode } = useUltimaMode();
+  const { activeTheme } = useThemeEngine();
 
-  if (isUltimaMode) {
+  if (activeTheme === 'samurai_gold' || isUltimaMode) {
     return <UltimaAccountLinking />;
   }
 

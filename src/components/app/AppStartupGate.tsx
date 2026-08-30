@@ -110,7 +110,11 @@ const runStartup = async (queryClient: QueryClient) => {
     // The login page remains available if restoring or Telegram auth fails.
   }
 
-  await shellWarmupPromise;
+  // Race with a short timeout so network slow-downs never delay interface mounting
+  await Promise.race([
+    shellWarmupPromise,
+    wait(400),
+  ]);
 
   if (useAuthStore.getState().isAuthenticated) {
     await Promise.allSettled([

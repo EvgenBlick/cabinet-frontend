@@ -10,6 +10,7 @@ import { adminRoutes } from './pages/routes/adminRoutes';
 import { protectedRoutes } from './pages/routes/protectedRoutes';
 import { publicRoutes } from './pages/routes/publicRoutes';
 import { useAuthStore } from './store/auth';
+import { CookieConsentBanner } from './components/common/CookieConsentBanner';
 
 function App() {
   useAnalyticsCounters();
@@ -142,6 +143,7 @@ function App() {
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      <CookieConsentBanner />
     </>
   );
 }
