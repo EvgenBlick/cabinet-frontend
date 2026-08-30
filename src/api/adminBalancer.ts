@@ -17,6 +17,7 @@ export interface BalancerRuntimeStatsResponse {
 export interface BalancerGroupsResponse {
   status: string;
   groups: Record<string, string[]>;
+  group_descriptions?: Record<string, string>;
   group_hosts?: Record<string, string[]>;
   strategy?: string;
   fastest_group: boolean;
@@ -100,6 +101,18 @@ export interface BalancerProtectionNode {
   } | null;
 }
 
+export interface NodeHealthMetrics {
+  nodeName: string;
+  lastRttMs: number | null;
+  avgRttMs: number | null;
+  jitterMs: number;
+  lossPercent: number;
+  rstCount: number;
+  throttled: boolean;
+  partialBlock: boolean;
+  lastCheckAt: number | null;
+}
+
 export interface BalancerAttackModeResponse {
   status: string;
   protection_enabled?: boolean;
@@ -111,6 +124,7 @@ export interface BalancerAttackModeResponse {
 
 export interface UpdateBalancerGroupsPayload {
   groups: Record<string, string[]>;
+  group_descriptions?: Record<string, string>;
   group_hosts: Record<string, string[]>;
   strategy?: string;
   fastest_group: boolean;
@@ -268,6 +282,11 @@ export const adminBalancerApi = {
     const response = await apiClient.delete(
       `/cabinet/admin/balancer/attack-mode/${encodeURIComponent(node)}`,
     );
+    return response.data;
+  },
+
+  getHealthMetrics: async (): Promise<Record<string, NodeHealthMetrics>> => {
+    const response = await apiClient.get('/cabinet/admin/balancer/health-metrics');
     return response.data;
   },
 };

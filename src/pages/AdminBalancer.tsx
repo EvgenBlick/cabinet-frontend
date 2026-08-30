@@ -15,6 +15,7 @@ type GroupDraft = {
   id: string;
   name: string;
   patterns: string;
+  description?: string;
   hostIds: string[];
 };
 
@@ -426,6 +427,7 @@ function groupsToDraft(
   groupsData: BalancerGroupsResponse,
   hosts: BalancerHost[] = [],
 ): GroupDraft[] {
+  const descriptions = groupsData.group_descriptions || {};
   const hostIdsByRemark = new Map<string, string[]>();
   for (const host of hosts) {
     const key = host.remark.trim().toLowerCase();
@@ -445,6 +447,7 @@ function groupsToDraft(
       id: `${idx}-${name}`,
       name,
       patterns: manualPatterns.join('\n'),
+      description: descriptions[name] || '',
       hostIds: [...hostIds],
     };
   });
@@ -1550,8 +1553,17 @@ export default function AdminBalancer() {
     const normalizedFastestName = fastestGroupName.trim() || DEFAULT_FASTEST_GROUP_NAME;
     const nextAdvanced = buildAdvancedPayload(advancedSettings, groupsData);
 
+    const group_descriptions: Record<string, string> = {};
+    for (const item of groupsDraft) {
+      const name = item.name.trim();
+      if (name && item.description && item.description.trim()) {
+        group_descriptions[name] = item.description.trim();
+      }
+    }
+
     await saveGroupsMutation.mutateAsync({
       groups,
+      group_descriptions,
       group_hosts: groupHosts,
       fastest_group: fastestEnabled,
       fastest_group_name: normalizedFastestName,
@@ -2091,6 +2103,22 @@ export default function AdminBalancer() {
                       {t('admin.balancer.actions.groupNamesUnique', 'Group names must be unique')}
                     </p>
                   )}
+                </div>
+
+                <div className="mt-3">
+                  <label className="mb-1 block text-xs text-dark-400">
+                    {t('admin.balancer.groups.groupDescription', 'Group description')}
+                  </label>
+                  <input
+                    value={group.description || ''}
+                    maxLength={256}
+                    onChange={(event) => updateGroup(group.id, { description: event.target.value })}
+                    placeholder={t(
+                      'admin.balancer.groups.groupDescriptionPlaceholder',
+                      'Custom description for clients',
+                    )}
+                    className="w-full rounded-lg border border-dark-600 bg-dark-900/70 px-3 py-2 text-sm text-dark-100 outline-none placeholder:text-dark-500 focus:border-accent-500"
+                  />
                 </div>
 
                 <div className="mt-3">

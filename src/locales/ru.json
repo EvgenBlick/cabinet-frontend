@@ -4241,6 +4241,8 @@
         "fastestStatusOn": "Включена",
         "fastestToggle": "Добавлять автоматический выбор сервера",
         "fastestToggleDesc": "Если включено, в подписке появится отдельная группа, которая сама выберет для пользователя более подходящий сервер.",
+        "groupDescription": "Описание группы",
+        "groupDescriptionPlaceholder": "Краткое описание для пользователей",
         "groupName": "Название группы",
         "groupNumber": "Группа #{{index}}",
         "hostDisabled": "Выключен",

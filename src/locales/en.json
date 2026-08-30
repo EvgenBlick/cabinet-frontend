@@ -3699,6 +3699,8 @@
         "fastestStatusOn": "Enabled",
         "fastestToggle": "Add automatic server choice",
         "fastestToggleDesc": "If enabled, the subscription gets one extra group that automatically picks a more suitable server for the user.",
+        "groupDescription": "Group description",
+        "groupDescriptionPlaceholder": "Short description for users",
         "groupName": "Group name",
         "groupNumber": "Group #{{index}}",
         "hostDisabled": "Disabled",
