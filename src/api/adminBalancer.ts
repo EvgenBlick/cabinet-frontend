@@ -63,6 +63,21 @@ export interface BalancerGroupsResponse {
   balancer_hysteresis_delta?: number;
 }
 
+export interface BalancerHost {
+  uuid: string;
+  remark: string;
+  address: string;
+  port: number | null;
+  is_disabled: boolean;
+}
+
+export interface BalancerHostsResponse {
+  status: string;
+  hosts: BalancerHost[];
+  total: number;
+  enabled: number;
+}
+
 export interface BalancerQuarantineResponse {
   status: string;
   quarantine_nodes: string[];
@@ -203,6 +218,11 @@ export const adminBalancerApi = {
 
   getGroups: async (): Promise<BalancerGroupsResponse> => {
     const response = await apiClient.get('/cabinet/admin/balancer/groups');
+    return response.data;
+  },
+
+  getHosts: async (): Promise<BalancerHostsResponse> => {
+    const response = await apiClient.get('/cabinet/admin/balancer/hosts');
     return response.data;
   },
 
