@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 import {
   BalancerGroupsResponse,
+  BalancerHost,
   BalancerProtectionNode,
   UpdateBalancerGroupsPayload,
   adminBalancerApi,
@@ -301,6 +302,115 @@ function ChecklistCard({
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+function HostPicker({
+  hosts,
+  selectedPatterns,
+  loading,
+  error,
+  onToggle,
+  title,
+  searchPlaceholder,
+  emptyText,
+  loadErrorText,
+  selectedText,
+  disabledText,
+}: {
+  hosts: BalancerHost[];
+  selectedPatterns: string[];
+  loading: boolean;
+  error: boolean;
+  onToggle: (remark: string) => void;
+  title: string;
+  searchPlaceholder: string;
+  emptyText: string;
+  loadErrorText: string;
+  selectedText: string;
+  disabledText: string;
+}) {
+  const [search, setSearch] = useState('');
+  const selectedSet = useMemo(
+    () => new Set(selectedPatterns.map((value) => value.trim().toLowerCase()).filter(Boolean)),
+    [selectedPatterns],
+  );
+  const visibleHosts = useMemo(() => {
+    const needle = search.trim().toLowerCase();
+    return hosts
+      .filter((host) => {
+        if (!needle) return true;
+        return `${host.remark} ${host.address}`.toLowerCase().includes(needle);
+      })
+      .sort((left, right) => {
+        const leftSelected = selectedSet.has(left.remark.trim().toLowerCase());
+        const rightSelected = selectedSet.has(right.remark.trim().toLowerCase());
+        if (leftSelected !== rightSelected) return leftSelected ? -1 : 1;
+        if (left.is_disabled !== right.is_disabled) return left.is_disabled ? 1 : -1;
+        return left.remark.localeCompare(right.remark);
+      });
+  }, [hosts, search, selectedSet]);
+  const selectedCount = hosts.filter((host) =>
+    selectedSet.has(host.remark.trim().toLowerCase()),
+  ).length;
+
+  return (
+    <div>
+      <div className="mb-1 flex items-center justify-between gap-3 text-xs text-dark-400">
+        <span>{title}</span>
+        <span>{selectedText.replace('{{count}}', String(selectedCount))}</span>
+      </div>
+      <input
+        type="search"
+        value={search}
+        onChange={(event) => setSearch(event.target.value)}
+        placeholder={searchPlaceholder}
+        className="mb-2 w-full rounded-lg border border-dark-600 bg-dark-900/70 px-3 py-2 text-sm text-dark-100 outline-none placeholder:text-dark-500 focus:border-accent-500"
+      />
+      <div className="max-h-52 overflow-y-auto rounded-lg border border-dark-700 bg-dark-950/40 p-1.5">
+        {loading ? (
+          <p className="px-2 py-3 text-xs text-dark-500">...</p>
+        ) : error ? (
+          <p className="px-2 py-3 text-xs text-error-300">{loadErrorText}</p>
+        ) : visibleHosts.length === 0 ? (
+          <p className="px-2 py-3 text-xs text-dark-500">{emptyText}</p>
+        ) : (
+          <div className="grid grid-cols-1 gap-1 lg:grid-cols-2">
+            {visibleHosts.map((host) => {
+              const selected = selectedSet.has(host.remark.trim().toLowerCase());
+              return (
+                <label
+                  key={host.uuid}
+                  className={`flex min-w-0 cursor-pointer items-center gap-2 rounded-md border px-2.5 py-2 transition-colors ${
+                    selected
+                      ? 'border-accent-500/40 bg-accent-500/10'
+                      : 'border-transparent hover:border-dark-700 hover:bg-dark-900/70'
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={selected}
+                    onChange={() => onToggle(host.remark)}
+                  />
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-sm text-dark-100">{host.remark}</span>
+                    <span className="block truncate text-xs text-dark-500">
+                      {host.address}
+                      {host.port ? `:${host.port}` : ''}
+                    </span>
+                  </span>
+                  {host.is_disabled && (
+                    <span className="shrink-0 rounded border border-dark-600 px-1.5 py-0.5 text-[11px] text-dark-400">
+                      {disabledText}
+                    </span>
+                  )}
+                </label>
+              );
+            })}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -939,6 +1049,17 @@ export default function AdminBalancer() {
   });
 
   const {
+    data: hostsData,
+    isLoading: hostsLoading,
+    isError: hostsError,
+  } = useQuery({
+    queryKey: ['admin', 'balancer', 'hosts'],
+    queryFn: adminBalancerApi.getHosts,
+    refetchInterval: 60_000,
+    staleTime: 30_000,
+  });
+
+  const {
     data: quarantineData,
     refetch: refetchQuarantine,
     isLoading: quarantineLoading,
@@ -1258,6 +1379,22 @@ export default function AdminBalancer() {
     }
     setGroupsDraft((prev) =>
       prev.map((group) => (group.id === id ? { ...group, ...patch } : group)),
+    );
+  };
+
+  const toggleGroupHost = (id: string, remark: string) => {
+    setGroupsDirty(true);
+    setGroupsDraft((prev) =>
+      prev.map((group) => {
+        if (group.id !== id) return group;
+        const normalizedRemark = remark.trim().toLowerCase();
+        const patterns = parsePatterns(group.patterns);
+        const exists = patterns.some((pattern) => pattern.toLowerCase() === normalizedRemark);
+        const nextPatterns = exists
+          ? patterns.filter((pattern) => pattern.toLowerCase() !== normalizedRemark)
+          : [...patterns, remark.trim()];
+        return { ...group, patterns: nextPatterns.join('\n') };
+      }),
     );
   };
 
@@ -1905,47 +2042,80 @@ export default function AdminBalancer() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                  <div>
-                    <label className="mb-1 block text-xs text-dark-400">
-                      {t('admin.balancer.groups.groupName', 'Group name')}
-                    </label>
-                    <input
-                      value={group.name}
-                      onChange={(event) => updateGroup(group.id, { name: event.target.value })}
-                      placeholder={t('admin.balancer.groups.groupName', 'Group name')}
-                      className={`w-full rounded-lg border bg-dark-900/70 px-3 py-2 text-sm text-dark-100 outline-none placeholder:text-dark-500 ${
-                        hasDuplicate
-                          ? 'border-error-500/70'
-                          : 'border-dark-600 focus:border-accent-500'
-                      }`}
-                    />
-                    {hasDuplicate && (
-                      <p className="mt-1 text-xs text-error-300">
-                        {t('admin.balancer.actions.groupNamesUnique', 'Group names must be unique')}
-                      </p>
+                <div>
+                  <label className="mb-1 block text-xs text-dark-400">
+                    {t('admin.balancer.groups.groupName', 'Group name')}
+                  </label>
+                  <input
+                    value={group.name}
+                    onChange={(event) => updateGroup(group.id, { name: event.target.value })}
+                    placeholder={t('admin.balancer.groups.groupName', 'Group name')}
+                    className={`w-full rounded-lg border bg-dark-900/70 px-3 py-2 text-sm text-dark-100 outline-none placeholder:text-dark-500 ${
+                      hasDuplicate
+                        ? 'border-error-500/70'
+                        : 'border-dark-600 focus:border-accent-500'
+                    }`}
+                  />
+                  {hasDuplicate && (
+                    <p className="mt-1 text-xs text-error-300">
+                      {t('admin.balancer.actions.groupNamesUnique', 'Group names must be unique')}
+                    </p>
+                  )}
+                </div>
+
+                <div className="mt-3">
+                  <label className="mb-1 block text-xs text-dark-400">
+                    {t('admin.balancer.groups.groupDescription', 'Group description')}
+                  </label>
+                  <input
+                    value={group.description || ''}
+                    onChange={(event) => updateGroup(group.id, { description: event.target.value })}
+                    placeholder={t(
+                      'admin.balancer.groups.groupDescriptionPlaceholder',
+                      'Custom description for clients',
                     )}
-                    <div className="mt-2">
-                      <label className="mb-1 block text-xs text-dark-400">
-                        {t('admin.balancer.groups.groupDescription', 'Group description')}
-                      </label>
-                      <input
-                        value={group.description || ''}
-                        onChange={(event) => updateGroup(group.id, { description: event.target.value })}
-                        placeholder={t('admin.balancer.groups.groupDescriptionPlaceholder', 'Custom description for clients')}
-                        className="w-full rounded-lg border border-dark-600 bg-dark-900/70 px-3 py-2 text-sm text-dark-100 outline-none placeholder:text-dark-500 focus:border-accent-500"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <div className="mb-1 flex items-center justify-between text-xs text-dark-400">
-                      <span>{t('admin.balancer.groups.patternsTitle', 'Patterns')}</span>
-                      <span>
-                        {t('admin.balancer.groups.patternsCount', '{{count}} items', {
-                          count: patternCount,
-                        })}
-                      </span>
-                    </div>
+                    className="w-full rounded-lg border border-dark-600 bg-dark-900/70 px-3 py-2 text-sm text-dark-100 outline-none placeholder:text-dark-500 focus:border-accent-500"
+                  />
+                </div>
+
+                <div className="mt-3">
+                  <HostPicker
+                    hosts={hostsData?.hosts || []}
+                    selectedPatterns={parsePatterns(group.patterns)}
+                    loading={hostsLoading}
+                    error={hostsError}
+                    onToggle={(remark) => toggleGroupHost(group.id, remark)}
+                    title={t('admin.balancer.groups.hostsTitle', 'Hosts from panel')}
+                    searchPlaceholder={t(
+                      'admin.balancer.groups.hostsSearch',
+                      'Search by name or address',
+                    )}
+                    emptyText={t('admin.balancer.groups.hostsEmpty', 'No hosts found')}
+                    loadErrorText={t(
+                      'admin.balancer.groups.hostsLoadError',
+                      'Failed to load hosts from panel',
+                    )}
+                    selectedText={t('admin.balancer.groups.hostsSelected', 'Selected: {{count}}')}
+                    disabledText={t('admin.balancer.groups.hostDisabled', 'Disabled')}
+                  />
+                </div>
+
+                <details className="mt-3 rounded-lg border border-dark-700 bg-dark-950/30">
+                  <summary className="cursor-pointer px-3 py-2 text-xs text-dark-300">
+                    {t('admin.balancer.groups.manualPatternsTitle', 'Manual patterns')}{' '}
+                    <span className="text-dark-500">
+                      {t('admin.balancer.groups.patternsCount', '{{count}} items', {
+                        count: patternCount,
+                      })}
+                    </span>
+                  </summary>
+                  <div className="border-t border-dark-700 p-3">
+                    <p className="mb-2 text-xs leading-5 text-dark-500">
+                      {t(
+                        'admin.balancer.groups.manualPatternsHint',
+                        'Selected hosts are stored here too. Use this field only for additional matching patterns.',
+                      )}
+                    </p>
                     <textarea
                       value={group.patterns}
                       onChange={(event) => updateGroup(group.id, { patterns: event.target.value })}
@@ -1957,7 +2127,7 @@ export default function AdminBalancer() {
                       className="w-full rounded-lg border border-dark-600 bg-dark-900/70 px-3 py-2 text-sm text-dark-100 outline-none placeholder:text-dark-500 focus:border-accent-500"
                     />
                   </div>
-                </div>
+                </details>
               </div>
             );
           })}
