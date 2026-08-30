@@ -16,6 +16,7 @@ type GroupDraft = {
   name: string;
   patterns: string;
   description?: string;
+  hostIds: string[];
 };
 
 const DEFAULT_FASTEST_GROUP_NAME = '🏁 🇪🇺 Самые быстрые';
@@ -308,7 +309,7 @@ function ChecklistCard({
 
 function HostPicker({
   hosts,
-  selectedPatterns,
+  selectedHostIds,
   loading,
   error,
   onToggle,
@@ -318,24 +319,25 @@ function HostPicker({
   loadErrorText,
   selectedText,
   disabledText,
+  unavailableText,
 }: {
   hosts: BalancerHost[];
-  selectedPatterns: string[];
+  selectedHostIds: string[];
   loading: boolean;
   error: boolean;
-  onToggle: (remark: string) => void;
+  onToggle: (hostId: string) => void;
   title: string;
   searchPlaceholder: string;
   emptyText: string;
   loadErrorText: string;
   selectedText: string;
   disabledText: string;
+  unavailableText: string;
 }) {
   const [search, setSearch] = useState('');
-  const selectedSet = useMemo(
-    () => new Set(selectedPatterns.map((value) => value.trim().toLowerCase()).filter(Boolean)),
-    [selectedPatterns],
-  );
+  const selectedSet = useMemo(() => new Set(selectedHostIds.filter(Boolean)), [selectedHostIds]);
+  const availableHostIds = useMemo(() => new Set(hosts.map((host) => host.uuid)), [hosts]);
+  const unavailableHostIds = selectedHostIds.filter((hostId) => !availableHostIds.has(hostId));
   const visibleHosts = useMemo(() => {
     const needle = search.trim().toLowerCase();
     return hosts
@@ -344,16 +346,14 @@ function HostPicker({
         return `${host.remark} ${host.address}`.toLowerCase().includes(needle);
       })
       .sort((left, right) => {
-        const leftSelected = selectedSet.has(left.remark.trim().toLowerCase());
-        const rightSelected = selectedSet.has(right.remark.trim().toLowerCase());
+        const leftSelected = selectedSet.has(left.uuid);
+        const rightSelected = selectedSet.has(right.uuid);
         if (leftSelected !== rightSelected) return leftSelected ? -1 : 1;
         if (left.is_disabled !== right.is_disabled) return left.is_disabled ? 1 : -1;
         return left.remark.localeCompare(right.remark);
       });
   }, [hosts, search, selectedSet]);
-  const selectedCount = hosts.filter((host) =>
-    selectedSet.has(host.remark.trim().toLowerCase()),
-  ).length;
+  const selectedCount = selectedSet.size;
 
   return (
     <div>
@@ -373,12 +373,12 @@ function HostPicker({
           <p className="px-2 py-3 text-xs text-dark-500">...</p>
         ) : error ? (
           <p className="px-2 py-3 text-xs text-error-300">{loadErrorText}</p>
-        ) : visibleHosts.length === 0 ? (
+        ) : visibleHosts.length === 0 && unavailableHostIds.length === 0 ? (
           <p className="px-2 py-3 text-xs text-dark-500">{emptyText}</p>
         ) : (
           <div className="grid grid-cols-1 gap-1 lg:grid-cols-2">
             {visibleHosts.map((host) => {
-              const selected = selectedSet.has(host.remark.trim().toLowerCase());
+              const selected = selectedSet.has(host.uuid);
               return (
                 <label
                   key={host.uuid}
@@ -388,11 +388,7 @@ function HostPicker({
                       : 'border-transparent hover:border-dark-700 hover:bg-dark-900/70'
                   }`}
                 >
-                  <input
-                    type="checkbox"
-                    checked={selected}
-                    onChange={() => onToggle(host.remark)}
-                  />
+                  <input type="checkbox" checked={selected} onChange={() => onToggle(host.uuid)} />
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-sm text-dark-100">{host.remark}</span>
                     <span className="block truncate text-xs text-dark-500">
@@ -408,6 +404,18 @@ function HostPicker({
                 </label>
               );
             })}
+            {unavailableHostIds.map((hostId) => (
+              <label
+                key={hostId}
+                className="flex min-w-0 cursor-pointer items-center gap-2 rounded-md border border-warning-500/40 bg-warning-500/10 px-2.5 py-2"
+              >
+                <input type="checkbox" checked onChange={() => onToggle(hostId)} />
+                <span className="min-w-0 flex-1">
+                  <span className="block text-sm text-warning-200">{unavailableText}</span>
+                  <span className="block truncate text-xs text-dark-500">{hostId}</span>
+                </span>
+              </label>
+            ))}
           </div>
         )}
       </div>
@@ -415,14 +423,34 @@ function HostPicker({
   );
 }
 
-function groupsToDraft(groupsData: BalancerGroupsResponse): GroupDraft[] {
+function groupsToDraft(
+  groupsData: BalancerGroupsResponse,
+  hosts: BalancerHost[] = [],
+): GroupDraft[] {
   const descriptions = groupsData.group_descriptions || {};
-  return Object.entries(groupsData.groups).map(([name, patterns], idx) => ({
-    id: `${idx}-${name}`,
-    name,
-    patterns: patterns.join('\n'),
-    description: descriptions[name] || '',
-  }));
+  const hostIdsByRemark = new Map<string, string[]>();
+  for (const host of hosts) {
+    const key = host.remark.trim().toLowerCase();
+    if (!key) continue;
+    hostIdsByRemark.set(key, [...(hostIdsByRemark.get(key) || []), host.uuid]);
+  }
+
+  return Object.entries(groupsData.groups).map(([name, patterns], idx) => {
+    const hostIds = new Set(groupsData.group_hosts?.[name] || []);
+    const manualPatterns = patterns.filter((pattern) => {
+      const matchingHostIds = hostIdsByRemark.get(pattern.trim().toLowerCase());
+      if (!matchingHostIds?.length) return true;
+      matchingHostIds.forEach((hostId) => hostIds.add(hostId));
+      return false;
+    });
+    return {
+      id: `${idx}-${name}`,
+      name,
+      patterns: manualPatterns.join('\n'),
+      description: descriptions[name] || '',
+      hostIds: [...hostIds],
+    };
+  });
 }
 
 function parsePatterns(raw: string): string[] {
@@ -635,6 +663,7 @@ function findSaveMismatch(
   response: BalancerGroupsResponse,
 ): string | null {
   if (!sameGroups(payload.groups, response.groups)) return 'groups';
+  if (!sameGroups(payload.group_hosts, response.group_hosts)) return 'group_hosts';
   if (payload.fastest_group !== response.fastest_group) return 'fastest_group';
   if ((payload.fastest_group_name || '') !== (response.fastest_group_name || '')) {
     return 'fastest_group_name';
@@ -1081,7 +1110,7 @@ export default function AdminBalancer() {
 
   useEffect(() => {
     if (!groupsData || groupsDirty) return;
-    setGroupsDraft(groupsToDraft(groupsData));
+    setGroupsDraft(groupsToDraft(groupsData, hostsData?.hosts));
     setFastestEnabled(Boolean(groupsData.fastest_group));
     setFastestGroupName((groupsData.fastest_group_name || DEFAULT_FASTEST_GROUP_NAME).trim());
     setExcludeGroups(groupsData.fastest_exclude_groups || []);
@@ -1091,7 +1120,7 @@ export default function AdminBalancer() {
     setHiddenGroups(groupsData.hidden_groups || []);
     setHiddenNodes(groupsData.hidden_nodes || []);
     setAdvancedSettings(normalizeAdvancedSettings(groupsData));
-  }, [groupsData, groupsDirty]);
+  }, [groupsData, groupsDirty, hostsData]);
 
   const setAlert = (message: string, tone: AlertTone = 'default') => {
     setActionMessage(message);
@@ -1144,7 +1173,7 @@ export default function AdminBalancer() {
 
       setAlert(t('admin.balancer.actions.groupsSaved', 'Groups saved'), 'success');
       setGroupsDirty(false);
-      setGroupsDraft(groupsToDraft(data));
+      setGroupsDraft(groupsToDraft(data, hostsData?.hosts));
       setFastestEnabled(Boolean(data.fastest_group));
       setFastestGroupName((data.fastest_group_name || DEFAULT_FASTEST_GROUP_NAME).trim());
       setExcludeGroups(data.fastest_exclude_groups || []);
@@ -1341,6 +1370,7 @@ export default function AdminBalancer() {
         id: `${Date.now()}-${prev.length}`,
         name: '',
         patterns: '',
+        hostIds: [],
       },
     ]);
   };
@@ -1382,18 +1412,18 @@ export default function AdminBalancer() {
     );
   };
 
-  const toggleGroupHost = (id: string, remark: string) => {
+  const toggleGroupHost = (id: string, hostId: string) => {
     setGroupsDirty(true);
     setGroupsDraft((prev) =>
       prev.map((group) => {
         if (group.id !== id) return group;
-        const normalizedRemark = remark.trim().toLowerCase();
-        const patterns = parsePatterns(group.patterns);
-        const exists = patterns.some((pattern) => pattern.toLowerCase() === normalizedRemark);
-        const nextPatterns = exists
-          ? patterns.filter((pattern) => pattern.toLowerCase() !== normalizedRemark)
-          : [...patterns, remark.trim()];
-        return { ...group, patterns: nextPatterns.join('\n') };
+        const exists = group.hostIds.includes(hostId);
+        return {
+          ...group,
+          hostIds: exists
+            ? group.hostIds.filter((value) => value !== hostId)
+            : [...group.hostIds, hostId],
+        };
       }),
     );
   };
@@ -1469,6 +1499,7 @@ export default function AdminBalancer() {
 
   const saveGroups = async () => {
     const groups: Record<string, string[]> = {};
+    const groupHosts: Record<string, string[]> = {};
     const names = new Set<string>();
 
     for (const item of groupsDraft) {
@@ -1488,14 +1519,21 @@ export default function AdminBalancer() {
       names.add(normalizedName);
 
       const patterns = parsePatterns(item.patterns);
-      if (patterns.length === 0) {
+      const hostIds = item.hostIds.filter(
+        (hostId, index, values) => hostId && values.indexOf(hostId) === index,
+      );
+      if (patterns.length === 0 && hostIds.length === 0) {
         setAlert(
-          t('admin.balancer.actions.groupPatternsRequired', 'Each group must contain patterns'),
+          t(
+            'admin.balancer.actions.groupPatternsRequired',
+            'Each group must contain at least one host or manual pattern',
+          ),
           'error',
         );
         return;
       }
       groups[name] = patterns;
+      groupHosts[name] = hostIds;
     }
 
     const availableNames = new Set(groupsDraft.map((item) => item.name.trim()).filter(Boolean));
@@ -1526,6 +1564,7 @@ export default function AdminBalancer() {
     await saveGroupsMutation.mutateAsync({
       groups,
       group_descriptions,
+      group_hosts: groupHosts,
       fastest_group: fastestEnabled,
       fastest_group_name: normalizedFastestName,
       fastest_exclude_groups: filteredExclude,
@@ -1670,14 +1709,17 @@ export default function AdminBalancer() {
 
   const previewConfig = useMemo(() => {
     const groups: Record<string, string[]> = {};
+    const groupHosts: Record<string, string[]> = {};
     for (const item of groupsDraft) {
       const name = item.name.trim();
       if (!name) continue;
       groups[name] = parsePatterns(item.patterns);
+      groupHosts[name] = item.hostIds;
     }
     const availableNames = new Set(Object.keys(groups));
     return {
       groups,
+      group_hosts: groupHosts,
       fastest_group: fastestEnabled,
       fastest_group_name: fastestGroupName.trim() || DEFAULT_FASTEST_GROUP_NAME,
       fastest_exclude_groups: excludeGroups.filter((name) => availableNames.has(name)),
@@ -1825,7 +1867,7 @@ export default function AdminBalancer() {
             <button
               onClick={() => {
                 if (!groupsData) return;
-                setGroupsDraft(groupsToDraft(groupsData));
+                setGroupsDraft(groupsToDraft(groupsData, hostsData?.hosts));
                 setFastestEnabled(Boolean(groupsData.fastest_group));
                 setFastestGroupName(
                   (groupsData.fastest_group_name || DEFAULT_FASTEST_GROUP_NAME).trim(),
@@ -1862,7 +1904,7 @@ export default function AdminBalancer() {
             <button
               onClick={() => {
                 if (!groupsData) return;
-                setGroupsDraft(groupsToDraft(groupsData));
+                setGroupsDraft(groupsToDraft(groupsData, hostsData?.hosts));
                 setFastestEnabled(Boolean(groupsData.fastest_group));
                 setFastestGroupName(
                   (groupsData.fastest_group_name || DEFAULT_FASTEST_GROUP_NAME).trim(),
@@ -2081,10 +2123,10 @@ export default function AdminBalancer() {
                 <div className="mt-3">
                   <HostPicker
                     hosts={hostsData?.hosts || []}
-                    selectedPatterns={parsePatterns(group.patterns)}
+                    selectedHostIds={group.hostIds}
                     loading={hostsLoading}
                     error={hostsError}
-                    onToggle={(remark) => toggleGroupHost(group.id, remark)}
+                    onToggle={(hostId) => toggleGroupHost(group.id, hostId)}
                     title={t('admin.balancer.groups.hostsTitle', 'Hosts from panel')}
                     searchPlaceholder={t(
                       'admin.balancer.groups.hostsSearch',
@@ -2097,6 +2139,10 @@ export default function AdminBalancer() {
                     )}
                     selectedText={t('admin.balancer.groups.hostsSelected', 'Selected: {{count}}')}
                     disabledText={t('admin.balancer.groups.hostDisabled', 'Disabled')}
+                    unavailableText={t(
+                      'admin.balancer.groups.hostUnavailable',
+                      'Host is temporarily unavailable in the panel',
+                    )}
                   />
                 </div>
 
@@ -2113,7 +2159,7 @@ export default function AdminBalancer() {
                     <p className="mb-2 text-xs leading-5 text-dark-500">
                       {t(
                         'admin.balancer.groups.manualPatternsHint',
-                        'Selected hosts are stored here too. Use this field only for additional matching patterns.',
+                        'Use this field only for additional matching patterns. Selected hosts are stored separately by UUID.',
                       )}
                     </p>
                     <textarea
