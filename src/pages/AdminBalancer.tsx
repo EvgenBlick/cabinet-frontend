@@ -2111,6 +2111,7 @@ export default function AdminBalancer() {
                   </label>
                   <input
                     value={group.description || ''}
+                    maxLength={256}
                     onChange={(event) => updateGroup(group.id, { description: event.target.value })}
                     placeholder={t(
                       'admin.balancer.groups.groupDescriptionPlaceholder',
