@@ -17,6 +17,7 @@ export interface BalancerRuntimeStatsResponse {
 export interface BalancerGroupsResponse {
   status: string;
   groups: Record<string, string[]>;
+  group_hosts?: Record<string, string[]>;
   strategy?: string;
   fastest_group: boolean;
   fastest_group_name?: string;
@@ -110,6 +111,7 @@ export interface BalancerAttackModeResponse {
 
 export interface UpdateBalancerGroupsPayload {
   groups: Record<string, string[]>;
+  group_hosts: Record<string, string[]>;
   strategy?: string;
   fastest_group: boolean;
   fastest_group_name?: string;
