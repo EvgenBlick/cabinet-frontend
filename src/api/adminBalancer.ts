@@ -18,6 +18,7 @@ export interface BalancerGroupsResponse {
   status: string;
   groups: Record<string, string[]>;
   group_descriptions?: Record<string, string>;
+  group_hosts?: Record<string, string[]>;
   strategy?: string;
   fastest_group: boolean;
   fastest_group_name?: string;
@@ -62,6 +63,21 @@ export interface BalancerGroupsResponse {
   balancer_max_latency_ms?: number;
   balancer_smoothing_alpha?: number;
   balancer_hysteresis_delta?: number;
+}
+
+export interface BalancerHost {
+  uuid: string;
+  remark: string;
+  address: string;
+  port: number | null;
+  is_disabled: boolean;
+}
+
+export interface BalancerHostsResponse {
+  status: string;
+  hosts: BalancerHost[];
+  total: number;
+  enabled: number;
 }
 
 export interface BalancerQuarantineResponse {
@@ -109,6 +125,7 @@ export interface BalancerAttackModeResponse {
 export interface UpdateBalancerGroupsPayload {
   groups: Record<string, string[]>;
   group_descriptions?: Record<string, string>;
+  group_hosts: Record<string, string[]>;
   strategy?: string;
   fastest_group: boolean;
   fastest_group_name?: string;
@@ -217,6 +234,11 @@ export const adminBalancerApi = {
 
   getGroups: async (): Promise<BalancerGroupsResponse> => {
     const response = await apiClient.get('/cabinet/admin/balancer/groups');
+    return response.data;
+  },
+
+  getHosts: async (): Promise<BalancerHostsResponse> => {
+    const response = await apiClient.get('/cabinet/admin/balancer/hosts');
     return response.data;
   },
 
