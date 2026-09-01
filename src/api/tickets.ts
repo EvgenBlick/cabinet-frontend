@@ -28,6 +28,9 @@ export interface GuestTicketCreatePayload {
   contact?: string;
   title: string;
   message: string;
+  media_type?: TicketMediaType;
+  media_file_id?: string;
+  media_caption?: string;
 }
 
 export const ticketsApi = {
@@ -120,10 +123,14 @@ export const guestSupportApi = {
     return response.data;
   },
 
-  reply: async (identity: GuestSupportIdentity, message: string): Promise<TicketMessage> => {
+  reply: async (
+    identity: GuestSupportIdentity,
+    message: string,
+    media?: MediaParams,
+  ): Promise<TicketMessage> => {
     const response = await apiClient.post(
       `/cabinet/public/support/sessions/${identity.ticketId}/messages`,
-      { message },
+      { message, ...media },
       { headers: { 'X-Guest-Token': identity.accessToken } },
     );
     return response.data;

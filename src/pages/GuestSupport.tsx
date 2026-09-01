@@ -1,13 +1,33 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Headphones, LockKeyhole, MessageCircle, Plus, Send, Wifi } from 'lucide-react';
+import {
+  ArrowLeft,
+  Headphones,
+  LockKeyhole,
+  MessageCircle,
+  Plus,
+  Send,
+  Wifi,
+  Paperclip,
+  X,
+  Loader2,
+  Download,
+} from 'lucide-react';
 import { useNavigate } from 'react-router';
-import { guestSupportApi, type GuestSupportIdentity } from '../api/tickets';
+import { guestSupportApi, ticketsApi, type GuestSupportIdentity } from '../api/tickets';
 import { useBranding } from '@/hooks/useBranding';
 import { useBrandLogoImage } from '@/hooks/useBrandLogoImage';
 import { ultimaPaneSurfaceStyle, ultimaSurfaceStyle } from '@/features/ultima/surfaces';
 
 const STORAGE_KEY = 'ultima-guest-support';
+
+interface MediaAttachmentState {
+  file: File;
+  preview: string;
+  uploading: boolean;
+  fileId?: string;
+  error?: string;
+}
 
 function readIdentity(): GuestSupportIdentity | null {
   try {
@@ -42,6 +62,13 @@ export default function GuestSupport() {
   const [reply, setReply] = useState('');
   const [live, setLive] = useState(false);
   const [error, setError] = useState('');
+  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
+
+  // Attachments
+  const [createAttachment, setCreateAttachment] = useState<MediaAttachmentState | null>(null);
+  const [replyAttachment, setReplyAttachment] = useState<MediaAttachmentState | null>(null);
+  const createFileInputRef = useRef<HTMLInputElement | null>(null);
+  const replyFileInputRef = useRef<HTMLInputElement | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   const queryKey = useMemo(
@@ -126,6 +153,74 @@ export default function GuestSupport() {
     };
   }, [identity, refreshConversation]);
 
+  const handleFileProcess = useCallback(async (file: File, isReply: boolean) => {
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+      setError('Размер файла не должен превышать 10 МБ');
+      return;
+    }
+
+    const isImage = file.type.startsWith('image/');
+    const previewUrl = isImage ? URL.createObjectURL(file) : '';
+
+    const newAttachment: MediaAttachmentState = {
+      file,
+      preview: previewUrl,
+      uploading: true,
+    };
+
+    if (isReply) {
+      setReplyAttachment(newAttachment);
+    } else {
+      setCreateAttachment(newAttachment);
+    }
+
+    try {
+      const res = await ticketsApi.uploadMedia(file, isImage ? 'photo' : 'document');
+      if (isReply) {
+        setReplyAttachment((prev) =>
+          prev ? { ...prev, uploading: false, fileId: res.file_id } : null,
+        );
+      } else {
+        setCreateAttachment((prev) =>
+          prev ? { ...prev, uploading: false, fileId: res.file_id } : null,
+        );
+      }
+    } catch (err: unknown) {
+      const errorMsg =
+        (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ||
+        'Ошибка загрузки вложения';
+      if (isReply) {
+        setReplyAttachment((prev) =>
+          prev ? { ...prev, uploading: false, error: errorMsg } : null,
+        );
+      } else {
+        setCreateAttachment((prev) =>
+          prev ? { ...prev, uploading: false, error: errorMsg } : null,
+        );
+      }
+    }
+  }, []);
+
+  const handlePaste = useCallback(
+    (e: React.ClipboardEvent, isReply: boolean) => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf('image') !== -1) {
+          const file = items[i].getAsFile();
+          if (file) {
+            e.preventDefault();
+            void handleFileProcess(file, isReply);
+            break;
+          }
+        }
+      }
+    },
+    [handleFileProcess],
+  );
+
   const createMutation = useMutation({
     mutationFn: () =>
       guestSupportApi.create({
@@ -133,21 +228,35 @@ export default function GuestSupport() {
         contact: contact.trim(),
         title: title.trim(),
         message: initialMessage.trim(),
+        media_type: createAttachment?.file.type.startsWith('image/') ? 'photo' : 'document',
+        media_file_id: createAttachment?.fileId,
       }),
     onSuccess: ({ ticket, access_token }) => {
       const next = { ticketId: ticket.id, accessToken: access_token };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
       setIdentity(next);
       queryClient.setQueryData(['guest-support', ticket.id, access_token], ticket);
+      setCreateAttachment(null);
       setError('');
     },
     onError: (value) => setError(errorText(value)),
   });
 
   const replyMutation = useMutation({
-    mutationFn: () => guestSupportApi.reply(identity!, reply.trim()),
+    mutationFn: () =>
+      guestSupportApi.reply(
+        identity!,
+        reply.trim(),
+        replyAttachment?.fileId
+          ? {
+              media_type: replyAttachment.file.type.startsWith('image/') ? 'photo' : 'document',
+              media_file_id: replyAttachment.fileId,
+            }
+          : undefined,
+      ),
     onSuccess: () => {
       setReply('');
+      setReplyAttachment(null);
       setError('');
       refreshConversation();
     },
@@ -159,6 +268,7 @@ export default function GuestSupport() {
     localStorage.removeItem(STORAGE_KEY);
     setIdentity(null);
     setReply('');
+    setReplyAttachment(null);
     setError('');
   };
 
@@ -259,6 +369,17 @@ export default function GuestSupport() {
                 createMutation.mutate();
               }}
             >
+              <input
+                type="file"
+                ref={createFileInputRef}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) void handleFileProcess(file, false);
+                }}
+                accept="image/*,.pdf,.doc,.docx,.txt"
+                className="hidden"
+              />
+
               <GuestField label="Как к вам обращаться">
                 <input
                   className="guest-support-input"
@@ -288,16 +409,70 @@ export default function GuestSupport() {
                 />
               </GuestField>
               <GuestField label="Сообщение">
-                <textarea
-                  className="guest-support-input min-h-32 resize-none py-3"
-                  value={initialMessage}
-                  onChange={(event) => setInitialMessage(event.target.value)}
-                  minLength={10}
-                  maxLength={4000}
-                  placeholder="Опишите проблему и что уже пробовали сделать"
-                  required
-                />
+                <div className="relative">
+                  <textarea
+                    className="guest-support-input min-h-32 resize-none py-3"
+                    value={initialMessage}
+                    onChange={(event) => setInitialMessage(event.target.value)}
+                    onPaste={(e) => handlePaste(e, false)}
+                    minLength={10}
+                    maxLength={4000}
+                    placeholder="Опишите проблему (можно вставить скриншот Ctrl+V)"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => createFileInputRef.current?.click()}
+                    className="mt-2 inline-flex items-center gap-1.5 text-xs text-[#d4b37f] hover:underline"
+                  >
+                    <Paperclip className="h-3.5 w-3.5" />
+                    <span>Прикрепить скриншот</span>
+                  </button>
+                </div>
               </GuestField>
+
+              {/* Create Staged Attachment */}
+              {createAttachment && (
+                <div className="flex items-center justify-between rounded-xl border border-white/[0.1] bg-white/[0.04] p-2.5">
+                  <div className="flex min-w-0 items-center gap-2.5">
+                    {createAttachment.preview ? (
+                      <img
+                        src={createAttachment.preview}
+                        alt="Preview"
+                        className="h-10 w-10 rounded-lg border border-[#d4b37f]/40 object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/10 text-white">
+                        <Paperclip className="h-4 w-4" />
+                      </div>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-xs font-medium text-white">
+                        {createAttachment.file.name}
+                      </p>
+                      <p className="text-[10px]">
+                        {createAttachment.uploading ? (
+                          <span className="flex items-center gap-1 text-amber-300">
+                            <Loader2 className="h-3 w-3 animate-spin" /> Загрузка вложения...
+                          </span>
+                        ) : createAttachment.error ? (
+                          <span className="text-red-400">{createAttachment.error}</span>
+                        ) : (
+                          <span className="text-emerald-400">Скриншот прикреплен</span>
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setCreateAttachment(null)}
+                    className="flex h-6 w-6 items-center justify-center rounded-full bg-white/10 text-white/70 hover:text-white"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              )}
+
               {error ? (
                 <p className="rounded-xl border border-red-400/20 bg-red-500/10 px-3 py-2 text-sm text-red-200">
                   {error}
@@ -305,9 +480,13 @@ export default function GuestSupport() {
               ) : null}
               <button
                 className="ultima-btn-pill ultima-btn-primary flex h-12 w-full items-center justify-center gap-2 text-sm font-semibold disabled:opacity-50"
-                disabled={createMutation.isPending}
+                disabled={createMutation.isPending || createAttachment?.uploading}
               >
-                <Send className="h-4 w-4" />
+                {createMutation.isPending ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Send className="h-4 w-4" />
+                )}
                 {createMutation.isPending ? 'Создаем диалог…' : 'Начать чат'}
               </button>
             </form>
@@ -339,38 +518,124 @@ export default function GuestSupport() {
                   {errorText(ticketQuery.error)}
                 </div>
               ) : null}
-              {ticket?.messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex ${message.is_from_admin ? 'justify-start' : 'justify-end'}`}
-                >
+              {ticket?.messages.map((message) => {
+                const hasMedia = message.has_media && message.media_file_id;
+                const mediaUrl = message.media_file_id
+                  ? ticketsApi.getMediaUrl(message.media_file_id)
+                  : '';
+                const isPhoto = message.media_type === 'photo' || !message.media_type;
+
+                return (
                   <div
-                    className={`max-w-[86%] rounded-2xl border px-3.5 py-2.5 ${message.is_from_admin ? 'border-white/[0.08] bg-white/[0.055] text-white' : 'border-transparent text-[color:var(--ultima-color-primary-text)]'}`}
-                    style={
-                      message.is_from_admin
-                        ? undefined
-                        : { background: 'var(--ultima-color-primary)' }
-                    }
+                    key={message.id}
+                    className={`flex ${message.is_from_admin ? 'justify-start' : 'justify-end'}`}
                   >
                     <div
-                      className={`mb-1 text-[11px] font-medium ${message.is_from_admin ? 'text-[color:color-mix(in_srgb,var(--ultima-color-primary)_70%,white)]' : 'opacity-65'}`}
+                      className={`max-w-[86%] rounded-2xl border px-3.5 py-2.5 ${message.is_from_admin ? 'border-white/[0.08] bg-white/[0.055] text-white' : 'border-transparent text-[color:var(--ultima-color-primary-text)]'}`}
+                      style={
+                        message.is_from_admin
+                          ? undefined
+                          : { background: 'var(--ultima-color-primary)' }
+                      }
                     >
-                      {message.is_from_admin ? 'Поддержка' : 'Вы'}
-                    </div>
-                    <p className="whitespace-pre-wrap text-sm leading-5">{message.message_text}</p>
-                    <div
-                      className={`mt-1 text-right text-[10px] ${message.is_from_admin ? 'text-white/35' : 'opacity-55'}`}
-                    >
-                      {new Date(message.created_at).toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
+                      <div
+                        className={`mb-1 text-[11px] font-medium ${message.is_from_admin ? 'text-[color:color-mix(in_srgb,var(--ultima-color-primary)_70%,white)]' : 'opacity-65'}`}
+                      >
+                        {message.is_from_admin ? 'Поддержка' : 'Вы'}
+                      </div>
+                      {message.message_text && (
+                        <p className="whitespace-pre-wrap text-sm leading-5">
+                          {message.message_text}
+                        </p>
+                      )}
+
+                      {/* Attachment View */}
+                      {hasMedia && (
+                        <div className="mt-2">
+                          {isPhoto ? (
+                            <div
+                              onClick={() => setLightboxImage(mediaUrl)}
+                              className="group relative cursor-pointer overflow-hidden rounded-xl border border-white/[0.1] bg-black/40 transition-transform hover:scale-[1.01]"
+                            >
+                              <img
+                                src={mediaUrl}
+                                alt={message.media_caption || 'Скриншот'}
+                                className="max-h-56 w-auto max-w-full rounded-xl object-contain"
+                                loading="lazy"
+                              />
+                            </div>
+                          ) : (
+                            <a
+                              href={mediaUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-2 rounded-xl border border-white/[0.1] bg-black/40 px-3 py-2 text-xs text-[#d4b37f] transition-colors hover:bg-black/60"
+                            >
+                              <Download className="h-3.5 w-3.5" />
+                              <span>
+                                {message.media_caption || `Вложение (${message.media_type})`}
+                              </span>
+                            </a>
+                          )}
+                        </div>
+                      )}
+
+                      <div
+                        className={`mt-1 text-right text-[10px] ${message.is_from_admin ? 'text-white/35' : 'opacity-55'}`}
+                      >
+                        {new Date(message.created_at).toLocaleTimeString([], {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
               <div ref={messagesEndRef} />
             </div>
+
+            {/* Reply Staged Attachment */}
+            {replyAttachment && (
+              <div className="flex items-center justify-between border-t border-white/[0.08] bg-black/60 px-4 py-2">
+                <div className="flex min-w-0 items-center gap-2.5">
+                  {replyAttachment.preview ? (
+                    <img
+                      src={replyAttachment.preview}
+                      alt="Preview"
+                      className="h-10 w-10 rounded-lg border border-[#d4b37f]/40 object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/10 text-white">
+                      <Paperclip className="h-4 w-4" />
+                    </div>
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-xs font-medium text-white">
+                      {replyAttachment.file.name}
+                    </p>
+                    <p className="text-[10px]">
+                      {replyAttachment.uploading ? (
+                        <span className="flex items-center gap-1 text-amber-300">
+                          <Loader2 className="h-3 w-3 animate-spin" /> Загрузка вложения...
+                        </span>
+                      ) : replyAttachment.error ? (
+                        <span className="text-red-400">{replyAttachment.error}</span>
+                      ) : (
+                        <span className="text-emerald-400">Вложение готово к отправке</span>
+                      )}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setReplyAttachment(null)}
+                  className="flex h-6 w-6 items-center justify-center rounded-full bg-white/10 text-white/70 hover:text-white"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            )}
 
             {ticket?.status === 'closed' ? (
               <div className="flex items-center justify-between gap-3 border-t border-white/[0.08] p-4">
@@ -393,37 +658,100 @@ export default function GuestSupport() {
                 className="border-t border-white/[0.08] p-3 sm:p-4"
                 onSubmit={(event) => {
                   event.preventDefault();
-                  if (reply.trim()) replyMutation.mutate();
+                  if (
+                    (reply.trim() || replyAttachment?.fileId) &&
+                    !replyMutation.isPending &&
+                    !replyAttachment?.uploading
+                  ) {
+                    replyMutation.mutate();
+                  }
                 }}
               >
+                <input
+                  type="file"
+                  ref={replyFileInputRef}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) void handleFileProcess(file, true);
+                  }}
+                  accept="image/*,.pdf,.doc,.docx,.txt"
+                  className="hidden"
+                />
+
                 {error ? <p className="mb-2 text-sm text-red-200">{error}</p> : null}
                 <div className="flex items-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => replyFileInputRef.current?.click()}
+                    title="Прикрепить скриншот (или нажмите Ctrl+V)"
+                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/[0.10] bg-white/[0.04] text-[#d4b37f] transition hover:bg-white/[0.08]"
+                  >
+                    <Paperclip className="h-4 w-4" />
+                  </button>
+
                   <textarea
                     className="guest-support-input max-h-36 min-h-11 flex-1 resize-none py-3"
                     rows={1}
                     value={reply}
                     onChange={(event) => setReply(event.target.value)}
-                    placeholder="Сообщение поддержке"
+                    onPaste={(e) => handlePaste(e, true)}
+                    placeholder="Сообщение поддержке (или Ctrl+V скриншот)"
                     maxLength={4000}
                     onKeyDown={(event) => {
                       if (event.key === 'Enter' && !event.shiftKey) {
                         event.preventDefault();
-                        if (reply.trim()) replyMutation.mutate();
+                        if (
+                          (reply.trim() || replyAttachment?.fileId) &&
+                          !replyMutation.isPending &&
+                          !replyAttachment?.uploading
+                        ) {
+                          replyMutation.mutate();
+                        }
                       }
                     }}
                   />
                   <button
                     type="submit"
                     className="ultima-btn-pill ultima-btn-primary flex h-11 w-11 shrink-0 items-center justify-center disabled:opacity-50"
-                    disabled={!reply.trim() || replyMutation.isPending}
+                    disabled={
+                      (!reply.trim() && !replyAttachment?.fileId) ||
+                      replyMutation.isPending ||
+                      replyAttachment?.uploading
+                    }
                     aria-label="Отправить"
                   >
-                    <Send className="h-5 w-5" />
+                    {replyMutation.isPending ? (
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                    ) : (
+                      <Send className="h-5 w-5" />
+                    )}
                   </button>
                 </div>
               </form>
             )}
           </section>
+        )}
+
+        {/* Lightbox High-Res Image Viewer Modal */}
+        {lightboxImage && (
+          <div
+            onClick={() => setLightboxImage(null)}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 backdrop-blur-md"
+          >
+            <button
+              type="button"
+              onClick={() => setLightboxImage(null)}
+              className="absolute right-5 top-5 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <img
+              src={lightboxImage}
+              alt="Увеличенный скриншот"
+              onClick={(e) => e.stopPropagation()}
+              className="max-h-[90vh] max-w-[90vw] rounded-2xl border border-white/20 object-contain shadow-2xl"
+            />
+          </div>
         )}
       </div>
     </main>

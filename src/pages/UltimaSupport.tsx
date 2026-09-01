@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
@@ -13,6 +13,8 @@ import {
   Wrench,
   X,
   Paperclip,
+  Loader2,
+  Download,
 } from 'lucide-react';
 import { infoApi } from '@/api/info';
 import { ticketsApi } from '@/api/tickets';
@@ -21,6 +23,14 @@ import { UltimaBottomNav } from '@/components/ultima/UltimaBottomNav';
 import { UltimaDesktopNavbar } from '@/components/ultima/desktop/UltimaDesktopNavbar';
 import { usePlatform } from '@/platform';
 import type { SupportConfig } from '@/types';
+
+interface MediaAttachmentState {
+  file: File;
+  preview: string;
+  uploading: boolean;
+  fileId?: string;
+  error?: string;
+}
 
 export function UltimaSupport() {
   const navigate = useNavigate();
@@ -33,6 +43,14 @@ export function UltimaSupport() {
   const [ticketMessage, setTicketMessage] = useState('');
   const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
   const [replyText, setReplyText] = useState('');
+  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
+
+  // Attachments state
+  const [createAttachment, setCreateAttachment] = useState<MediaAttachmentState | null>(null);
+  const [replyAttachment, setReplyAttachment] = useState<MediaAttachmentState | null>(null);
+
+  const createFileInputRef = useRef<HTMLInputElement>(null);
+  const replyFileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // WebSocket for Realtime Tickets
@@ -74,14 +92,95 @@ export function UltimaSupport() {
     }
   }, [selectedTicketId, activeTicket?.messages]);
 
+  // Handle file selection & upload
+  const handleFileProcess = useCallback(async (file: File, isReply: boolean) => {
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+      alert('Размер файла не должен превышать 10 МБ');
+      return;
+    }
+
+    const isImage = file.type.startsWith('image/');
+    const previewUrl = isImage ? URL.createObjectURL(file) : '';
+
+    const newAttachment: MediaAttachmentState = {
+      file,
+      preview: previewUrl,
+      uploading: true,
+    };
+
+    if (isReply) {
+      setReplyAttachment(newAttachment);
+    } else {
+      setCreateAttachment(newAttachment);
+    }
+
+    try {
+      const res = await ticketsApi.uploadMedia(file, isImage ? 'photo' : 'document');
+      if (isReply) {
+        setReplyAttachment((prev) =>
+          prev ? { ...prev, uploading: false, fileId: res.file_id } : null,
+        );
+      } else {
+        setCreateAttachment((prev) =>
+          prev ? { ...prev, uploading: false, fileId: res.file_id } : null,
+        );
+      }
+    } catch (err: unknown) {
+      const errorMsg =
+        (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ||
+        'Ошибка загрузки';
+      if (isReply) {
+        setReplyAttachment((prev) =>
+          prev ? { ...prev, uploading: false, error: errorMsg } : null,
+        );
+      } else {
+        setCreateAttachment((prev) =>
+          prev ? { ...prev, uploading: false, error: errorMsg } : null,
+        );
+      }
+    }
+  }, []);
+
+  // Handle clipboard paste (Ctrl+V)
+  const handlePaste = useCallback(
+    (e: React.ClipboardEvent, isReply: boolean) => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf('image') !== -1) {
+          const file = items[i].getAsFile();
+          if (file) {
+            e.preventDefault();
+            void handleFileProcess(file, isReply);
+            break;
+          }
+        }
+      }
+    },
+    [handleFileProcess],
+  );
+
   // Mutations
   const createTicketMutation = useMutation({
-    mutationFn: () => ticketsApi.createTicket(ticketSubject, ticketMessage),
+    mutationFn: () =>
+      ticketsApi.createTicket(
+        ticketSubject.trim(),
+        ticketMessage.trim(),
+        createAttachment?.fileId
+          ? {
+              media_type: createAttachment.file.type.startsWith('image/') ? 'photo' : 'document',
+              media_file_id: createAttachment.fileId,
+            }
+          : undefined,
+      ),
     onSuccess: (newTicket) => {
       void queryClient.invalidateQueries({ queryKey: ['tickets'] });
       setShowCreateModal(false);
       setTicketSubject('');
       setTicketMessage('');
+      setCreateAttachment(null);
       if (newTicket?.id) {
         setSelectedTicketId(newTicket.id);
       }
@@ -89,11 +188,22 @@ export function UltimaSupport() {
   });
 
   const replyMutation = useMutation({
-    mutationFn: () => ticketsApi.addMessage(selectedTicketId!, replyText.trim()),
+    mutationFn: () =>
+      ticketsApi.addMessage(
+        selectedTicketId!,
+        replyText.trim(),
+        replyAttachment?.fileId
+          ? {
+              media_type: replyAttachment.file.type.startsWith('image/') ? 'photo' : 'document',
+              media_file_id: replyAttachment.fileId,
+            }
+          : undefined,
+      ),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['ticket', selectedTicketId] });
       void queryClient.invalidateQueries({ queryKey: ['tickets'] });
       setReplyText('');
+      setReplyAttachment(null);
     },
   });
 
@@ -368,7 +478,7 @@ export function UltimaSupport() {
                     </span>
                   </div>
                   <p className="mt-0.5 text-[11px] text-[#8e929b]">
-                    Реалтайм-диалог с поддержкой
+                    Реалтайм-диалог со специалистом
                   </p>
                 </div>
                 <button
@@ -376,6 +486,7 @@ export function UltimaSupport() {
                   onClick={() => {
                     setSelectedTicketId(null);
                     setReplyText('');
+                    setReplyAttachment(null);
                   }}
                   className="flex h-8 w-8 items-center justify-center rounded-full bg-white/[0.05] text-[#8e929b] transition-colors hover:text-white"
                 >
@@ -384,87 +495,205 @@ export function UltimaSupport() {
               </div>
 
               {/* Messages Scrollable Area */}
-              <div className="flex-1 space-y-3 overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-[#b89358]/30">
+              <div className="scrollbar-thin scrollbar-thumb-[#b89358]/30 flex-1 space-y-3 overflow-y-auto p-4">
                 {isActiveTicketLoading ? (
                   <div className="flex h-full items-center justify-center">
                     <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#d4b37f] border-t-transparent" />
                   </div>
                 ) : activeTicket?.messages && activeTicket.messages.length > 0 ? (
-                  activeTicket.messages.map((msg) => (
-                    <div
-                      key={msg.id}
-                      className={`flex flex-col max-w-[85%] rounded-2xl p-3.5 ${
-                        msg.is_from_admin
-                          ? 'self-start border border-[#d4b37f]/25 bg-gradient-to-br from-[#d4b37f]/10 to-transparent text-[#f5f5f7]'
-                          : 'self-end ml-auto border border-white/[0.08] bg-white/[0.04] text-white'
-                      }`}
-                    >
-                      <div className="mb-1 flex items-center justify-between gap-4 text-[10px]">
-                        <span
-                          className={`font-bold ${
-                            msg.is_from_admin ? 'text-[#d4b37f]' : 'text-[#8e929b]'
-                          }`}
-                        >
-                          {msg.is_from_admin ? 'Служба заботы' : 'Вы'}
-                        </span>
-                        <span className="text-[#8e929b]">
-                          {new Date(msg.created_at).toLocaleTimeString([], {
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })}
-                        </span>
-                      </div>
-                      <p className="whitespace-pre-wrap text-xs leading-relaxed text-[#e2e4e9]">
-                        {msg.message_text}
-                      </p>
-                      {msg.has_media && msg.media_file_id && (
-                        <div className="mt-2 inline-flex items-center gap-1 text-[11px] text-[#d4b37f]">
-                          <Paperclip className="h-3 w-3" />
-                          <span>Вложение ({msg.media_type || 'файл'})</span>
+                  activeTicket.messages.map((msg) => {
+                    const hasMedia = msg.has_media && msg.media_file_id;
+                    const mediaUrl = msg.media_file_id
+                      ? ticketsApi.getMediaUrl(msg.media_file_id)
+                      : '';
+                    const isPhoto = msg.media_type === 'photo' || !msg.media_type;
+
+                    return (
+                      <div
+                        key={msg.id}
+                        className={`flex max-w-[85%] flex-col rounded-2xl p-3.5 ${
+                          msg.is_from_admin
+                            ? 'self-start border border-[#d4b37f]/25 bg-gradient-to-br from-[#d4b37f]/10 to-transparent text-[#f5f5f7]'
+                            : 'ml-auto self-end border border-white/[0.08] bg-white/[0.04] text-white'
+                        }`}
+                      >
+                        <div className="mb-1 flex items-center justify-between gap-4 text-[10px]">
+                          <span
+                            className={`font-bold ${
+                              msg.is_from_admin ? 'text-[#d4b37f]' : 'text-[#8e929b]'
+                            }`}
+                          >
+                            {msg.is_from_admin ? 'Служба заботы' : 'Вы'}
+                          </span>
+                          <span className="text-[#8e929b]">
+                            {new Date(msg.created_at).toLocaleTimeString([], {
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })}
+                          </span>
                         </div>
-                      )}
-                    </div>
-                  ))
+
+                        {msg.message_text && (
+                          <p className="whitespace-pre-wrap text-xs leading-relaxed text-[#e2e4e9]">
+                            {msg.message_text}
+                          </p>
+                        )}
+
+                        {/* Image / Attachment Render */}
+                        {hasMedia && (
+                          <div className="mt-2">
+                            {isPhoto ? (
+                              <div
+                                onClick={() => setLightboxImage(mediaUrl)}
+                                className="group relative cursor-pointer overflow-hidden rounded-xl border border-white/[0.1] bg-black/40 transition-transform hover:scale-[1.01]"
+                              >
+                                <img
+                                  src={mediaUrl}
+                                  alt={msg.media_caption || 'Скриншот'}
+                                  className="max-h-56 w-auto max-w-full rounded-xl object-contain"
+                                  loading="lazy"
+                                />
+                                <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+                                  <span className="rounded-lg bg-black/70 px-2.5 py-1 text-[11px] font-medium text-white shadow">
+                                    Нажмите для увеличения
+                                  </span>
+                                </div>
+                              </div>
+                            ) : (
+                              <a
+                                href={mediaUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-2 rounded-xl border border-white/[0.1] bg-black/40 px-3 py-2 text-xs text-[#d4b37f] transition-colors hover:bg-black/60"
+                              >
+                                <Download className="h-3.5 w-3.5" />
+                                <span>{msg.media_caption || `Вложение (${msg.media_type})`}</span>
+                              </a>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })
                 ) : (
-                  <p className="py-12 text-center text-xs text-[#8e929b]">
-                    Нет сообщений
-                  </p>
+                  <p className="py-12 text-center text-xs text-[#8e929b]">Нет сообщений</p>
                 )}
                 <div ref={messagesEndRef} />
               </div>
+
+              {/* Staged Reply Attachment Preview */}
+              {replyAttachment && (
+                <div className="flex items-center justify-between border-t border-white/[0.08] bg-black/60 px-4 py-2">
+                  <div className="flex min-w-0 items-center gap-2.5">
+                    {replyAttachment.preview ? (
+                      <img
+                        src={replyAttachment.preview}
+                        alt="Preview"
+                        className="h-10 w-10 rounded-lg border border-[#d4b37f]/40 object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/10 text-white">
+                        <Paperclip className="h-4 w-4" />
+                      </div>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-xs font-medium text-white">
+                        {replyAttachment.file.name}
+                      </p>
+                      <p className="text-[10px] text-[#8e929b]">
+                        {replyAttachment.uploading ? (
+                          <span className="flex items-center gap-1 text-amber-300">
+                            <Loader2 className="h-3 w-3 animate-spin" /> Загрузка вложения...
+                          </span>
+                        ) : replyAttachment.error ? (
+                          <span className="text-red-400">{replyAttachment.error}</span>
+                        ) : (
+                          <span className="text-emerald-400">Вложение готово к отправке</span>
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setReplyAttachment(null)}
+                    className="flex h-6 w-6 items-center justify-center rounded-full bg-white/10 text-white/70 hover:text-white"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              )}
 
               {/* Chat Footer / Input Form */}
               {activeTicket?.status !== 'closed' ? (
                 <form
                   onSubmit={(e) => {
                     e.preventDefault();
-                    if (!replyText.trim() || replyMutation.isPending) return;
+                    if (
+                      (!replyText.trim() && !replyAttachment?.fileId) ||
+                      replyMutation.isPending ||
+                      replyAttachment?.uploading
+                    )
+                      return;
                     replyMutation.mutate();
                   }}
                   className="border-t border-white/[0.08] bg-black/40 p-3"
                 >
+                  <input
+                    type="file"
+                    ref={replyFileInputRef}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) void handleFileProcess(file, true);
+                    }}
+                    accept="image/*,.pdf,.doc,.docx,.txt"
+                    className="hidden"
+                  />
                   <div className="flex items-end gap-2">
+                    {/* Attachment button */}
+                    <button
+                      type="button"
+                      onClick={() => replyFileInputRef.current?.click()}
+                      title="Прикрепить скриншот или файл (или нажмите Ctrl+V)"
+                      className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-xl border border-white/[0.1] bg-white/[0.05] text-[#d4b37f] transition-all hover:bg-white/[0.1] active:scale-95"
+                    >
+                      <Paperclip className="h-4 w-4" />
+                    </button>
+
                     <textarea
                       value={replyText}
                       onChange={(e) => setReplyText(e.target.value)}
+                      onPaste={(e) => handlePaste(e, true)}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter' && !e.shiftKey) {
                           e.preventDefault();
-                          if (replyText.trim() && !replyMutation.isPending) {
+                          if (
+                            (replyText.trim() || replyAttachment?.fileId) &&
+                            !replyMutation.isPending &&
+                            !replyAttachment?.uploading
+                          ) {
                             replyMutation.mutate();
                           }
                         }
                       }}
-                      placeholder="Напишите ответ в поддержку..."
+                      placeholder="Напишите ответ (или вставьте скриншот Ctrl+V)..."
                       rows={2}
                       className="flex-1 resize-none rounded-xl border border-white/[0.1] bg-black/50 p-2.5 text-xs text-white outline-none transition-colors focus:border-[#d4b37f]"
                     />
+
                     <button
                       type="submit"
-                      disabled={!replyText.trim() || replyMutation.isPending}
-                      className="flex h-[42px] w-[42px] items-center justify-center rounded-xl border border-[#b89358]/60 bg-gradient-to-r from-[#d4b37f] to-[#b89358] text-[#0a0c0f] shadow-md transition-all hover:brightness-110 disabled:opacity-40"
+                      disabled={
+                        (!replyText.trim() && !replyAttachment?.fileId) ||
+                        replyMutation.isPending ||
+                        replyAttachment?.uploading
+                      }
+                      className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-xl border border-[#b89358]/60 bg-gradient-to-r from-[#d4b37f] to-[#b89358] text-[#0a0c0f] shadow-md transition-all hover:brightness-110 disabled:opacity-40"
                     >
-                      <Send className="h-4 w-4" />
+                      {replyMutation.isPending ? (
+                        <Loader2 className="h-4 w-4 animate-spin text-[#0a0c0f]" />
+                      ) : (
+                        <Send className="h-4 w-4" />
+                      )}
                     </button>
                   </div>
                 </form>
@@ -490,7 +719,10 @@ export function UltimaSupport() {
                 <h3 className="text-base font-bold text-[#f5f5f7]">Новое обращение</h3>
                 <button
                   type="button"
-                  onClick={() => setShowCreateModal(false)}
+                  onClick={() => {
+                    setShowCreateModal(false);
+                    setCreateAttachment(null);
+                  }}
                   className="flex h-8 w-8 items-center justify-center rounded-full bg-white/[0.05] text-[#8e929b] hover:text-white"
                 >
                   <X className="h-4 w-4" />
@@ -498,6 +730,17 @@ export function UltimaSupport() {
               </div>
 
               <div className="mt-4 flex flex-col gap-3">
+                <input
+                  type="file"
+                  ref={createFileInputRef}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) void handleFileProcess(file, false);
+                  }}
+                  accept="image/*,.pdf,.doc,.docx,.txt"
+                  className="hidden"
+                />
+
                 <div>
                   <label className="text-[11px] font-bold uppercase tracking-wider text-[#8e929b]">
                     Тема
@@ -511,30 +754,114 @@ export function UltimaSupport() {
                 </div>
 
                 <div>
-                  <label className="text-[11px] font-bold uppercase tracking-wider text-[#8e929b]">
-                    Сообщение
-                  </label>
+                  <div className="flex items-center justify-between">
+                    <label className="text-[11px] font-bold uppercase tracking-wider text-[#8e929b]">
+                      Сообщение
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => createFileInputRef.current?.click()}
+                      className="flex items-center gap-1 text-[11px] font-medium text-[#d4b37f] hover:underline"
+                    >
+                      <Paperclip className="h-3 w-3" />
+                      <span>Прикрепить скриншот</span>
+                    </button>
+                  </div>
                   <textarea
                     value={ticketMessage}
                     onChange={(e) => setTicketMessage(e.target.value)}
-                    placeholder="Подробно расскажите, что произошло..."
+                    onPaste={(e) => handlePaste(e, false)}
+                    placeholder="Подробно расскажите, что произошло (можно вставить скриншот Ctrl+V)..."
                     rows={4}
                     className="mt-1 w-full rounded-xl border border-white/[0.1] bg-black/40 px-3.5 py-2.5 text-xs text-white outline-none focus:border-[#d4b37f]"
                   />
                 </div>
 
+                {/* Staged Create Attachment Preview */}
+                {createAttachment && (
+                  <div className="flex items-center justify-between rounded-xl border border-white/[0.1] bg-black/40 p-2.5">
+                    <div className="flex min-w-0 items-center gap-2.5">
+                      {createAttachment.preview ? (
+                        <img
+                          src={createAttachment.preview}
+                          alt="Preview"
+                          className="h-10 w-10 rounded-lg border border-[#d4b37f]/40 object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/10 text-white">
+                          <Paperclip className="h-4 w-4" />
+                        </div>
+                      )}
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-xs font-medium text-white">
+                          {createAttachment.file.name}
+                        </p>
+                        <p className="text-[10px]">
+                          {createAttachment.uploading ? (
+                            <span className="flex items-center gap-1 text-amber-300">
+                              <Loader2 className="h-3 w-3 animate-spin" /> Загрузка вложения...
+                            </span>
+                          ) : createAttachment.error ? (
+                            <span className="text-red-400">{createAttachment.error}</span>
+                          ) : (
+                            <span className="text-emerald-400">Скриншот прикреплен</span>
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setCreateAttachment(null)}
+                      className="flex h-6 w-6 items-center justify-center rounded-full bg-white/10 text-white/70 hover:text-white"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                )}
+
                 <button
                   type="button"
                   onClick={() => createTicketMutation.mutate()}
                   disabled={
-                    !ticketSubject.trim() || !ticketMessage.trim() || createTicketMutation.isPending
+                    !ticketSubject.trim() ||
+                    !ticketMessage.trim() ||
+                    createTicketMutation.isPending ||
+                    createAttachment?.uploading
                   }
                   className="mt-2 flex min-h-[46px] w-full items-center justify-center rounded-xl border border-[#b89358]/60 bg-gradient-to-r from-[#d4b37f] to-[#b89358] text-xs font-bold text-[#0a0c0f] shadow-md transition-all hover:brightness-110 disabled:opacity-50"
                 >
-                  {createTicketMutation.isPending ? 'Отправка...' : 'Отправить тикет'}
+                  {createTicketMutation.isPending ? (
+                    <span className="flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin" /> Отправка...
+                    </span>
+                  ) : (
+                    'Отправить тикет'
+                  )}
                 </button>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Lightbox High-Res Image Viewer Modal */}
+        {lightboxImage && (
+          <div
+            onClick={() => setLightboxImage(null)}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 backdrop-blur-md"
+          >
+            <button
+              type="button"
+              onClick={() => setLightboxImage(null)}
+              className="absolute right-5 top-5 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <img
+              src={lightboxImage}
+              alt="Увеличенный скриншот"
+              onClick={(e) => e.stopPropagation()}
+              className="max-h-[90vh] max-w-[90vw] rounded-2xl border border-white/20 object-contain shadow-2xl"
+            />
           </div>
         )}
       </div>

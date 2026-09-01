@@ -7,7 +7,7 @@ import { useCallback } from 'react';
 import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
-import { Wallet, AlertCircle, Calendar, RefreshCw, Repeat } from 'lucide-react';
+import { Wallet, AlertCircle, Calendar, RefreshCw, Repeat, MessageSquare } from 'lucide-react';
 import { useWebSocket, WSMessage } from '../hooks/useWebSocket';
 import { useToast } from './Toast';
 import { useAuthStore } from '../store/auth';
@@ -28,8 +28,43 @@ export default function WebSocketNotifications() {
     (message: WSMessage) => {
       const { type } = message;
 
-      // Skip ticket events - they are handled by TicketNotificationBell
+      // Handle ticket events in real-time
       if (type.startsWith('ticket.')) {
+        queryClient.invalidateQueries({ queryKey: ['tickets'] });
+        queryClient.invalidateQueries({ queryKey: ['ticket-notifications'] });
+        queryClient.invalidateQueries({ queryKey: ['ticket-notifications-unread-count'] });
+        if (message.ticket_id) {
+          queryClient.invalidateQueries({ queryKey: ['ticket', message.ticket_id] });
+        }
+
+        const isNewTicket = type === 'ticket.new';
+        const isAdminReply = type === 'ticket.admin_reply';
+        const isUserReply = type === 'ticket.user_reply';
+
+        let toastTitle = t('notifications.ticketUpdateTitle', 'Поддержка');
+        const toastMessage =
+          message.message ||
+          message.title ||
+          t('notifications.ticketUpdate', 'Обновление в обращении');
+
+        if (isNewTicket) {
+          toastTitle = t('notifications.newTicketTitle', 'Новое обращение');
+        } else if (isAdminReply) {
+          toastTitle = t('notifications.adminReplyTitle', 'Ответ службы поддержки');
+        } else if (isUserReply) {
+          toastTitle = t('notifications.userReplyTitle', 'Новый ответ');
+        }
+
+        showToast({
+          type: 'info',
+          title: toastTitle,
+          message: toastMessage,
+          icon: <MessageSquare className="h-5 w-5 text-amber-400" />,
+          onClick: () => {
+            navigate('/support');
+          },
+          duration: 7000,
+        });
         return;
       }
 
@@ -66,7 +101,9 @@ export default function WebSocketNotifications() {
                 currency: currencySymbol,
               },
             ),
-          icon: <Wallet className={`h-5 w-5 ${isPositive ? 'text-emerald-400' : 'text-amber-400'}`} />,
+          icon: (
+            <Wallet className={`h-5 w-5 ${isPositive ? 'text-emerald-400' : 'text-amber-400'}`} />
+          ),
           onClick: () => navigate('/balance'),
           duration: 5000,
         });
