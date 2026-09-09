@@ -49,7 +49,7 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
     cleanup();
 
     // Build WebSocket URL
-    const apiBaseUrl = new URL(import.meta.env.VITE_API_URL || '/', window.location.origin);
+    const apiBaseUrl = new URL(import.meta.env.VITE_API_URL || '/api', window.location.origin);
     const protocol = apiBaseUrl.protocol === 'https:' ? 'wss:' : 'ws:';
     const apiPath = apiBaseUrl.pathname.replace(/\/+$/, '');
     const wsUrl = `${protocol}//${apiBaseUrl.host}${apiPath}/cabinet/ws`;

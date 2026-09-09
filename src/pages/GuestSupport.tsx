@@ -101,7 +101,7 @@ export default function GuestSupport() {
 
   useEffect(() => {
     if (!identity) return;
-    const apiBaseUrl = new URL(import.meta.env.VITE_API_URL || '/', window.location.origin);
+    const apiBaseUrl = new URL(import.meta.env.VITE_API_URL || '/api', window.location.origin);
     const protocol = apiBaseUrl.protocol === 'https:' ? 'wss:' : 'ws:';
     const apiPath = apiBaseUrl.pathname.replace(/\/+$/, '');
     const url = `${protocol}//${apiBaseUrl.host}${apiPath}/cabinet/public/support/ws`;

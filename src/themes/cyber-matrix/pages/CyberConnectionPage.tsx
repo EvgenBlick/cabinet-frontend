@@ -25,10 +25,10 @@ const PLATFORM_GUIDES = {
     recommendedApp: 'Happ (Рекомендуется)',
     recommendedDesc:
       'Официальный современный клиент с поддержкой авто-подключения и умного обхода блокировок.',
-    appStoreUrl: 'https://apps.apple.com/app/happ-proxy-utility/id6504287215',
+    appStoreUrl: 'https://apps.apple.com/us/app/happ-proxy-utility/id6504287215',
     altApp: 'Incy',
     altDesc: 'Удобное альтернативное приложение Incy для iOS.',
-    altUrl: 'https://apps.apple.com',
+    altUrl: 'https://apps.apple.com/us/app/incy/id6756943388',
   },
   android: {
     id: 'android',
@@ -38,10 +38,10 @@ const PLATFORM_GUIDES = {
     recommendedDesc:
       'Максимальная скорость, маскировка трафика и быстрое добавление подписки в 1 клик.',
     appStoreUrl: 'https://play.google.com/store/apps/details?id=com.happproxy',
-    apkUrl: 'https://github.com/happ-proxy/happ-android/releases/latest',
+    apkUrl: 'https://github.com/Happ-proxy/happ-android/releases/latest/download/Happ.apk',
     altApp: 'Incy',
     altDesc: 'Приложение Incy для Android.',
-    altUrl: 'https://play.google.com',
+    altUrl: 'https://play.google.com/store/apps/details?id=llc.itdev.incy&hl=ru',
   },
   windows: {
     id: 'windows',
@@ -49,10 +49,12 @@ const PLATFORM_GUIDES = {
     icon: Laptop,
     recommendedApp: 'Happ для Windows',
     recommendedDesc: 'Быстрый запуск в системном трее и авто-обновление конфигураций.',
-    appStoreUrl: 'https://github.com/happ-proxy/happ-windows/releases/latest',
+    appStoreUrl:
+      'https://github.com/Happ-proxy/happ-desktop/releases/latest/download/setup-Happ.x64.exe',
     altApp: 'Incy Desktop',
     altDesc: 'Клиент Incy для Windows ПК.',
-    altUrl: 'https://github.com',
+    altUrl:
+      'https://github.com/INCY-DEV/incy-platforms/releases/latest/download/incy-windows-setup.exe',
   },
   macos: {
     id: 'macos',
@@ -60,10 +62,12 @@ const PLATFORM_GUIDES = {
     icon: Laptop,
     recommendedApp: 'Happ для Mac',
     recommendedDesc: 'Нативная поддержка Apple Silicon (M1/M2/M3/M4) и Intel.',
-    appStoreUrl: 'https://apps.apple.com/app/happ-proxy-utility/id6504287215',
+    appStoreUrl:
+      'https://github.com/Happ-proxy/happ-desktop/releases/latest/download/Happ.macOS.universal.dmg',
     altApp: 'Incy для Mac',
     altDesc: 'Клиент Incy для macOS.',
-    altUrl: 'https://apps.apple.com',
+    altUrl:
+      'https://github.com/INCY-DEV/incy-platforms/releases/latest/download/incy-macos-arm64.dmg',
   },
   tv: {
     id: 'tv',
@@ -74,7 +78,7 @@ const PLATFORM_GUIDES = {
     appStoreUrl: 'https://play.google.com/store/apps/details?id=com.happproxy',
     altApp: 'Incy TV',
     altDesc: 'Приложение Incy для Smart TV и приставок.',
-    altUrl: 'https://play.google.com',
+    altUrl: 'https://play.google.com/store/apps/details?id=llc.itdev.incy&hl=ru',
   },
 };
 

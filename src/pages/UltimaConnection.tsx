@@ -110,10 +110,7 @@ export function UltimaConnection({
     | undefined;
 
   const rawSubscriptionUrl =
-    subscription?.url ||
-    subscription?.subscription_url ||
-    appConfig?.subscriptionUrl ||
-    '';
+    subscription?.url || subscription?.subscription_url || appConfig?.subscriptionUrl || '';
 
   const happCryptoLink = appConfig?.subscriptionCryptoLink?.trim() || null;
   const incyCryptoLink = appConfig?.subscriptionIncyCryptoLink?.trim() || null;
@@ -150,7 +147,20 @@ export function UltimaConnection({
           buttons: [
             {
               text: { ru: 'App Store', en: 'App Store' },
-              link: 'https://apps.apple.com/app/happ-proxy-utility/id6504287215',
+              link: 'https://apps.apple.com/us/app/happ-proxy-utility/id6504287215',
+              type: 'external',
+            },
+          ],
+          blocks: [],
+        },
+        {
+          name: 'Incy',
+          featured: false,
+          deepLink: incyCryptoLink || 'incy://add/crypt1#{{SUBSCRIPTION_LINK}}',
+          buttons: [
+            {
+              text: { ru: 'App Store', en: 'App Store' },
+              link: 'https://apps.apple.com/us/app/incy/id6756943388',
               type: 'external',
             },
           ],
@@ -158,7 +168,7 @@ export function UltimaConnection({
         },
       ];
     }
-    if (activePlatformKey === 'android' || activePlatformKey === 'androidTV') {
+    if (activePlatformKey === 'android') {
       return [
         {
           name: 'Happ',
@@ -172,7 +182,25 @@ export function UltimaConnection({
             },
             {
               text: { ru: 'Скачать APK', en: 'Download APK' },
-              link: 'https://github.com/happ-proxy/happ-android/releases/latest',
+              link: 'https://github.com/Happ-proxy/happ-android/releases/latest/download/Happ.apk',
+              type: 'external',
+            },
+          ],
+          blocks: [],
+        },
+        {
+          name: 'Incy',
+          featured: false,
+          deepLink: incyCryptoLink || 'incy://add/crypt1#{{SUBSCRIPTION_LINK}}',
+          buttons: [
+            {
+              text: { ru: 'Google Play', en: 'Google Play' },
+              link: 'https://play.google.com/store/apps/details?id=llc.itdev.incy&hl=ru',
+              type: 'external',
+            },
+            {
+              text: { ru: 'Скачать APK', en: 'Download APK' },
+              link: 'https://github.com/INCY-DEV/incy-platforms/releases/latest/download/Incy.apk',
               type: 'external',
             },
           ],
@@ -180,6 +208,87 @@ export function UltimaConnection({
         },
       ];
     }
+    if (activePlatformKey === 'androidTV' || activePlatformKey === 'tv') {
+      return [
+        {
+          name: 'Happ TV',
+          featured: true,
+          deepLink: happCryptoLink || 'happ://add/crypt3#{{SUBSCRIPTION_LINK}}',
+          buttons: [
+            {
+              text: { ru: 'Google Play', en: 'Google Play' },
+              link: 'https://play.google.com/store/apps/details?id=com.happproxy',
+              type: 'external',
+            },
+            {
+              text: { ru: 'Скачать APK', en: 'Download APK' },
+              link: 'https://github.com/Happ-proxy/happ-android/releases/latest/download/Happ.apk',
+              type: 'external',
+            },
+          ],
+          blocks: [],
+        },
+        {
+          name: 'Incy TV',
+          featured: false,
+          deepLink: incyCryptoLink || 'incy://add/crypt1#{{SUBSCRIPTION_LINK}}',
+          buttons: [
+            {
+              text: { ru: 'Google Play', en: 'Google Play' },
+              link: 'https://play.google.com/store/apps/details?id=llc.itdev.incy&hl=ru',
+              type: 'external',
+            },
+            {
+              text: { ru: 'Скачать APK', en: 'Download APK' },
+              link: 'https://github.com/INCY-DEV/incy-platforms/releases/latest/download/Incy.apk',
+              type: 'external',
+            },
+          ],
+          blocks: [],
+        },
+      ];
+    }
+    if (activePlatformKey === 'macos') {
+      return [
+        {
+          name: 'Happ',
+          featured: true,
+          deepLink: happCryptoLink || 'happ://add/crypt3#{{SUBSCRIPTION_LINK}}',
+          buttons: [
+            {
+              text: { ru: 'Скачать DMG', en: 'Download DMG' },
+              link: 'https://github.com/Happ-proxy/happ-desktop/releases/latest/download/Happ.macOS.universal.dmg',
+              type: 'external',
+            },
+            {
+              text: { ru: 'App Store', en: 'App Store' },
+              link: 'https://apps.apple.com/us/app/happ-proxy-utility/id6504287215',
+              type: 'external',
+            },
+          ],
+          blocks: [],
+        },
+        {
+          name: 'Incy',
+          featured: false,
+          deepLink: incyCryptoLink || 'incy://add/crypt1#{{SUBSCRIPTION_LINK}}',
+          buttons: [
+            {
+              text: { ru: 'Apple Silicon (M-серия)', en: 'Apple Silicon' },
+              link: 'https://github.com/INCY-DEV/incy-platforms/releases/latest/download/incy-macos-arm64.dmg',
+              type: 'external',
+            },
+            {
+              text: { ru: 'Intel Mac', en: 'Intel Mac' },
+              link: 'https://github.com/INCY-DEV/incy-platforms/releases/latest/download/incy-macos-intel.dmg',
+              type: 'external',
+            },
+          ],
+          blocks: [],
+        },
+      ];
+    }
+    // Windows fallback
     return [
       {
         name: 'Happ',
@@ -187,15 +296,33 @@ export function UltimaConnection({
         deepLink: happCryptoLink || 'happ://add/crypt3#{{SUBSCRIPTION_LINK}}',
         buttons: [
           {
-            text: { ru: 'Скачать клиент', en: 'Download' },
-            link: 'https://github.com/happ-proxy/happ-windows/releases/latest',
+            text: { ru: 'Установщик (EXE)', en: 'Installer (EXE)' },
+            link: 'https://github.com/Happ-proxy/happ-desktop/releases/latest/download/setup-Happ.x64.exe',
+            type: 'external',
+          },
+        ],
+        blocks: [],
+      },
+      {
+        name: 'Incy',
+        featured: false,
+        deepLink: incyCryptoLink || 'incy://add/crypt1#{{SUBSCRIPTION_LINK}}',
+        buttons: [
+          {
+            text: { ru: 'Установщик (EXE)', en: 'Installer (EXE)' },
+            link: 'https://github.com/INCY-DEV/incy-platforms/releases/latest/download/incy-windows-setup.exe',
+            type: 'external',
+          },
+          {
+            text: { ru: 'Portable (ZIP)', en: 'Portable (ZIP)' },
+            link: 'https://github.com/INCY-DEV/incy-platforms/releases/latest/download/incy-windows-portable.zip',
             type: 'external',
           },
         ],
         blocks: [],
       },
     ];
-  }, [currentPlatformData?.apps, activePlatformKey, happCryptoLink]);
+  }, [currentPlatformData?.apps, activePlatformKey, happCryptoLink, incyCryptoLink]);
 
   const [selectedAppIndex, setSelectedAppIndex] = useState(0);
 
@@ -224,7 +351,14 @@ export function UltimaConnection({
       });
     }
     return rawLink;
-  }, [selectedApp, activeSecureLink, happCryptoLink, incyCryptoLink, rawSubscriptionUrl, user?.username]);
+  }, [
+    selectedApp,
+    activeSecureLink,
+    happCryptoLink,
+    incyCryptoLink,
+    rawSubscriptionUrl,
+    user?.username,
+  ]);
 
   const handleCopyLink = useCallback(async () => {
     const linkToCopy = resolvedDeepLink || activeSecureLink;
@@ -249,8 +383,10 @@ export function UltimaConnection({
     if (url.includes('apps.apple.com')) return 'Скачать в App Store';
     if (url.includes('play.google.com')) return 'Скачать в Google Play';
     if (url.includes('github.com') || url.includes('.apk')) return 'Скачать APK (прямой файл)';
-    if (url.includes('windows') || url.includes('.exe') || url.includes('.msi')) return 'Скачать для Windows';
-    if (url.includes('macos') || url.includes('.dmg') || url.includes('.pkg')) return 'Скачать для macOS';
+    if (url.includes('windows') || url.includes('.exe') || url.includes('.msi'))
+      return 'Скачать для Windows';
+    if (url.includes('macos') || url.includes('.dmg') || url.includes('.pkg'))
+      return 'Скачать для macOS';
     return 'Скачать приложение';
   };
 
@@ -314,9 +450,7 @@ export function UltimaConnection({
           <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl border border-[#d4b37f]/40 bg-gradient-to-b from-[#1c1f26] to-[#0a0c10] p-2 shadow-[0_0_24px_rgba(212,179,127,0.15)]">
             <ShieldCheck className="h-8 w-8 text-[#d4b37f]" />
           </div>
-          <h1 className="text-2xl font-extrabold text-[#f5f5f7] sm:text-3xl">
-            Подключение VPN
-          </h1>
+          <h1 className="text-2xl font-extrabold text-[#f5f5f7] sm:text-3xl">Подключение VPN</h1>
           <p className="mt-1 text-xs text-[#8e929b] sm:text-sm">
             Выберите ваше устройство для простой пошаговой настройки
           </p>
@@ -327,7 +461,7 @@ export function UltimaConnection({
           <button
             type="button"
             onClick={() => handleSelectCategory('mobile')}
-            className={`flex flex-col items-center justify-center gap-1.5 rounded-xl py-2.5 px-2 text-xs font-bold transition-all ${
+            className={`flex flex-col items-center justify-center gap-1.5 rounded-xl px-2 py-2.5 text-xs font-bold transition-all ${
               deviceCategory === 'mobile'
                 ? 'border border-[#b89358]/60 bg-gradient-to-r from-[#d4b37f] to-[#b89358] text-[#0a0c0f] shadow-[0_2px_12px_rgba(212,179,127,0.3)]'
                 : 'text-[#8e929b] hover:text-white'
@@ -340,7 +474,7 @@ export function UltimaConnection({
           <button
             type="button"
             onClick={() => handleSelectCategory('desktop')}
-            className={`flex flex-col items-center justify-center gap-1.5 rounded-xl py-2.5 px-2 text-xs font-bold transition-all ${
+            className={`flex flex-col items-center justify-center gap-1.5 rounded-xl px-2 py-2.5 text-xs font-bold transition-all ${
               deviceCategory === 'desktop'
                 ? 'border border-[#b89358]/60 bg-gradient-to-r from-[#d4b37f] to-[#b89358] text-[#0a0c0f] shadow-[0_2px_12px_rgba(212,179,127,0.3)]'
                 : 'text-[#8e929b] hover:text-white'
@@ -353,7 +487,7 @@ export function UltimaConnection({
           <button
             type="button"
             onClick={() => handleSelectCategory('tv')}
-            className={`flex flex-col items-center justify-center gap-1.5 rounded-xl py-2.5 px-2 text-xs font-bold transition-all ${
+            className={`flex flex-col items-center justify-center gap-1.5 rounded-xl px-2 py-2.5 text-xs font-bold transition-all ${
               deviceCategory === 'tv'
                 ? 'border border-[#b89358]/60 bg-gradient-to-r from-[#d4b37f] to-[#b89358] text-[#0a0c0f] shadow-[0_2px_12px_rgba(212,179,127,0.3)]'
                 : 'text-[#8e929b] hover:text-white'
@@ -450,7 +584,7 @@ export function UltimaConnection({
                         key={idx}
                         type="button"
                         onClick={() => openLink(link)}
-                        className="flex min-h-[46px] flex-1 items-center justify-center gap-2 rounded-xl border border-[#d4b37f]/30 bg-white/[0.05] px-4 py-2.5 text-xs font-bold text-[#f5f5f7] transition-all hover:bg-[#d4b37f]/15 hover:border-[#d4b37f]/60 active:scale-[0.98]"
+                        className="flex min-h-[46px] flex-1 items-center justify-center gap-2 rounded-xl border border-[#d4b37f]/30 bg-white/[0.05] px-4 py-2.5 text-xs font-bold text-[#f5f5f7] transition-all hover:border-[#d4b37f]/60 hover:bg-[#d4b37f]/15 active:scale-[0.98]"
                       >
                         <Download className="h-4 w-4 text-[#d4b37f]" />
                         <span>{label}</span>
@@ -542,11 +676,10 @@ export function UltimaConnection({
                   3
                 </div>
                 <div>
-                  <h2 className="text-sm font-bold text-[#f5f5f7] sm:text-base">
-                    Включите защиту
-                  </h2>
+                  <h2 className="text-sm font-bold text-[#f5f5f7] sm:text-base">Включите защиту</h2>
                   <p className="mt-1 text-xs leading-relaxed text-[#8e929b]">
-                    В приложении {selectedApp?.name || 'Happ'} выберите любой сервер и нажмите главную кнопку включения. Защита активирована!
+                    В приложении {selectedApp?.name || 'Happ'} выберите любой сервер и нажмите
+                    главную кнопку включения. Защита активирована!
                   </p>
                 </div>
               </div>
@@ -608,7 +741,9 @@ export function UltimaConnection({
                     type="text"
                     maxLength={5}
                     value={tvCode}
-                    onChange={(e) => setTvCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))}
+                    onChange={(e) =>
+                      setTvCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))
+                    }
                     placeholder="КОД С ТВ"
                     className="min-h-[48px] w-full rounded-xl border border-[#d4b37f]/40 bg-black/60 px-4 text-center font-mono text-lg font-bold tracking-widest text-[#f5f5f7] outline-none placeholder:text-[#8e929b]/50 focus:border-[#d4b37f] focus:ring-1 focus:ring-[#d4b37f]"
                   />
@@ -648,7 +783,8 @@ export function UltimaConnection({
                     Включите VPN на телевизоре
                   </h2>
                   <p className="mt-1 text-xs leading-relaxed text-[#8e929b]">
-                    Телевизор мгновенно применит вашу подписку. Нажмите кнопку включения на пульте ТВ и наслаждайтесь просмотром!
+                    Телевизор мгновенно применит вашу подписку. Нажмите кнопку включения на пульте
+                    ТВ и наслаждайтесь просмотром!
                   </p>
                 </div>
               </div>
@@ -668,7 +804,9 @@ export function UltimaConnection({
                 <CircleHelp className="h-5 w-5" />
               </div>
               <div className="text-left">
-                <p className="text-[13px] font-bold text-[#f5f5f7]">Возникли сложности с настройкой?</p>
+                <p className="text-[13px] font-bold text-[#f5f5f7]">
+                  Возникли сложности с настройкой?
+                </p>
                 <p className="mt-0.5 text-[11px] text-[#8e929b]">
                   Наша служба поддержки поможет подключить любое устройство
                 </p>
