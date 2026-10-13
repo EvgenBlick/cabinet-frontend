@@ -75,7 +75,7 @@ export interface UltimaThemeConfig {
 }
 
 export const DEFAULT_ULTIMA_THEME_CONFIG: UltimaThemeConfig = {
-  themePresetId: 'midnight-gold',
+  themePresetId: 'samurai-gold',
   animationPresetId: 'orbital-aura',
   primaryColor: '#d4b37f',
   primaryTextColor: '#ffffff',

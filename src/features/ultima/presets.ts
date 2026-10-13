@@ -67,9 +67,9 @@ export type UltimaAnimationPreset = {
 export const ULTIMA_THEME_PRESETS: UltimaThemePreset[] = [
   {
     id: 'samurai-gold',
-    name: 'Samurai Obsidian Gold',
+    name: 'Samurai Luxury (Obsidian & Gold)',
     description:
-      'Фирменный стиль Samurai Service: темный титан, шампанское золото и динамический ореол.',
+      'Фирменный флагманский стиль Samurai: глубокий обсидиан, титан, шампанское золото и динамический ореол.',
     accent: '#d4b37f',
     config: {
       primaryColor: '#d4b37f',
