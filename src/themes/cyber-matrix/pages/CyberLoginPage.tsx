@@ -165,21 +165,23 @@ export const CyberLoginPage: React.FC = () => {
               </div>
 
               {/* Dev Fast Access */}
-              <div className="mt-6 border-t border-white/10 pt-5">
-                <button
-                  type="button"
-                  onClick={handleQuickDemoLogin}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed py-3 text-xs font-bold transition-all hover:scale-105"
-                  style={{
-                    borderColor: `${accent}60`,
-                    backgroundColor: `${accent}15`,
-                    color: accent,
-                  }}
-                >
-                  <Zap className="h-4 w-4" />
-                  <span>⚡ Тестовый вход в кабинет</span>
-                </button>
-              </div>
+              {import.meta.env.DEV && (
+                <div className="mt-6 border-t border-white/10 pt-5">
+                  <button
+                    type="button"
+                    onClick={handleQuickDemoLogin}
+                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed py-3 text-xs font-bold transition-all hover:scale-105"
+                    style={{
+                      borderColor: `${accent}60`,
+                      backgroundColor: `${accent}15`,
+                      color: accent,
+                    }}
+                  >
+                    <Zap className="h-4 w-4" />
+                    <span>⚡ Тестовый вход в кабинет</span>
+                  </button>
+                </div>
+              )}
 
               <div className="mt-5 flex items-center justify-center gap-1.5 text-[11px] text-[#6a736c]">
                 <Lock className="h-3 w-3" />

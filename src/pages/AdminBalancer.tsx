@@ -1094,6 +1094,7 @@ export default function AdminBalancer() {
   const [groupsDraft, setGroupsDraft] = useState<GroupDraft[]>([]);
   const [fastestEnabled, setFastestEnabled] = useState(true);
   const [fastestGroupName, setFastestGroupName] = useState(DEFAULT_FASTEST_GROUP_NAME);
+  const [fastestGroupDescription, setFastestGroupDescription] = useState('');
   const [excludeGroups, setExcludeGroups] = useState<string[]>([]);
   const [fallbackGroups, setFallbackGroups] = useState<string[]>([]);
   const [nodeStatsExcludeGroups, setNodeStatsExcludeGroups] = useState<string[]>([]);
@@ -1221,7 +1222,9 @@ export default function AdminBalancer() {
     if (!groupsData || groupsDirty) return;
     setGroupsDraft(groupsToDraft(groupsData, hostsData?.hosts));
     setFastestEnabled(Boolean(groupsData.fastest_group));
-    setFastestGroupName((groupsData.fastest_group_name || DEFAULT_FASTEST_GROUP_NAME).trim());
+    const loadedFastestName = (groupsData.fastest_group_name || DEFAULT_FASTEST_GROUP_NAME).trim();
+    setFastestGroupName(loadedFastestName);
+    setFastestGroupDescription(groupsData.group_descriptions?.[loadedFastestName] || '');
     setExcludeGroups(groupsData.fastest_exclude_groups || []);
     setFallbackGroups(groupsData.fastest_fallback || []);
     setNodeStatsExcludeGroups(groupsData.node_stats_exclude || []);
@@ -1285,7 +1288,9 @@ export default function AdminBalancer() {
       setGroupsDirty(false);
       setGroupsDraft(groupsToDraft(data, hostsData?.hosts));
       setFastestEnabled(Boolean(data.fastest_group));
-      setFastestGroupName((data.fastest_group_name || DEFAULT_FASTEST_GROUP_NAME).trim());
+      const savedFastestName = (data.fastest_group_name || DEFAULT_FASTEST_GROUP_NAME).trim();
+      setFastestGroupName(savedFastestName);
+      setFastestGroupDescription(data.group_descriptions?.[savedFastestName] || '');
       setExcludeGroups(data.fastest_exclude_groups || []);
       setFallbackGroups(data.fastest_fallback || []);
       setNodeStatsExcludeGroups(data.node_stats_exclude || []);
@@ -1757,6 +1762,9 @@ export default function AdminBalancer() {
     const nextAdvanced = buildAdvancedPayload(advancedSettings, groupsData);
 
     const group_descriptions: Record<string, string> = {};
+    if (normalizedFastestName && fastestGroupDescription.trim()) {
+      group_descriptions[normalizedFastestName] = fastestGroupDescription.trim();
+    }
     for (const item of groupsDraft) {
       const name = item.name.trim();
       if (name && item.description && item.description.trim()) {
@@ -2121,9 +2129,9 @@ export default function AdminBalancer() {
                   if (!groupsData) return;
                   setGroupsDraft(groupsToDraft(groupsData, hostsData?.hosts));
                   setFastestEnabled(Boolean(groupsData.fastest_group));
-                  setFastestGroupName(
-                    (groupsData.fastest_group_name || DEFAULT_FASTEST_GROUP_NAME).trim(),
-                  );
+                  const resetFastestName = (groupsData.fastest_group_name || DEFAULT_FASTEST_GROUP_NAME).trim();
+                  setFastestGroupName(resetFastestName);
+                  setFastestGroupDescription(groupsData.group_descriptions?.[resetFastestName] || '');
                   setExcludeGroups(groupsData.fastest_exclude_groups || []);
                   setFallbackGroups(groupsData.fastest_fallback || []);
                   setNodeStatsExcludeGroups(groupsData.node_stats_exclude || []);
@@ -2158,9 +2166,9 @@ export default function AdminBalancer() {
                   if (!groupsData) return;
                   setGroupsDraft(groupsToDraft(groupsData, hostsData?.hosts));
                   setFastestEnabled(Boolean(groupsData.fastest_group));
-                  setFastestGroupName(
-                    (groupsData.fastest_group_name || DEFAULT_FASTEST_GROUP_NAME).trim(),
-                  );
+                  const resetFastestNameMobile = (groupsData.fastest_group_name || DEFAULT_FASTEST_GROUP_NAME).trim();
+                  setFastestGroupName(resetFastestNameMobile);
+                  setFastestGroupDescription(groupsData.group_descriptions?.[resetFastestNameMobile] || '');
                   setExcludeGroups(groupsData.fastest_exclude_groups || []);
                   setFallbackGroups(groupsData.fastest_fallback || []);
                   setNodeStatsExcludeGroups(groupsData.node_stats_exclude || []);
@@ -2583,24 +2591,49 @@ export default function AdminBalancer() {
                   </span>
                 </label>
 
-                <label className="text-xs text-dark-400 lg:col-span-2">
-                  {t('admin.balancer.groups.fastestName', 'Visible group name')}
-                  <input
-                    value={fastestGroupName}
-                    onChange={(event) => {
-                      setGroupsDirty(true);
-                      setFastestGroupName(event.target.value);
-                    }}
-                    placeholder={DEFAULT_FASTEST_GROUP_NAME}
-                    className="mt-1 w-full rounded-lg border border-dark-600 bg-dark-900/70 px-3 py-2 text-sm text-dark-100 outline-none placeholder:text-dark-500 focus:border-accent-500"
-                  />
-                  <span className="mt-1 block text-xs leading-5 text-dark-500">
-                    {t(
-                      'admin.balancer.groups.fastestNameDesc',
-                      'This is just the display name that users see in their client config.',
-                    )}
-                  </span>
-                </label>
+                <div className="grid grid-cols-1 gap-3 lg:col-span-2 sm:grid-cols-2">
+                  <label className="text-xs text-dark-400">
+                    {t('admin.balancer.groups.fastestName', 'Visible group name')}
+                    <input
+                      value={fastestGroupName}
+                      onChange={(event) => {
+                        setGroupsDirty(true);
+                        setFastestGroupName(event.target.value);
+                      }}
+                      placeholder={DEFAULT_FASTEST_GROUP_NAME}
+                      className="mt-1 w-full rounded-lg border border-dark-600 bg-dark-900/70 px-3 py-2 text-sm text-dark-100 outline-none placeholder:text-dark-500 focus:border-accent-500"
+                    />
+                    <span className="mt-1 block text-xs leading-5 text-dark-500">
+                      {t(
+                        'admin.balancer.groups.fastestNameDesc',
+                        'This is just the display name that users see in their client config.',
+                      )}
+                    </span>
+                  </label>
+
+                  <label className="text-xs text-dark-400">
+                    {t('admin.balancer.groups.fastestDescription', 'Group description')}
+                    <input
+                      value={fastestGroupDescription}
+                      maxLength={256}
+                      onChange={(event) => {
+                        setGroupsDirty(true);
+                        setFastestGroupDescription(event.target.value);
+                      }}
+                      placeholder={t(
+                        'admin.balancer.groups.fastestDescriptionPlaceholder',
+                        'Custom description for clients',
+                      )}
+                      className="mt-1 w-full rounded-lg border border-dark-600 bg-dark-900/70 px-3 py-2 text-sm text-dark-100 outline-none placeholder:text-dark-500 focus:border-accent-500"
+                    />
+                    <span className="mt-1 block text-xs leading-5 text-dark-500">
+                      {t(
+                        'admin.balancer.groups.fastestDescriptionDesc',
+                        'Custom description shown to clients (meta.serverDescription).',
+                      )}
+                    </span>
+                  </label>
+                </div>
               </div>
 
               <div className="mt-3 grid grid-cols-1 gap-3 xl:grid-cols-2">

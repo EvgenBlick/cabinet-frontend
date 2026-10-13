@@ -28,9 +28,6 @@ export interface GuestTicketCreatePayload {
   contact?: string;
   title: string;
   message: string;
-  media_type?: TicketMediaType;
-  media_file_id?: string;
-  media_caption?: string;
 }
 
 export const ticketsApi = {
@@ -103,8 +100,13 @@ export const ticketsApi = {
 
   // Get media URL for display
   getMediaUrl: (fileId: string): string => {
-    const baseUrl = import.meta.env.VITE_API_URL || '';
-    return `${baseUrl}/cabinet/media/${fileId}`;
+    const baseUrl = (import.meta.env.VITE_API_URL || '/api').replace(/\/$/, '');
+    return `${baseUrl}/cabinet/media/${encodeURIComponent(fileId)}`;
+  },
+  // Private attachments require the normal authenticated transport, not img/a requests.
+  downloadMedia: async (fileId: string, signal?: AbortSignal): Promise<Blob> => {
+    const response = await apiClient.get<Blob>(`/cabinet/media/${encodeURIComponent(fileId)}`, { responseType: 'blob', signal, headers: { 'Cache-Control': 'no-cache' } });
+    return response.data;
   },
 };
 
@@ -123,14 +125,10 @@ export const guestSupportApi = {
     return response.data;
   },
 
-  reply: async (
-    identity: GuestSupportIdentity,
-    message: string,
-    media?: MediaParams,
-  ): Promise<TicketMessage> => {
+  reply: async (identity: GuestSupportIdentity, message: string): Promise<TicketMessage> => {
     const response = await apiClient.post(
       `/cabinet/public/support/sessions/${identity.ticketId}/messages`,
-      { message, ...media },
+      { message },
       { headers: { 'X-Guest-Token': identity.accessToken } },
     );
     return response.data;

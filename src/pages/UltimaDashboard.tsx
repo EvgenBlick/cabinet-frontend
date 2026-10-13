@@ -1,3 +1,5 @@
+import { UltimaTrafficBreakdown } from '@/components/ultima/UltimaTrafficBreakdown';
+import './UltimaDashboard.actions.css';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
@@ -8,7 +10,6 @@ import {
   Globe2,
   Gauge,
   MonitorSmartphone,
-  QrCode,
   ShieldCheck,
   Smartphone,
   Users,
@@ -31,6 +32,9 @@ import {
 import { ticketsApi } from '@/api/tickets';
 import { UltimaBottomNav } from '@/components/ultima/UltimaBottomNav';
 import { UltimaTrialGuide } from '@/components/ultima/UltimaTrialGuide';
+import { UltimaNewUserOnboardingModal } from '@/components/ultima/UltimaNewUserOnboardingModal';
+import { UltimaAutoRenewCard } from '@/components/ultima/UltimaAutoRenewCard';
+import { UltimaSubscriptionNavigation } from '@/components/ultima/UltimaSubscriptionNavigation';
 import {
   YandexLinkingFloatingBadge,
   YandexLinkingQuickActionRow,
@@ -110,7 +114,12 @@ export function UltimaDashboard() {
   const tapRewardFlushTimeoutRef = useRef<number | null>(null);
   const dashboardMessageTimeoutRef = useRef<number | null>(null);
   const warmedLanguagesRef = useRef<Set<string>>(new Set());
-  const trialAutoActivationAttemptedRef = useRef(false);
+  const [isNewUserOnboardingOpen, setIsNewUserOnboardingOpen] = useState(false);
+  const [onboardingDismissedUserId, setOnboardingDismissedUserId] = useState<number | null>(null);
+  const closeNewUserOnboarding = useCallback(() => {
+    setIsNewUserOnboardingOpen(false);
+    setOnboardingDismissedUserId(user?.id ?? null);
+  }, [user?.id]);
   const dashboardViewTrackedRef = useRef(false);
   const [shieldRipples, setShieldRipples] = useState<ShieldRipple[]>([]);
   const [shieldDigits, setShieldDigits] = useState<ShieldDigit[]>([]);
@@ -338,23 +347,6 @@ export function UltimaDashboard() {
   }, [subscription?.end_date, subscription?.id, subscription?.is_trial]);
   const isTrialGuideAcknowledged = hasUltimaTrialGuideBeenAcknowledged(user?.id, trialSignature);
 
-  const { data: trialInfo } = useQuery({
-    queryKey: ['trial-info'],
-    queryFn: subscriptionApi.getTrialInfo,
-    enabled: isSubscriptionReady && !hasAnySubscription,
-    staleTime: 15000,
-    placeholderData: (previousData) => previousData,
-  });
-
-  const activateTrialMutation = useMutation({
-    mutationFn: subscriptionApi.activateTrial,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['subscription'] });
-      queryClient.invalidateQueries({ queryKey: ['trial-info'] });
-      queryClient.invalidateQueries({ queryKey: ['balance'] });
-      queryClient.invalidateQueries({ queryKey: ['purchase-options'] });
-    },
-  });
   const claimOfferMutation = useMutation({
     mutationFn: (offerId: number) => promoApi.claimOffer(offerId),
     onSuccess: () => {
@@ -508,23 +500,10 @@ export function UltimaDashboard() {
   }, [tapRewardProgress?.enabled, tapRewardProgress?.progress_taps]);
 
   useEffect(() => {
-    if (!isSubscriptionReady || hasAnySubscription) {
-      return;
+    if (isSubscriptionReady && subscriptionResponse?.has_subscription === false && !hasAnySubscription && user?.id != null && onboardingDismissedUserId !== user.id) {
+      setIsNewUserOnboardingOpen(true);
     }
-    if (!trialInfo?.is_available) {
-      return;
-    }
-    if (activateTrialMutation.isPending) {
-      return;
-    }
-    if (trialAutoActivationAttemptedRef.current) {
-      return;
-    }
-    trialAutoActivationAttemptedRef.current = true;
-    activateTrialMutation.mutate();
-  }, [activateTrialMutation, hasAnySubscription, isSubscriptionReady, trialInfo?.is_available]);
-
-  const shouldHoldForAutoTrial = Boolean(!hasAnySubscription && activateTrialMutation.isPending);
+  }, [isSubscriptionReady, subscriptionResponse?.has_subscription, hasAnySubscription, user?.id, onboardingDismissedUserId]);
 
   useEffect(() => {
     const language = i18n.language || 'ru';
@@ -545,9 +524,13 @@ export function UltimaDashboard() {
     readStep();
     window.addEventListener('focus', readStep);
     document.addEventListener('visibilitychange', readStep);
+    window.addEventListener('ultima_connection_changed', readStep);
+    window.addEventListener('storage', readStep);
     return () => {
       window.removeEventListener('focus', readStep);
       document.removeEventListener('visibilitychange', readStep);
+      window.removeEventListener('ultima_connection_changed', readStep);
+      window.removeEventListener('storage', readStep);
     };
   }, [user?.id]);
 
@@ -1218,7 +1201,7 @@ export function UltimaDashboard() {
         <div className="flex items-center gap-2.5">
           <div className="relative flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border border-[#d4b37f]/50 bg-[#0c0e14] p-0.5 shadow-[0_0_12px_rgba(212,179,127,0.3)]">
             <img
-              src="/samurai_exact_circle.png"
+              src="/samurai_original_medallion.png"
               alt=""
               className="h-full w-full object-contain rounded-full"
               onError={(e) => {
@@ -1226,8 +1209,8 @@ export function UltimaDashboard() {
               }}
             />
           </div>
-          <span className="font-sans text-xs font-black tracking-widest text-white">
-            SAMURAISERVICE
+          <span className="text-[15px] font-semibold tracking-tight text-white">
+            SamuraiService
           </span>
         </div>
 
@@ -1238,7 +1221,7 @@ export function UltimaDashboard() {
             onClick={() => navigate('/balance/top-up?returnTo=/')}
             className="flex items-center gap-1.5 rounded-full border border-[#d4b37f]/35 bg-[#d4b37f]/10 px-3 py-1 text-[11px] font-bold text-[#d4b37f] shadow-sm backdrop-blur-md transition-all hover:bg-[#d4b37f]/20 active:scale-95"
           >
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399]" />
+            <span className="h-1.5 w-1.5 rounded-full bg-[#d4b37f] shadow-[0_0_6px_#d4b37f]" />
             <span>{balanceLabel}</span>
             <span className="ml-0.5 text-xs text-[#d4b37f]">+</span>
           </button>
@@ -1327,7 +1310,7 @@ export function UltimaDashboard() {
           <div className="pr-2">
             <div className="flex items-center gap-1 text-[#8e929b]">
               <Gauge className="h-3.5 w-3.5" />
-              <span className="text-[9px] font-bold uppercase tracking-wider">Осталось</span>
+              <span className="text-[12px] font-medium">Осталось</span>
             </div>
             <p className="mt-1 text-[15px] font-bold text-[#f5f5f7]">{mobileTrafficValue}</p>
           </div>
@@ -1336,7 +1319,7 @@ export function UltimaDashboard() {
           <div className="px-2">
             <div className="flex items-center gap-1 text-[#8e929b]">
               <MonitorSmartphone className="h-3.5 w-3.5" />
-              <span className="text-[9px] font-bold uppercase tracking-wider">Устройств всего</span>
+              <span className="text-[12px] font-medium">Устройства</span>
             </div>
             <p className="mt-1 text-[15px] font-bold text-[#f5f5f7]">
               {`${connectedDevicesCount}/${dashboardDeviceLimit}`}
@@ -1347,7 +1330,7 @@ export function UltimaDashboard() {
           <div className="pl-2">
             <div className="flex items-center gap-1 text-[#8e929b]">
               <CalendarDays className="h-3.5 w-3.5" />
-              <span className="text-[9px] font-bold uppercase tracking-wider">Дней осталось</span>
+              <span className="text-[12px] font-medium">Дней осталось</span>
             </div>
             <p className="mt-1 text-[15px] font-bold text-[#f5f5f7]">{mobileDaysValue}</p>
           </div>
@@ -1362,12 +1345,14 @@ export function UltimaDashboard() {
             </div>
             <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-white/[0.08] p-[1px]">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-[#b89358] via-[#d4b37f] to-[#f5e6d0] shadow-[0_0_10px_rgba(212,179,127,0.5)] transition-all duration-500"
-                style={{ width: `${Math.min(100, Math.max(4, subscriptionTrafficPercent))}%` }}
+                className="h-full rounded-full bg-[var(--ultima-color-primary)] transition-[width] duration-300"
+                style={{ width: `${Math.min(100, Math.max(0, subscriptionTrafficPercent))}%` }}
               />
             </div>
           </div>
         )}
+
+        <UltimaTrafficBreakdown subscription={subscription} />
 
         {/* Subscription Details Link */}
         <button
@@ -1384,7 +1369,7 @@ export function UltimaDashboard() {
       <div className="samurai-bento-card relative overflow-hidden p-5 shadow-[0_16px_36px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(212,179,127,0.25)]">
         <div>
           <h2 className="text-[15px] font-bold text-[#f5f5f7]">Быстрые действия</h2>
-          <p className="mt-0.5 text-[11px] text-[#8e929b]">Приглашения и подключение устройств</p>
+          <p className="mt-0.5 text-[12px] leading-relaxed text-[#8e929b]">Баланс, приглашения и устройства</p>
         </div>
 
         <div className="mt-3 flex flex-col divide-y divide-white/[0.07]">
@@ -1392,39 +1377,38 @@ export function UltimaDashboard() {
           <button
             type="button"
             onClick={() => navigate('/balance/top-up?returnTo=/')}
-            className="flex items-center justify-between py-3 text-left transition-colors hover:bg-white/[0.02]"
+            className="dashboard-primary-quick-action"
           >
-            <div className="flex items-center gap-3">
+            <div className="flex min-w-0 flex-1 items-center gap-3">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/[0.1] bg-black/40 text-[#d4b37f]">
                 <span className="text-[15px] font-extrabold text-[#d4b37f]">₽</span>
               </div>
               <div>
                 <p className="text-[14px] font-bold text-[#f5f5f7]">Пополнить баланс</p>
-                <p className="mt-0.5 text-[11px] text-[#8e929b]">
+                <p className="mt-0.5 text-[12px] leading-relaxed text-[#8e929b]">
                   СБП 0%, банковские карты, криптовалюта
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-1 rounded-full border border-[#b89358]/40 bg-black/60 px-3 py-1 text-[11px] font-bold text-[#d4b37f] shadow-sm">
-              <span>Пополнить</span>
-              <span className="text-[10px]">→</span>
-            </div>
+            <span className="dashboard-primary-quick-action-trailing" aria-hidden="true">
+              <ChevronRight className="h-5 w-5" />
+            </span>
           </button>
 
           {/* Action 1: Invite Resident */}
           <button
             type="button"
             onClick={openReferral}
-            className="flex items-center justify-between py-3 text-left transition-colors hover:bg-white/[0.02]"
+            className="cabinet-quick-action flex min-h-[72px] items-center justify-between gap-3 py-3 text-left transition-colors hover:bg-white/[0.02]"
           >
-            <div className="flex items-center gap-3">
+            <div className="flex min-w-0 flex-1 items-center gap-3">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/[0.1] bg-black/40 text-[#d4b37f]">
                 <Users className="h-5 w-5" strokeWidth={1.6} />
               </div>
               <div>
                 <p className="text-[14px] font-bold text-[#f5f5f7]">Позови друга</p>
-                <p className="mt-0.5 text-[11px] text-[#8e929b]">
-                  +3 дня к подписке за приглашение друга
+                <p className="mt-0.5 text-[12px] leading-relaxed text-[#8e929b]">
+                  {referralInviteDescription}
                 </p>
               </div>
             </div>
@@ -1438,24 +1422,23 @@ export function UltimaDashboard() {
           <button
             type="button"
             onClick={() => openDevices(shouldConnectDeviceFromHome, 'home_device_connect_card')}
-            className="flex items-center justify-between py-3 text-left transition-colors hover:bg-white/[0.02]"
+            className="dashboard-primary-quick-action"
           >
-            <div className="flex items-center gap-3">
+            <div className="flex min-w-0 flex-1 items-center gap-3">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/[0.1] bg-black/40 text-[#d4b37f]">
                 <Smartphone className="h-5 w-5" strokeWidth={1.6} />
               </div>
               <div>
                 <p className="text-[14px] font-bold text-[#f5f5f7]">Подключить устройство</p>
-                <p className="mt-0.5 text-[11px] text-[#8e929b]">
+                <p className="mt-0.5 text-[12px] leading-relaxed text-[#8e929b]">
                   {dashboardFreeDeviceSlots > 0
                     ? `Свободно ${dashboardFreeDeviceSlots} из ${dashboardDeviceLimit} слотов`
                     : `Подключено ${connectedDevicesCount} из ${dashboardDeviceLimit}`}
                 </p>
               </div>
             </div>
-            <span className="flex items-center gap-1.5 rounded-full border border-[#b89358]/40 bg-black/60 px-2.5 py-1 text-[11px] font-bold text-[#d4b37f] shadow-sm">
-              <QrCode className="h-3.5 w-3.5" />
-              <span>QR</span>
+            <span className="dashboard-primary-quick-action-trailing" aria-hidden="true">
+              <ChevronRight className="h-5 w-5" />
             </span>
           </button>
 
@@ -1469,16 +1452,10 @@ export function UltimaDashboard() {
         <button
           type="button"
           onClick={handlePrimaryAction}
-          className="btn-gold-beam w-full shadow-[0_12px_28px_rgba(0,0,0,0.75)] transition-all hover:brightness-110 active:scale-[0.98]"
+          className="cabinet-setup-action cabinet-glass-control w-full overflow-hidden rounded-[24px] text-left transition-all active:scale-[0.98]"
         >
           <div
             className="btn-gold-beam-inner min-h-[56px] justify-between px-5 py-3"
-            style={{
-              backgroundImage:
-                'linear-gradient(180deg, rgba(34, 38, 45, 0.95) 0%, rgba(16, 18, 22, 0.98) 100%), url(/horizontal_brushed_steel.jpg)',
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-            }}
           >
             <div className="flex items-center gap-3 text-[#f5f5f7]">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#b89358]/20 text-[#d4b37f]">
@@ -1547,7 +1524,7 @@ export function UltimaDashboard() {
     />
   ) : null;
 
-  if (!isI18nReady || !isSubscriptionReady || shouldHoldForAutoTrial) {
+  if (!isI18nReady || !isSubscriptionReady) {
     if (isTabletOrDesktop) {
       return (
         <div className={shellClassName}>
@@ -1594,8 +1571,11 @@ export function UltimaDashboard() {
 
   if (isTabletOrDesktop) {
     return (
-      <>
+      <div className={shellClassName}>
+      <div className="ultima-shell-aura" />
+      {isNewUserOnboardingOpen && <UltimaNewUserOnboardingModal onClose={closeNewUserOnboarding} />}
       <UltimaDesktopDashboard
+        subscriptionControls={<><UltimaSubscriptionNavigation /><UltimaAutoRenewCard subscription={subscription} /></>}
         heroButton={renderShieldButton('h-[108px] w-[108px] lg:h-[124px] lg:w-[124px]')}
         referralCta={desktopActionCtaStack}
         devicesCta={shouldShowTrafficWarning ? null : renderDevicesHomeCta()}
@@ -1628,18 +1608,20 @@ export function UltimaDashboard() {
         isActivatingOffer={claimOfferMutation.isPending}
       />
       <YandexLinkingFloatingBadge />
-      </>
+      </div>
     );
   }
 
   return (
     <div className={shellClassName}>
+      {isNewUserOnboardingOpen && <UltimaNewUserOnboardingModal onClose={closeNewUserOnboarding} />}
       <div className="ultima-shell-inner ultima-shell-mobile-docked pb-32 lg:max-w-[680px] lg:justify-between">
         <section
           data-testid="ultima-dashboard-scroll-region"
           className="ultima-scrollbar flex min-h-0 flex-1 flex-col overflow-y-auto pb-2 pr-1 pt-1 lg:flex-none lg:overflow-visible lg:pb-2 lg:pr-0 lg:pt-8"
         >
           {mobileOverviewCard}
+          <div className="mt-4"><UltimaSubscriptionNavigation /><UltimaAutoRenewCard subscription={subscription} /></div>
         </section>
       </div>
 
@@ -1653,7 +1635,7 @@ export function UltimaDashboard() {
         </div>
       </div>
 
-      {isTrialGuideVisible && (
+      {isTrialGuideVisible && !isNewUserOnboardingOpen && (
         <UltimaTrialGuide
           variant="overlay"
           expiryDateLabel={trialExpiryDateLabel}

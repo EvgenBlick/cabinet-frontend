@@ -1,5 +1,7 @@
+import { TicketMediaAttachment } from '@/components/TicketMediaAttachment';
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router';
+import { createPortal } from 'react-dom';
+import { useLocation, useNavigate } from 'react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   ChevronRight,
@@ -14,15 +16,15 @@ import {
   X,
   Paperclip,
   Loader2,
-  Download,
 } from 'lucide-react';
 import { infoApi } from '@/api/info';
 import { ticketsApi } from '@/api/tickets';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import { UltimaBottomNav } from '@/components/ultima/UltimaBottomNav';
 import { UltimaDesktopNavbar } from '@/components/ultima/desktop/UltimaDesktopNavbar';
-import { usePlatform } from '@/platform';
 import type { SupportConfig } from '@/types';
+import { VpnDiagnostics } from '@/components/connection/VpnDiagnostics';
+import { diagnosticTicketDraft } from '@/utils/vpnDiagnostics';
 
 interface MediaAttachmentState {
   file: File;
@@ -34,8 +36,8 @@ interface MediaAttachmentState {
 
 export function UltimaSupport() {
   const navigate = useNavigate();
+  const location = useLocation();
   const queryClient = useQueryClient();
-  const { openLink } = usePlatform();
 
   const [activeTab, setActiveTab] = useState<'active' | 'archive'>('active');
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -48,10 +50,21 @@ export function UltimaSupport() {
   // Attachments state
   const [createAttachment, setCreateAttachment] = useState<MediaAttachmentState | null>(null);
   const [replyAttachment, setReplyAttachment] = useState<MediaAttachmentState | null>(null);
+  useEffect(() => { const url = createAttachment?.preview; return () => { if (url) URL.revokeObjectURL(url); }; }, [createAttachment?.preview]);
+  useEffect(() => { const url = replyAttachment?.preview; return () => { if (url) URL.revokeObjectURL(url); }; }, [replyAttachment?.preview]);
 
   const createFileInputRef = useRef<HTMLInputElement>(null);
   const replyFileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const consumedDiagnostics = useRef<string | null>(null);
+  useEffect(() => {
+    if (consumedDiagnostics.current === location.key) return;
+    const draft = diagnosticTicketDraft(location.state?.vpnDiagnostics);
+    if (!draft) return;
+    consumedDiagnostics.current = location.key;
+    setTicketSubject('VPN не работает'); setTicketMessage(draft); setShowCreateModal(true);
+    navigate(location.pathname + location.search, { replace: true, state: null });
+  }, [location.key, location.pathname, location.search, location.state, navigate]);
 
   // WebSocket for Realtime Tickets
   useWebSocket({
@@ -120,24 +133,23 @@ export function UltimaSupport() {
       const res = await ticketsApi.uploadMedia(file, isImage ? 'photo' : 'document');
       if (isReply) {
         setReplyAttachment((prev) =>
-          prev ? { ...prev, uploading: false, fileId: res.file_id } : null,
+          prev?.file === file ? { ...prev, uploading: false, fileId: res.file_id } : prev,
         );
       } else {
         setCreateAttachment((prev) =>
-          prev ? { ...prev, uploading: false, fileId: res.file_id } : null,
+          prev?.file === file ? { ...prev, uploading: false, fileId: res.file_id } : prev,
         );
       }
     } catch (err: unknown) {
-      const errorMsg =
-        (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ||
-        'Ошибка загрузки';
+      const detail = (err as { response?: { data?: { detail?: unknown } } })?.response?.data?.detail;
+      const errorMsg = typeof detail === 'string' ? detail : 'Не удалось загрузить файл. Проверьте формат и размер, затем повторите.';
       if (isReply) {
         setReplyAttachment((prev) =>
-          prev ? { ...prev, uploading: false, error: errorMsg } : null,
+          prev?.file === file ? { ...prev, uploading: false, error: errorMsg } : prev,
         );
       } else {
         setCreateAttachment((prev) =>
-          prev ? { ...prev, uploading: false, error: errorMsg } : null,
+          prev?.file === file ? { ...prev, uploading: false, error: errorMsg } : prev,
         );
       }
     }
@@ -208,22 +220,15 @@ export function UltimaSupport() {
   });
 
   const isTicketsEnabled =
-    supportConfig?.support_type === 'tickets' || supportConfig?.support_type === 'both' || true;
-  const supportUsername = supportConfig?.support_username || 'samuraiservice_bot';
-  const cleanUsername = supportUsername.replace(/^@/, '');
-  const telegramSupportUrl = `https://t.me/${cleanUsername}`;
-
-  const openTelegramSupport = () => {
-    openLink(telegramSupportUrl);
-  };
-
+    !supportConfig || (supportConfig.tickets_enabled !== false &&
+      (supportConfig.support_type === 'tickets' || supportConfig.support_type === 'both'));
   const tickets = ticketsData?.items || [];
   const activeTickets = tickets.filter((t) => t.status !== 'closed');
   const archiveTickets = tickets.filter((t) => t.status === 'closed');
   const currentTicketList = activeTab === 'active' ? activeTickets : archiveTickets;
 
   return (
-    <div className="min-h-screen bg-[#07080a] text-white">
+    <div className="min-h-screen bg-transparent text-white">
       {/* Desktop Frosted Glass Navbar */}
       <div className="hidden lg:block">
         <UltimaDesktopNavbar
@@ -232,7 +237,7 @@ export function UltimaSupport() {
         />
       </div>
 
-      <div className="mx-auto max-w-[540px] px-3 pb-36 pt-4 lg:max-w-7xl lg:px-8 lg:py-8">
+      <div className="mx-auto max-w-[540px] px-3 pb-36 pt-4 lg:max-w-6xl lg:px-6 lg:py-6">
         {/* 1. Header & Title */}
         <div className="mb-6 px-1">
           <h1 className="text-[26px] font-bold text-[#f5f5f7] drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)] lg:text-3xl">
@@ -246,9 +251,13 @@ export function UltimaSupport() {
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
           {/* Left Column: Direct Support Hero Card + Quick Navigation (5 cols on lg) */}
           <div className="flex flex-col gap-6 lg:col-span-5">
+            <VpnDiagnostics supportEnabled={isTicketsEnabled} onSupport={(context) => {
+              const draft = diagnosticTicketDraft(context);
+              if (draft) { setTicketSubject('VPN не работает'); setTicketMessage(draft); setShowCreateModal(true); }
+            }} />
             {/* Direct Support Hero Card */}
             <div
-              className="relative overflow-hidden rounded-[26px] border border-[#5a5040]/35 p-6 shadow-[0_16px_36px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.1)]"
+              className="relative overflow-hidden rounded-[26px] border border-[#5a5040]/35 p-6 "
               style={{
                 background:
                   'linear-gradient(180deg, rgba(22, 25, 30, 0.95) 0%, rgba(10, 12, 15, 0.98) 100%)',
@@ -261,8 +270,7 @@ export function UltimaSupport() {
                 <div className="min-w-0 flex-1">
                   <h2 className="text-base font-bold text-[#f5f5f7]">Служба поддержки</h2>
                   <p className="mt-1 text-xs leading-relaxed text-[#8e929b]">
-                    Помощь с подключением устройств, настройкой протоколов и выбором локаций в
-                    Telegram.
+                    Помощь с подключением устройств, настройкой протоколов и выбором локаций через тикеты.
                   </p>
                 </div>
               </div>
@@ -270,22 +278,23 @@ export function UltimaSupport() {
               {/* Gold CTA Action Button */}
               <button
                 type="button"
-                onClick={openTelegramSupport}
-                className="mt-5 flex min-h-[50px] w-full items-center justify-center gap-2.5 rounded-2xl border border-[#b89358]/60 px-5 py-3 shadow-[0_8px_24px_rgba(212,179,127,0.3),inset_0_1px_0_rgba(255,255,255,0.35)] transition-all hover:brightness-110 active:scale-[0.98]"
+                onClick={() => setShowCreateModal(true)}
+                disabled={!isTicketsEnabled}
+                className="mt-5 flex min-h-[50px] w-full items-center justify-center gap-2.5 rounded-2xl border border-[#b89358]/60 px-5 py-3  transition-all hover:brightness-110 active:scale-[0.98]"
                 style={{
                   background: 'linear-gradient(135deg, #d4b37f 0%, #b89358 100%)',
                 }}
               >
                 <MessageSquare className="h-4 w-4 text-[#0a0c0f]" strokeWidth={2.2} />
                 <span className="text-sm font-bold tracking-wide text-[#0a0c0f]">
-                  Написать в Telegram @{cleanUsername}
+                  {isTicketsEnabled ? 'Создать обращение' : 'Приём обращений временно недоступен'}
                 </span>
               </button>
             </div>
 
             {/* Quick Self-Help Navigation Grid */}
             <div
-              className="relative overflow-hidden rounded-[26px] border border-[#5a5040]/35 p-6 shadow-[0_16px_36px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.1)]"
+              className="relative overflow-hidden rounded-[26px] border border-[#5a5040]/35 p-6 "
               style={{
                 background:
                   'linear-gradient(180deg, rgba(22, 25, 30, 0.95) 0%, rgba(10, 12, 15, 0.98) 100%)',
@@ -300,14 +309,14 @@ export function UltimaSupport() {
                 {/* Tile 1: FAQ & Info */}
                 <button
                   type="button"
-                  onClick={() => navigate('/ultima/news')}
+                  onClick={() => navigate('/info')}
                   className="flex flex-col items-start rounded-2xl border border-white/[0.08] bg-black/30 p-4 text-left transition-all hover:border-[#b89358]/40 hover:bg-black/50 active:scale-95"
                 >
                   <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#d4b37f]/15 text-[#d4b37f]">
                     <HelpCircle className="h-4 w-4" />
                   </div>
                   <p className="mt-2.5 text-xs font-bold text-[#f5f5f7]">База знаний</p>
-                  <p className="mt-0.5 text-[10px] text-[#8e929b]">Ответы на вопросы</p>
+                  <p className="mt-0.5 text-[12px] text-[#8e929b]">Ответы на вопросы</p>
                 </button>
 
                 {/* Tile 2: Connection Setup */}
@@ -320,33 +329,33 @@ export function UltimaSupport() {
                     <Wrench className="h-4 w-4" />
                   </div>
                   <p className="mt-2.5 text-xs font-bold text-[#f5f5f7]">Инструкция</p>
-                  <p className="mt-0.5 text-[10px] text-[#8e929b]">Пошаговый сетап</p>
+                  <p className="mt-0.5 text-[12px] text-[#8e929b]">Настройка VPN</p>
                 </button>
 
                 {/* Tile 3: Devices */}
                 <button
                   type="button"
-                  onClick={() => navigate('/devices')}
+                  onClick={() => navigate('/ultima/devices')}
                   className="flex flex-col items-start rounded-2xl border border-white/[0.08] bg-black/30 p-4 text-left transition-all hover:border-[#b89358]/40 hover:bg-black/50 active:scale-95"
                 >
                   <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#d4b37f]/15 text-[#d4b37f]">
                     <Smartphone className="h-4 w-4" />
                   </div>
                   <p className="mt-2.5 text-xs font-bold text-[#f5f5f7]">Устройства</p>
-                  <p className="mt-0.5 text-[10px] text-[#8e929b]">Управление слотами</p>
+                  <p className="mt-0.5 text-[12px] text-[#8e929b]">Управление слотами</p>
                 </button>
 
                 {/* Tile 4: Rules */}
                 <button
                   type="button"
-                  onClick={() => navigate('/rules')}
+                  onClick={() => navigate('/ultima/agreement')}
                   className="flex flex-col items-start rounded-2xl border border-white/[0.08] bg-black/30 p-4 text-left transition-all hover:border-[#b89358]/40 hover:bg-black/50 active:scale-95"
                 >
                   <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#d4b37f]/15 text-[#d4b37f]">
                     <FileText className="h-4 w-4" />
                   </div>
                   <p className="mt-2.5 text-xs font-bold text-[#f5f5f7]">Правила</p>
-                  <p className="mt-0.5 text-[10px] text-[#8e929b]">Оферта и условия</p>
+                  <p className="mt-0.5 text-[12px] text-[#8e929b]">Оферта и условия</p>
                 </button>
               </div>
             </div>
@@ -357,7 +366,7 @@ export function UltimaSupport() {
             {/* 4. Tickets System (if enabled) */}
             {isTicketsEnabled && (
               <div
-                className="relative overflow-hidden rounded-[26px] border border-[#5a5040]/35 p-6 shadow-[0_16px_36px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.1)]"
+                className="relative overflow-hidden rounded-[26px] border border-[#5a5040]/35 p-6 "
                 style={{
                   background:
                     'linear-gradient(180deg, rgba(22, 25, 30, 0.95) 0%, rgba(10, 12, 15, 0.98) 100%)',
@@ -452,10 +461,10 @@ export function UltimaSupport() {
         </div>
 
         {/* Ticket Chat Dialog Modal */}
-        {selectedTicketId && (
+        {selectedTicketId && createPortal(
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-3 backdrop-blur-md">
             <div
-              className="relative flex h-[85vh] w-full max-w-[620px] flex-col overflow-hidden rounded-[26px] border border-[#5a5040]/40 shadow-2xl"
+              className="relative flex h-[85dvh] w-full max-w-[620px] flex-col overflow-hidden rounded-[26px] border border-[#5a5040]/40 shadow-2xl"
               style={{
                 background: 'linear-gradient(180deg, #16181e 0%, #0d0f13 100%)',
               }}
@@ -488,7 +497,7 @@ export function UltimaSupport() {
                     setReplyText('');
                     setReplyAttachment(null);
                   }}
-                  className="flex h-8 w-8 items-center justify-center rounded-full bg-white/[0.05] text-[#8e929b] transition-colors hover:text-white"
+                  aria-label="Закрыть" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/[0.05] text-[#8e929b] transition-colors hover:text-white"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -503,10 +512,7 @@ export function UltimaSupport() {
                 ) : activeTicket?.messages && activeTicket.messages.length > 0 ? (
                   activeTicket.messages.map((msg) => {
                     const hasMedia = msg.has_media && msg.media_file_id;
-                    const mediaUrl = msg.media_file_id
-                      ? ticketsApi.getMediaUrl(msg.media_file_id)
-                      : '';
-                    const isPhoto = msg.media_type === 'photo' || !msg.media_type;
+
 
                     return (
                       <div
@@ -517,7 +523,7 @@ export function UltimaSupport() {
                             : 'ml-auto self-end border border-white/[0.08] bg-white/[0.04] text-white'
                         }`}
                       >
-                        <div className="mb-1 flex items-center justify-between gap-4 text-[10px]">
+                        <div className="mb-1 flex items-center justify-between gap-4 text-[12px]">
                           <span
                             className={`font-bold ${
                               msg.is_from_admin ? 'text-[#d4b37f]' : 'text-[#8e929b]'
@@ -534,44 +540,14 @@ export function UltimaSupport() {
                         </div>
 
                         {msg.message_text && (
-                          <p className="whitespace-pre-wrap text-xs leading-relaxed text-[#e2e4e9]">
+                          <p className="whitespace-pre-wrap break-words text-sm leading-relaxed [overflow-wrap:anywhere] text-[#e2e4e9]">
                             {msg.message_text}
                           </p>
                         )}
 
-                        {/* Image / Attachment Render */}
-                        {hasMedia && (
-                          <div className="mt-2">
-                            {isPhoto ? (
-                              <div
-                                onClick={() => setLightboxImage(mediaUrl)}
-                                className="group relative cursor-pointer overflow-hidden rounded-xl border border-white/[0.1] bg-black/40 transition-transform hover:scale-[1.01]"
-                              >
-                                <img
-                                  src={mediaUrl}
-                                  alt={msg.media_caption || 'Скриншот'}
-                                  className="max-h-56 w-auto max-w-full rounded-xl object-contain"
-                                  loading="lazy"
-                                />
-                                <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
-                                  <span className="rounded-lg bg-black/70 px-2.5 py-1 text-[11px] font-medium text-white shadow">
-                                    Нажмите для увеличения
-                                  </span>
-                                </div>
-                              </div>
-                            ) : (
-                              <a
-                                href={mediaUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-2 rounded-xl border border-white/[0.1] bg-black/40 px-3 py-2 text-xs text-[#d4b37f] transition-colors hover:bg-black/60"
-                              >
-                                <Download className="h-3.5 w-3.5" />
-                                <span>{msg.media_caption || `Вложение (${msg.media_type})`}</span>
-                              </a>
-                            )}
-                          </div>
-                        )}
+                        {hasMedia && msg.media_file_id && <div className="mt-2">
+                          <TicketMediaAttachment fileId={msg.media_file_id} mediaType={msg.media_type} caption={msg.media_caption} onOpen={setLightboxImage} />
+                        </div>}
                       </div>
                     );
                   })
@@ -600,7 +576,7 @@ export function UltimaSupport() {
                       <p className="truncate text-xs font-medium text-white">
                         {replyAttachment.file.name}
                       </p>
-                      <p className="text-[10px] text-[#8e929b]">
+                      <p className="text-[12px] text-[#8e929b]">
                         {replyAttachment.uploading ? (
                           <span className="flex items-center gap-1 text-amber-300">
                             <Loader2 className="h-3 w-3 animate-spin" /> Загрузка вложения...
@@ -608,7 +584,7 @@ export function UltimaSupport() {
                         ) : replyAttachment.error ? (
                           <span className="text-red-400">{replyAttachment.error}</span>
                         ) : (
-                          <span className="text-emerald-400">Вложение готово к отправке</span>
+                          <span className="text-[#d4b37f]">Вложение готово к отправке</span>
                         )}
                       </p>
                     </div>
@@ -703,14 +679,14 @@ export function UltimaSupport() {
                 </div>
               )}
             </div>
-          </div>
+          </div>, document.body
         )}
 
         {/* Create Ticket Modal */}
-        {showCreateModal && (
+        {showCreateModal && isTicketsEnabled && createPortal(
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
             <div
-              className="relative w-full max-w-[500px] overflow-hidden rounded-[26px] border border-[#5a5040]/40 p-6 shadow-2xl"
+              className="relative max-h-[calc(100dvh-32px)] w-full max-w-[500px] overflow-y-auto rounded-[26px] border border-[#5a5040]/40 p-6 shadow-2xl"
               style={{
                 background: 'linear-gradient(180deg, #181b22 0%, #0e1014 100%)',
               }}
@@ -723,7 +699,7 @@ export function UltimaSupport() {
                     setShowCreateModal(false);
                     setCreateAttachment(null);
                   }}
-                  className="flex h-8 w-8 items-center justify-center rounded-full bg-white/[0.05] text-[#8e929b] hover:text-white"
+                  aria-label="Закрыть" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/[0.05] text-[#8e929b] hover:text-white"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -796,7 +772,7 @@ export function UltimaSupport() {
                         <p className="truncate text-xs font-medium text-white">
                           {createAttachment.file.name}
                         </p>
-                        <p className="text-[10px]">
+                        <p className="text-[12px]">
                           {createAttachment.uploading ? (
                             <span className="flex items-center gap-1 text-amber-300">
                               <Loader2 className="h-3 w-3 animate-spin" /> Загрузка вложения...
@@ -804,7 +780,7 @@ export function UltimaSupport() {
                           ) : createAttachment.error ? (
                             <span className="text-red-400">{createAttachment.error}</span>
                           ) : (
-                            <span className="text-emerald-400">Скриншот прикреплен</span>
+                            <span className="text-[#d4b37f]">Скриншот прикреплен</span>
                           )}
                         </p>
                       </div>
@@ -840,11 +816,11 @@ export function UltimaSupport() {
                 </button>
               </div>
             </div>
-          </div>
+          </div>, document.body
         )}
 
         {/* Lightbox High-Res Image Viewer Modal */}
-        {lightboxImage && (
+        {lightboxImage && createPortal(
           <div
             onClick={() => setLightboxImage(null)}
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 backdrop-blur-md"
@@ -862,7 +838,7 @@ export function UltimaSupport() {
               onClick={(e) => e.stopPropagation()}
               className="max-h-[90vh] max-w-[90vw] rounded-2xl border border-white/20 object-contain shadow-2xl"
             />
-          </div>
+          </div>, document.body
         )}
       </div>
 

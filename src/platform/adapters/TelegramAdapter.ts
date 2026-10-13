@@ -1,3 +1,4 @@
+import { isAnimationReduced } from '@/features/preferences/reducedAnimation';
 import { isInTelegramWebApp } from '@/hooks/useTelegramSDK';
 import {
   showBackButton,
@@ -122,6 +123,7 @@ function createHapticController(): HapticController {
 
   return {
     impact(style: HapticImpactStyle = 'medium') {
+      if (isAnimationReduced()) return;
       if (!inTelegram) return;
 
       // Try both methods - on Android, impactOccurred often doesn't work
@@ -141,6 +143,7 @@ function createHapticController(): HapticController {
     },
 
     notification(type: HapticNotificationType) {
+      if (isAnimationReduced()) return;
       if (!inTelegram) return;
 
       try {
@@ -151,6 +154,7 @@ function createHapticController(): HapticController {
     },
 
     selection() {
+      if (isAnimationReduced()) return;
       if (!inTelegram) return;
 
       // Try both methods for Android compatibility

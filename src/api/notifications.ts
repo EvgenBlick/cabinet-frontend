@@ -8,6 +8,7 @@ export interface NotificationSettings {
   balance_low_enabled: boolean;
   balance_low_threshold: number;
   news_enabled: boolean;
+  ticket_reply_enabled: boolean;
   promo_offers_enabled: boolean;
 }
 
@@ -19,6 +20,7 @@ export interface NotificationSettingsUpdate {
   balance_low_enabled?: boolean;
   balance_low_threshold?: number;
   news_enabled?: boolean;
+  ticket_reply_enabled?: boolean;
   promo_offers_enabled?: boolean;
 }
 

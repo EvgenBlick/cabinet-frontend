@@ -48,7 +48,9 @@ export function AdminRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading, isAdmin } = useAuthStore();
   const location = useLocation();
   const isDevAuth =
-    typeof window !== 'undefined' && sessionStorage.getItem('cabinet-dev-auth') === 'true';
+    import.meta.env.DEV &&
+    typeof window !== 'undefined' &&
+    sessionStorage.getItem('cabinet-dev-auth') === 'true';
 
   if (isLoading && !isDevAuth) {
     return <PageLoader variant="light" />;

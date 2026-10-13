@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import DOMPurify from 'dompurify';
 import { infoApi, FaqPage } from '../api/info';
 import { promoApi, LoyaltyTierInfo } from '../api/promo';
+import { useUltimaMode } from '@/hooks/useUltimaMode';
+import UltimaInfo from './UltimaInfo';
 
 const InfoIcon = () => (
   <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -155,6 +157,11 @@ const formatContent = (content: string): string => {
 };
 
 export default function Info() {
+  const { isUltimaMode } = useUltimaMode();
+  return isUltimaMode ? <UltimaInfo /> : <ClassicInfo />;
+}
+
+function ClassicInfo() {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<TabType>('faq');
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);

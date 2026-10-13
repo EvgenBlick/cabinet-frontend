@@ -1,0 +1,40 @@
+/* Local presentation for public authentication and guest support. */
+.cabinet-auth-screen { background:#101216 !important; color:#f5f5f7; font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-serif; }
+.cabinet-auth-screen .cabinet-auth-panel { background:rgba(24,27,33,.84) !important; border:1px solid rgba(255,255,255,.14) !important; border-radius:24px !important; }
+.cabinet-auth-screen button, .cabinet-auth-screen .cabinet-auth-button {
+  min-height:44px; border-radius:14px !important; border:1px solid rgba(255,255,255,.14) !important;
+  background:rgba(255,255,255,.06) !important; color:#f5f5f7 !important; box-shadow:none !important;
+  font-weight:500; transition:opacity 180ms,transform 180ms;
+}
+.cabinet-auth-screen button:hover, .cabinet-auth-screen .cabinet-auth-button:hover { background:rgba(255,255,255,.1) !important; }
+.cabinet-auth-screen button:focus-visible, .cabinet-auth-screen a:focus-visible { outline:2px solid #c5cbd6; outline-offset:3px; }
+.cabinet-auth-screen .guest-support-input { width:100%; min-width:0; border-color:rgba(255,255,255,.16); background:rgba(255,255,255,.045); color:#f5f5f7; box-shadow:none; }
+.cabinet-auth-screen .guest-support-input:focus { border-color:rgba(255,255,255,.42); box-shadow:0 0 0 3px rgba(255,255,255,.06); }
+.cabinet-auth-screen .cabinet-chat-icon { border-color:rgba(255,255,255,.14) !important; background:rgba(255,255,255,.06) !important; color:#e1e5ec !important; }
+.cabinet-auth-screen .cabinet-chat-thread { background:rgba(10,12,16,.3) !important; }
+.cabinet-auth-screen .cabinet-chat-bubble { border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.09); color:#f5f5f7; }
+.cabinet-auth-screen .cabinet-chat-bubble--support { background:rgba(255,255,255,.035); }
+.cabinet-auth-screen .cabinet-chat-bubble p { overflow-wrap:anywhere; }
+@media(prefers-reduced-motion:reduce) { .cabinet-auth-screen *, .cabinet-neutral-loader * { animation:none !important; transition:none !important; } }
+
+/* Retain Telegram authentication while matching the neutral material. */
+.cabinet-auth-screen iframe[src*="telegram.org"]{filter:grayscale(1);border-radius:14px}
+
+/* Public auth is a dark material even when the persisted global theme is light. */
+.cabinet-auth-screen [class*="text-dark-"] { color:#c5cbd6 !important; }
+.cabinet-auth-screen h1, .cabinet-auth-screen h2, .cabinet-auth-screen [class*="text-dark-50"] { color:#f5f5f7 !important; }
+.cabinet-auth-screen [class*="text-accent-"] { color:#d2d7e0 !important; }
+.cabinet-auth-screen input, .cabinet-auth-screen textarea, .cabinet-auth-screen [class*="bg-dark-950"] { background:rgba(255,255,255,.055) !important; color:#f5f5f7 !important; border-color:rgba(255,255,255,.18) !important; }
+.cabinet-auth-screen input::placeholder, .cabinet-auth-screen textarea::placeholder { color:#a4adbb !important; }
+html.light .cabinet-auth-screen { background:#d5dbe4 !important; color:#20232b; }
+html.light .cabinet-auth-screen .cabinet-auth-panel { background:rgba(255,255,255,.82) !important; border-color:rgba(25,32,48,.16) !important; }
+html.light .cabinet-auth-screen [class*="text-dark-"], html.light .cabinet-auth-screen [class*="text-white/"], html.light .cabinet-auth-screen [class*="text-[#8e929b]"] { color:#526073 !important; }
+html.light .cabinet-auth-screen h1, html.light .cabinet-auth-screen h2, html.light .cabinet-auth-screen [class*="text-dark-50"], html.light .cabinet-auth-screen [class*="text-accent-"] { color:#20232b !important; }
+html.light .cabinet-auth-screen input, html.light .cabinet-auth-screen textarea, html.light .cabinet-auth-screen [class*="bg-dark-950"] { background:rgba(30,38,52,.045) !important; color:#20232b !important; border-color:rgba(25,32,48,.2) !important; }
+html.light .cabinet-auth-screen input::placeholder, html.light .cabinet-auth-screen textarea::placeholder { color:#647084 !important; }
+html.light .cabinet-auth-screen button, html.light .cabinet-auth-screen .cabinet-auth-button { background:rgba(30,38,52,.06) !important; color:#20232b !important; border-color:rgba(25,32,48,.16) !important; }
+html.light .cabinet-auth-screen button:hover, html.light .cabinet-auth-screen .cabinet-auth-button:hover { background:rgba(30,38,52,.1) !important; }
+html.light .cabinet-auth-screen .cabinet-chat-thread { background:rgba(30,38,52,.025) !important; }
+html.light .cabinet-auth-screen .cabinet-chat-bubble { background:rgba(30,38,52,.07); color:#20232b; border-color:rgba(25,32,48,.14); }
+html.light .cabinet-auth-screen .cabinet-chat-bubble--support { background:rgba(255,255,255,.6); }
+html.light .cabinet-auth-screen .cabinet-chat-icon { background:rgba(30,38,52,.06) !important; color:#526073 !important; border-color:rgba(25,32,48,.14) !important; }

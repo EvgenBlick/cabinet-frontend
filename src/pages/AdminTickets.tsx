@@ -1,3 +1,4 @@
+import { TicketMediaAttachment } from '@/components/TicketMediaAttachment';
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -43,121 +44,17 @@ const ALLOWED_FILE_TYPES: Record<string, TicketMediaType> = {
 const ACCEPT_STRING = Object.keys(ALLOWED_FILE_TYPES).join(',');
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
-function AdminMessageMedia({
-  message,
-  t,
-}: {
-  message: AdminTicketMessage;
-  t: (key: string) => string;
-}) {
-  const [imageLoaded, setImageLoaded] = useState(false);
-  const [imageError, setImageError] = useState(false);
-  const [showFullImage, setShowFullImage] = useState(false);
-
-  if (!message.has_media || !message.media_file_id) {
-    return null;
-  }
-
-  const mediaUrl = ticketsApi.getMediaUrl(message.media_file_id);
-
-  if (message.media_type === 'photo') {
-    return (
-      <div className="mt-3">
-        {!imageLoaded && !imageError && (
-          <div className="flex h-40 w-full animate-pulse items-center justify-center rounded-lg bg-dark-800">
-            <div className="h-6 w-6 animate-spin rounded-full border-2 border-accent-500 border-t-transparent" />
-          </div>
-        )}
-        {imageError ? (
-          <div className="flex h-32 w-full items-center justify-center rounded-lg bg-dark-800 text-sm text-dark-400">
-            {t('support.imageLoadFailed')}
-          </div>
-        ) : (
-          <img
-            src={mediaUrl}
-            alt={message.media_caption || 'Attached image'}
-            className={`max-h-64 max-w-full cursor-pointer rounded-lg transition-opacity hover:opacity-90 ${
-              imageLoaded ? '' : 'hidden'
-            }`}
-            onLoad={() => setImageLoaded(true)}
-            onError={() => setImageError(true)}
-            onClick={() => setShowFullImage(true)}
-          />
-        )}
-        {message.media_caption && (
-          <p className="mt-1 text-xs text-dark-400">{message.media_caption}</p>
-        )}
-        {showFullImage && (
-          <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
-            onClick={() => setShowFullImage(false)}
-          >
-            <button
-              className="absolute right-4 top-4 text-white/70 hover:text-white"
-              onClick={() => setShowFullImage(false)}
-            >
-              <svg
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={1.5}
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-            <img
-              src={mediaUrl}
-              alt={message.media_caption || 'Attached image'}
-              className="max-h-full max-w-full object-contain"
-            />
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  if (message.media_type === 'video') {
-    return (
-      <div className="mt-3">
-        <video
-          src={mediaUrl}
-          controls
-          className="max-h-64 max-w-full rounded-lg"
-          preload="metadata"
-        />
-        {message.media_caption && (
-          <p className="mt-1 text-xs text-dark-400">{message.media_caption}</p>
-        )}
-      </div>
-    );
-  }
-
-  return (
-    <div className="mt-3">
-      <a
-        href={mediaUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="inline-flex items-center gap-2 rounded-lg bg-dark-700 px-3 py-2 text-sm text-dark-200 transition-colors hover:bg-dark-600"
-      >
-        <svg
-          className="h-4 w-4"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={1.5}
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"
-          />
-        </svg>
-        {message.media_caption || `Download ${message.media_type}`}
-      </a>
-    </div>
-  );
+function AdminMessageMedia({ message }: { message: AdminTicketMessage; t: (key: string) => string }) {
+  const [fullImage, setFullImage] = useState<string | null>(null);
+  if (!message.has_media || !message.media_file_id) return null;
+  return <div className="mt-3">
+    <TicketMediaAttachment fileId={message.media_file_id} mediaType={message.media_type} caption={message.media_caption} onOpen={setFullImage} />
+    {message.media_caption && <p className="mt-1 text-xs text-dark-400">{message.media_caption}</p>}
+    {fullImage && <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4" onClick={() => setFullImage(null)}>
+      <button type="button" aria-label="Закрыть" className="absolute right-4 top-4 flex h-11 w-11 items-center justify-center text-white" onClick={() => setFullImage(null)}><span aria-hidden="true">×</span></button>
+      <img src={fullImage} alt={message.media_caption || 'Вложение к обращению'} className="max-h-full max-w-full object-contain" onClick={(event) => event.stopPropagation()} />
+    </div>}
+  </div>;
 }
 
 // BackIcon

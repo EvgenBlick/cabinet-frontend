@@ -24,6 +24,12 @@ export function writeUltimaConnectionStep(
 ): void {
   try {
     localStorage.setItem(getUserScopedKey(ULTIMA_CONNECTION_STATE_KEY, userId), String(step));
+    try {
+      window.dispatchEvent(new Event('ultima_connection_changed'));
+      window.dispatchEvent(new Event('storage'));
+    } catch {
+      // ignore event errors
+    }
   } catch {
     // ignore persistence errors
   }
@@ -71,9 +77,15 @@ export function writeUltimaConnectionCompleted(
     const key = getUserScopedKey(ULTIMA_CONNECTION_COMPLETED_KEY, userId);
     if (completed) {
       localStorage.setItem(key, '1');
-      return;
+    } else {
+      localStorage.removeItem(key);
     }
-    localStorage.removeItem(key);
+    try {
+      window.dispatchEvent(new Event('ultima_connection_changed'));
+      window.dispatchEvent(new Event('storage'));
+    } catch {
+      // ignore event errors
+    }
   } catch {
     // ignore persistence errors
   }

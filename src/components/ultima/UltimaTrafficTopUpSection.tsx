@@ -25,6 +25,7 @@ type UltimaTrafficTopUpSectionProps = {
   isPending: boolean;
   error: string | null;
   initiallyExpanded?: boolean;
+  showTrafficOverview?: boolean;
   onPurchaseTraffic: (gb: number) => void;
   onTopUpBalance: (gb: number) => void;
 };
@@ -44,6 +45,7 @@ export function UltimaTrafficTopUpSection({
   isPending,
   error,
   initiallyExpanded = false,
+  showTrafficOverview = true,
   onPurchaseTraffic,
   onTopUpBalance,
 }: UltimaTrafficTopUpSectionProps) {
@@ -131,20 +133,20 @@ export function UltimaTrafficTopUpSection({
       >
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
           <div className="flex min-w-0 items-center gap-3">
-            <span className="border-[#d4b37f]/40/[0.2] relative flex h-11 w-11 shrink-0 items-center justify-center rounded-[15px] border bg-[#d4b37f]/[0.1] text-[#d4b37f] shadow-[0_0_26px_rgba(45,212,191,0.12)] lg:rounded-[7px]">
+            <span className="border-[#d4b37f]/[0.2] relative flex h-11 w-11 shrink-0 items-center justify-center rounded-[15px] border bg-[#d4b37f]/[0.1] text-[#d4b37f] shadow-[0_0_26px_rgba(212,179,127,0.15)] lg:rounded-[7px]">
               <CloudDownload className="h-5 w-5" />
               {purchasedTrafficTotal > 0 ? (
-                <span className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full border-2 border-[#102623] bg-[#d4b37f]" />
+                <span className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full border-2 border-[#121418] bg-[#d4b37f]" />
               ) : null}
             </span>
             <div className="min-w-0">
-              <p className="text-[10px] font-semibold uppercase text-white/[0.42]">
+              <p className="text-[10px] lg:text-[12px] font-semibold uppercase text-white/[0.42]">
                 {t('ultima.trafficTopUp.eyebrow')}
               </p>
               <h2 className="mt-0.5 break-words text-[18px] font-semibold leading-tight text-white">
                 {t('ultima.trafficTopUp.title')}
               </h2>
-              <p className="mt-1 break-words text-[11px] leading-snug text-white/[0.5]">
+              <p className="mt-1 break-words text-[11px] lg:text-[12px] leading-snug text-white/[0.5]">
                 {t('ultima.trafficTopUp.hint')}
               </p>
             </div>
@@ -152,7 +154,7 @@ export function UltimaTrafficTopUpSection({
 
           <div className="flex shrink-0 items-center gap-2">
             {cheapestPackage ? (
-              <span className="hidden rounded-full border border-white/[0.09] bg-white/[0.045] px-2.5 py-1 text-[10px] font-medium text-white/[0.64] min-[360px]:inline-flex">
+              <span className="hidden rounded-full border border-white/[0.09] bg-white/[0.045] px-2.5 py-1 text-[10px] lg:text-[12px] font-medium text-white/[0.64] min-[360px]:inline-flex">
                 {t('ultima.trafficTopUp.priceFrom', {
                   price: formatPrice(cheapestPackage.price_kopeks),
                 })}
@@ -170,9 +172,10 @@ export function UltimaTrafficTopUpSection({
           </div>
         </div>
 
+        {showTrafficOverview ? <>
         <div className="mt-4 flex items-end justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-[9px] font-medium uppercase text-white/[0.36]">
+            <p className="text-[9px] lg:text-[12px] font-medium uppercase text-white/[0.36]">
               {t('ultima.trafficTopUp.remaining')}
             </p>
             <p className="mt-1 text-[17px] font-semibold leading-none text-white">
@@ -181,13 +184,13 @@ export function UltimaTrafficTopUpSection({
           </div>
           <div className="flex min-w-0 flex-wrap justify-end gap-1.5">
             {purchasedTrafficTotal > 0 ? (
-              <span className="border-[#d4b37f]/40/[0.18] rounded-full border bg-[#d4b37f]/[0.09] px-2.5 py-1 text-[10px] font-medium text-[#d4b37f]">
+              <span className="border-[#d4b37f]/[0.18] rounded-full border bg-[#d4b37f]/[0.09] px-2.5 py-1 text-[10px] lg:text-[12px] font-medium text-[#d4b37f]">
                 {t('ultima.trafficTopUp.activeBonus', {
                   traffic: formatTraffic(purchasedTrafficTotal),
                 })}
               </span>
             ) : null}
-            <span className="rounded-full border border-white/[0.08] bg-white/[0.035] px-2.5 py-1 text-[10px] text-white/[0.5]">
+            <span className="rounded-full border border-white/[0.08] bg-white/[0.035] px-2.5 py-1 text-[10px] lg:text-[12px] text-white/[0.5]">
               {t('ultima.trafficTopUp.ofLimit', { limit: formatTraffic(trafficLimitGb) })}
             </span>
           </div>
@@ -200,6 +203,7 @@ export function UltimaTrafficTopUpSection({
             style={{ width: `${trafficRemainingPercent}%` }}
           />
         </div>
+        </> : null}
       </button>
 
       {isExpanded ? (
@@ -209,11 +213,11 @@ export function UltimaTrafficTopUpSection({
               <div className="mb-2.5 flex items-center justify-between gap-3">
                 <div className="flex min-w-0 items-center gap-2">
                   <Clock3 className="h-4 w-4 shrink-0 text-[#d4b37f]/[0.72]" />
-                  <h3 className="break-words text-[12px] font-semibold text-white">
+                  <h3 className="break-words text-[12px] lg:text-[14px] font-semibold text-white">
                     {t('ultima.trafficTopUp.activePackages')}
                   </h3>
                 </div>
-                <span className="shrink-0 text-[11px] font-semibold text-[#d4b37f]">
+                <span className="shrink-0 text-[11px] lg:text-[12px] font-semibold text-[#d4b37f]">
                   +{formatTraffic(purchasedTrafficTotal)} {t('common.units.gb')}
                 </span>
               </div>
@@ -226,7 +230,7 @@ export function UltimaTrafficTopUpSection({
           ) : null}
 
           {!trafficPackages || trafficPackages.length === 0 ? (
-            <div className="border-t border-white/[0.07] py-4 text-[13px] leading-relaxed text-white/[0.58]">
+            <div className="border-t border-white/[0.07] py-4 text-[13px] lg:text-[14px] leading-relaxed text-white/[0.58]">
               {t('ultima.trafficTopUp.unavailable')}
             </div>
           ) : (
@@ -237,10 +241,10 @@ export function UltimaTrafficTopUpSection({
                 <div className="flex items-start gap-2.5">
                   <Gauge className="mt-0.5 h-4 w-4 shrink-0 text-[#d4b37f]/[0.72]" />
                   <div>
-                    <h3 className="text-[13px] font-semibold text-white">
+                    <h3 className="text-[13px] lg:text-[14px] font-semibold text-white">
                       {t('ultima.trafficTopUp.selectTitle')}
                     </h3>
-                    <p className="mt-1 text-[11px] leading-relaxed text-white/[0.48]">
+                    <p className="mt-1 text-[11px] lg:text-[12px] leading-relaxed text-white/[0.48]">
                       {t('ultima.trafficTopUp.selectHint', { days: TRAFFIC_VALIDITY_DAYS })}
                     </p>
                   </div>
@@ -267,7 +271,7 @@ export function UltimaTrafficTopUpSection({
                         className={cn(
                           'relative min-h-[104px] rounded-[18px] border p-3 text-left transition-colors lg:rounded-[8px]',
                           active
-                            ? 'border-[#d4b37f]/40/[0.32] bg-[#d4b37f]/[0.09]'
+                            ? 'border-[#d4b37f]/[0.32] bg-[#d4b37f]/[0.09]'
                             : 'border-white/[0.09] bg-white/[0.025] hover:bg-white/[0.05]',
                         )}
                         style={active ? ultimaAccentSurfaceStyle : undefined}
@@ -281,12 +285,12 @@ export function UltimaTrafficTopUpSection({
                               <Check className="h-3.5 w-3.5" strokeWidth={2.6} />
                             </span>
                           ) : pkg.discount_percent && pkg.discount_percent > 0 ? (
-                            <span className="border-[#d4b37f]/40/[0.2] shrink-0 rounded-full border bg-[#d4b37f]/[0.09] px-1.5 py-0.5 text-[9px] font-semibold text-[#d4b37f]">
+                            <span className="border-[#d4b37f]/[0.2] shrink-0 rounded-full border bg-[#d4b37f]/[0.09] px-1.5 py-0.5 text-[9px] lg:text-[12px] font-semibold text-[#d4b37f]">
                               -{pkg.discount_percent}%
                             </span>
                           ) : null}
                         </div>
-                        <p className="mt-2 text-[10px] text-white/[0.42]">
+                        <p className="mt-2 text-[10px] lg:text-[12px] text-white/[0.42]">
                           {t('ultima.trafficTopUp.validFor', { days: TRAFFIC_VALIDITY_DAYS })}
                         </p>
                         <div className="mt-2 flex items-end gap-2">
@@ -294,7 +298,7 @@ export function UltimaTrafficTopUpSection({
                             {formatPrice(pkg.price_kopeks)}
                           </span>
                           {pkg.base_price_kopeks && pkg.base_price_kopeks > pkg.price_kopeks ? (
-                            <span className="text-[10px] text-white/[0.34] line-through">
+                            <span className="text-[10px] lg:text-[12px] text-white/[0.34] line-through">
                               {formatPrice(pkg.base_price_kopeks)}
                             </span>
                           ) : null}
@@ -334,17 +338,17 @@ export function UltimaTrafficTopUpSection({
                       },
                     ].map((item) => (
                       <div key={item.label} className="min-w-0">
-                        <p className="text-[9px] font-medium uppercase text-white/[0.36]">
+                        <p className="text-[9px] lg:text-[12px] font-medium uppercase text-white/[0.36]">
                           {item.label}
                         </p>
-                        <p className="mt-1 break-words text-[12px] font-semibold leading-tight text-white">
+                        <p className="mt-1 break-words text-[12px] lg:text-[14px] font-semibold leading-tight text-white">
                           {item.value}
                         </p>
                       </div>
                     ))}
                   </div>
 
-                  <div className="mt-4 flex items-start gap-2 border-t border-white/[0.06] pt-3 text-[11px] leading-relaxed text-white/[0.46]">
+                  <div className="mt-4 flex items-start gap-2 border-t border-white/[0.06] pt-3 text-[11px] lg:text-[12px] leading-relaxed text-white/[0.46]">
                     <WalletCards className="mt-0.5 h-4 w-4 shrink-0" />
                     <p>
                       {missingAmountKopeks > 0
@@ -367,7 +371,7 @@ export function UltimaTrafficTopUpSection({
                         });
                         onTopUpBalance(selectedPackage.gb);
                       }}
-                      className="ultima-btn-pill ultima-btn-primary mt-3 w-full px-4 py-3 text-[13px] font-semibold"
+                      className="ultima-btn-pill ultima-btn-primary mt-3 w-full px-4 py-3 text-[13px] lg:text-[14px] font-semibold"
                     >
                       {t('ultima.trafficTopUp.topUp', {
                         price: formatPrice(missingAmountKopeks),
@@ -385,7 +389,7 @@ export function UltimaTrafficTopUpSection({
                         onPurchaseTraffic(selectedPackage.gb);
                       }}
                       disabled={isPending}
-                      className="ultima-btn-pill ultima-btn-primary mt-3 w-full px-4 py-3 text-[13px] font-semibold disabled:cursor-not-allowed disabled:opacity-70"
+                      className="ultima-btn-pill ultima-btn-primary mt-3 w-full px-4 py-3 text-[13px] lg:text-[14px] font-semibold disabled:cursor-not-allowed disabled:opacity-70"
                     >
                       {isPending
                         ? t('common.loading')
@@ -399,7 +403,7 @@ export function UltimaTrafficTopUpSection({
                             })}
                     </button>
                   )}
-                  {error ? <p className="mt-3 text-[12px] text-rose-200">{error}</p> : null}
+                  {error ? <p className="mt-3 text-[12px] lg:text-[14px] text-rose-200">{error}</p> : null}
                 </section>
               ) : null}
             </>

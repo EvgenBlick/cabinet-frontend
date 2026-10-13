@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { newsApi } from '../../api/news';
+import { newsApi, normalizeNewsMediaUrl } from '../../api/news';
 import {
   ultimaPaneClassName,
   ultimaPaneSurfaceStyle,
@@ -25,13 +25,13 @@ function safeColor(color: string | null | undefined, fallback = '#888888'): stri
 const EASE_OUT: [number, number, number, number] = [0.23, 1, 0.32, 1];
 
 const fadeSlideUp = {
-  hidden: { opacity: 0, y: 24 },
+  hidden: { opacity: 0, y: 8 },
   visible: (i: number) => ({
     opacity: 1,
     y: 0,
     transition: {
-      delay: i * 0.1,
-      duration: 0.6,
+      delay: i * 0.035,
+      duration: 0.22,
       ease: EASE_OUT,
     },
   }),
@@ -67,7 +67,7 @@ const CategoryBadge = memo(function CategoryBadge({
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 rounded-md px-3 py-1 font-mono text-[11px] font-bold uppercase tracking-widest',
+        'inline-flex items-center gap-1.5 rounded-md px-3 py-1 text-[12px] font-medium',
         className,
       )}
       style={{
@@ -77,10 +77,9 @@ const CategoryBadge = memo(function CategoryBadge({
       }}
     >
       <span
-        className="h-1.5 w-1.5 animate-pulse rounded-full"
+        className="h-1.5 w-1.5 rounded-full"
         style={{
           background: c,
-          boxShadow: `0 0 8px ${c}`,
         }}
       />
       {category}
@@ -97,7 +96,7 @@ const TagBadge = memo(function TagBadge({ text, color }: TagBadgeProps) {
   const c = safeColor(color);
   return (
     <span
-      className="inline-block rounded px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider"
+      className="inline-block rounded px-2 py-0.5 text-[12px] font-medium"
       style={{
         color: c,
         border: `1px solid ${c}33`,
@@ -137,7 +136,7 @@ const FilterTabs = memo(function FilterTabs({
           onChange('');
         }}
         className={cn(
-          'min-h-[40px] rounded-full px-3.5 py-2 text-[12px] font-semibold tracking-wide transition-all duration-300',
+          'min-h-[44px] rounded-full px-4 py-2 text-[13px] font-medium transition-colors duration-200',
           active === '' && !isUltimaVariant
             ? 'border border-accent-400 bg-accent-400 text-dark-950'
             : !isUltimaVariant
@@ -149,8 +148,8 @@ const FilterTabs = memo(function FilterTabs({
             ? active === ''
               ? {
                   borderColor: 'transparent',
-                  background: 'var(--ultima-color-primary)',
-                  color: 'var(--ultima-color-primary-text)',
+                  background: 'rgba(255,255,255,0.14)',
+                  color: '#fff',
                 }
               : {
                   borderColor:
@@ -175,7 +174,7 @@ const FilterTabs = memo(function FilterTabs({
               onChange(cat);
             }}
             className={cn(
-              'min-h-[40px] rounded-full px-3.5 py-2 text-[12px] font-semibold tracking-wide transition-all duration-300',
+              'min-h-[44px] rounded-full px-4 py-2 text-[13px] font-medium transition-colors duration-200',
               isActive && !isUltimaVariant
                 ? 'border border-accent-400 bg-accent-400 text-dark-950'
                 : !isUltimaVariant
@@ -187,8 +186,8 @@ const FilterTabs = memo(function FilterTabs({
                 ? isActive
                   ? {
                       borderColor: 'transparent',
-                      background: 'var(--ultima-color-primary)',
-                      color: 'var(--ultima-color-primary-text)',
+                      background: 'rgba(255,255,255,0.14)',
+                      color: '#fff',
                     }
                   : {
                       borderColor:
@@ -214,131 +213,8 @@ interface FeaturedCardProps {
   variant?: 'default' | 'ultima';
 }
 
-const FeaturedCard = memo(function FeaturedCard({
-  item,
-  onClick,
-  variant = 'default',
-}: FeaturedCardProps) {
-  const { t, i18n } = useTranslation();
-  const isUltimaVariant = variant === 'ultima';
-
-  return (
-    <motion.article
-      custom={0}
-      variants={fadeSlideUp}
-      initial="hidden"
-      animate="visible"
-      role="link"
-      tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          onClick();
-        }
-      }}
-      className="group col-span-full cursor-pointer rounded-2xl p-px transition-all duration-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:ring-offset-2 focus-visible:ring-offset-dark-950"
-      style={
-        isUltimaVariant
-          ? {
-              borderColor:
-                'color-mix(in srgb, var(--ultima-color-surface-border) 32%, transparent)',
-              background:
-                'linear-gradient(145deg, color-mix(in srgb, var(--ultima-color-aura) 16%, transparent), color-mix(in srgb, var(--ultima-color-secondary) 80%, transparent))',
-            }
-          : {
-              background:
-                'linear-gradient(135deg, rgba(var(--color-accent-400), 0.2), rgba(var(--color-dark-900), 0.2), rgba(var(--color-accent-400), 0.2))',
-            }
-      }
-      whileHover={{
-        background: isUltimaVariant
-          ? 'linear-gradient(145deg, color-mix(in srgb, var(--ultima-color-aura) 24%, transparent), color-mix(in srgb, var(--ultima-color-secondary) 74%, transparent))'
-          : 'linear-gradient(135deg, rgba(var(--color-accent-400), 0.4), rgba(var(--color-accent-500), 0.4), rgba(var(--color-accent-400), 0.4))',
-      }}
-      onClick={onClick}
-    >
-      <div
-        className={cn(
-          'relative flex min-h-[236px] flex-col justify-between overflow-hidden rounded-[15px] p-7 sm:p-10',
-          isUltimaVariant ? ultimaPaneClassName : 'bg-dark-900',
-        )}
-        style={isUltimaVariant ? ultimaPaneSurfaceStyle : undefined}
-      >
-        {/* Corner decoration */}
-        <div
-          className="pointer-events-none absolute right-0 top-0 h-[200px] w-[200px]"
-          style={{
-            background:
-              'radial-gradient(circle at top right, rgba(var(--color-accent-400), 0.08), transparent 70%)',
-          }}
-        />
-
-        {/* Shimmer top border */}
-        <div
-          className="absolute -top-px left-[20%] right-[20%] h-px"
-          style={{
-            background:
-              'linear-gradient(90deg, transparent, rgba(var(--color-accent-400), 0.4), transparent)',
-            animation: 'newsShimmer 3s ease-in-out infinite',
-          }}
-        />
-
-        <div>
-          <div className="mb-4 flex flex-wrap items-center gap-3">
-            <CategoryBadge category={item.category} color={item.category_color} />
-            {item.tag && <TagBadge text={item.tag} color={item.category_color} />}
-            <span
-              className={cn(
-                'ml-auto font-mono text-[11px]',
-                isUltimaVariant ? 'text-white/45' : 'text-dark-500',
-              )}
-            >
-              {item.read_time_minutes} {t('news.readTime')}
-            </span>
-          </div>
-
-          <h2
-            className={cn(
-              'mb-3 max-w-[700px] break-words text-2xl font-extrabold leading-tight transition-colors duration-300 sm:text-[28px]',
-              isUltimaVariant
-                ? 'text-white/94 group-hover:text-white'
-                : 'text-dark-50 group-hover:text-white',
-            )}
-          >
-            {item.title}
-          </h2>
-
-          {item.excerpt && (
-            <p
-              className={cn(
-                'max-w-[600px] text-[15px] leading-relaxed',
-                isUltimaVariant ? 'text-white/66' : 'text-dark-400',
-              )}
-            >
-              {item.excerpt}
-            </p>
-          )}
-        </div>
-
-        <div className="mt-6 flex items-center justify-between">
-          <span
-            className={cn('font-mono text-xs', isUltimaVariant ? 'text-white/42' : 'text-dark-600')}
-          >
-            {item.published_at ? new Date(item.published_at).toLocaleDateString(i18n.language) : ''}
-          </span>
-          <span
-            className={cn(
-              'inline-flex items-center gap-1.5 text-[13px] font-semibold transition-all duration-300 group-hover:gap-2.5',
-              isUltimaVariant ? 'text-white/82' : 'text-accent-400',
-            )}
-          >
-            {t('news.readMore')}
-            <ArrowIcon />
-          </span>
-        </div>
-      </div>
-    </motion.article>
-  );
+const FeaturedCard = memo(function FeaturedCard(props: FeaturedCardProps) {
+  return <NewsCard {...props} index={0} featured />;
 });
 
 interface FeedContinuationTeaserProps {
@@ -349,136 +225,19 @@ interface FeedContinuationTeaserProps {
 }
 
 const FeedContinuationTeaser = memo(function FeedContinuationTeaser({
-  remainingCount,
-  onReveal,
-  variant = 'default',
-  isLoading = false,
+  remainingCount, onReveal, isLoading = false,
 }: FeedContinuationTeaserProps) {
   const { t } = useTranslation();
-  const isUltimaVariant = variant === 'ultima';
-  const previewCount = Math.min(2, remainingCount);
-
   return (
-    <motion.div
-      variants={fadeSlideUp}
-      custom={6}
-      initial="hidden"
-      animate="visible"
-      className="mt-6"
-    >
-      <div
-        className={cn(
-          'relative overflow-hidden rounded-[26px] p-4 sm:p-5',
-          isUltimaVariant ? ultimaPaneClassName : 'border border-dark-700/60 bg-dark-900/70',
-        )}
-        style={isUltimaVariant ? ultimaPaneSurfaceStyle : undefined}
-      >
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-0 h-24"
-          style={{
-            background: isUltimaVariant
-              ? 'linear-gradient(180deg, color-mix(in srgb, var(--ultima-color-aura) 16%, transparent), transparent)'
-              : 'linear-gradient(180deg, rgba(var(--color-accent-400),0.08), transparent)',
-          }}
-        />
-
-        <div className="relative flex flex-col gap-4">
-          <div className="flex flex-col gap-1.5 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p
-                className={cn(
-                  'font-mono text-[11px] font-bold uppercase tracking-[0.22em]',
-                  isUltimaVariant ? 'text-white/42' : 'text-dark-500',
-                )}
-              >
-                {t('ultima.newsFeedContinuationTitle', { defaultValue: 'Продолжение ленты' })}
-              </p>
-              <h3
-                className={cn(
-                  'mt-2 text-[20px] font-semibold leading-[1.05]',
-                  isUltimaVariant ? 'text-white/92' : 'text-dark-100',
-                )}
-              >
-                {t('ultima.newsFeedContinuationCount', {
-                  count: remainingCount,
-                  defaultValue: `Еще ${remainingCount} новостей`,
-                })}
-              </h3>
-              <p
-                className={cn(
-                  'mt-2 max-w-[34rem] text-[13px] leading-[1.7]',
-                  isUltimaVariant ? 'text-white/58' : 'text-dark-400',
-                )}
-              >
-                {t('ultima.newsFeedContinuationHint', {
-                  defaultValue:
-                    'Лента раскрывается следующей пачкой, чтобы экран не превращался в бесконечную простыню.',
-                })}
-              </p>
-            </div>
-
-            <button
-              type="button"
-              onClick={onReveal}
-              disabled={isLoading}
-              className={cn(
-                'min-h-[46px] rounded-full px-5 py-2.5 text-[13px] font-semibold tracking-wide transition disabled:cursor-not-allowed disabled:opacity-60',
-                isUltimaVariant
-                  ? 'text-white/84 border border-white/10 bg-white/[0.06] hover:bg-white/[0.1]'
-                  : 'border border-dark-600 bg-dark-800 text-dark-100 hover:border-accent-400/30 hover:text-accent-300',
-              )}
-            >
-              {isLoading
-                ? t('common.loading', { defaultValue: 'Загрузка...' })
-                : t('news.loadMore')}
-            </button>
-          </div>
-
-          <div className="relative h-[124px] overflow-hidden rounded-[22px]">
-            <div
-              className="absolute inset-0"
-              style={{
-                background: isUltimaVariant
-                  ? 'linear-gradient(180deg, rgba(3,15,22,0.12), rgba(3,15,22,0.38))'
-                  : 'linear-gradient(180deg, rgba(8,12,20,0.08), rgba(8,12,20,0.34))',
-              }}
-            />
-            {Array.from({ length: previewCount }).map((_, index) => (
-              <div
-                key={index}
-                aria-hidden
-                className={cn(
-                  'absolute inset-x-3 rounded-[20px] border p-4 shadow-[0_18px_40px_rgba(3,14,24,0.18)] backdrop-blur-xl',
-                  isUltimaVariant ? 'border-white/8' : 'border-dark-700/70 bg-dark-900/70',
-                )}
-                style={{
-                  top: `${index * 34}px`,
-                  opacity: 1 - index * 0.22,
-                  transform: `scale(${1 - index * 0.04}) translateY(${index * 6}px)`,
-                  transformOrigin: 'top center',
-                  background: isUltimaVariant
-                    ? 'linear-gradient(180deg, color-mix(in srgb, var(--ultima-color-secondary) 78%, transparent), color-mix(in srgb, var(--ultima-color-surface) 42%, transparent))'
-                    : undefined,
-                }}
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <div className="h-2.5 w-20 rounded-full bg-white/10" />
-                  <div className="h-2.5 w-12 rounded-full bg-white/10" />
-                </div>
-                <div className="bg-white/14 mt-4 h-4 w-[78%] rounded-full" />
-                <div className="mt-2 h-4 w-[56%] rounded-full bg-white/10" />
-                <div className="mt-5 flex items-center justify-between">
-                  <div className="h-2.5 w-16 rounded-full bg-white/10" />
-                  <div className="h-2.5 w-14 rounded-full bg-white/10" />
-                </div>
-              </div>
-            ))}
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-[rgba(2,10,16,0.92)] to-transparent" />
-          </div>
-        </div>
-      </div>
-    </motion.div>
+    <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-5">
+      <span className="text-[13px] text-white/60">
+        {t('ultima.newsFeedContinuationCount', { count: remainingCount, defaultValue: `Еще ${remainingCount} новостей` })}
+      </span>
+      <button type="button" onClick={onReveal} disabled={isLoading}
+        className="cabinet-glass-control min-h-[44px] rounded-full border border-white/15 bg-white/[0.06] px-5 text-[14px] font-medium text-white transition-colors duration-200 hover:bg-white/10 disabled:opacity-50">
+        {isLoading ? t('common.loading') : t('news.loadMore')}
+      </button>
+    </div>
   );
 });
 
@@ -487,132 +246,39 @@ interface NewsCardProps {
   index: number;
   onClick: () => void;
   variant?: 'default' | 'ultima';
+  featured?: boolean;
 }
 
-const NewsCard = memo(function NewsCard({
-  item,
-  index,
-  onClick,
-  variant = 'default',
-}: NewsCardProps) {
+const NewsCard = memo(function NewsCard({ item, index, onClick, variant = 'default', featured = false }: NewsCardProps) {
   const { t, i18n } = useTranslation();
+  const [imageFailed, setImageFailed] = useState(false);
+  const image = normalizeNewsMediaUrl(item.featured_image_url);
   const color = safeColor(item.category_color);
-  const isUltimaVariant = variant === 'ultima';
-
   return (
-    <motion.article
-      custom={index + 1}
-      variants={fadeSlideUp}
-      initial="hidden"
-      animate="visible"
-      role="link"
-      tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          onClick();
-        }
-      }}
-      className="group cursor-pointer rounded-[14px] p-px transition-all duration-[450ms] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:ring-offset-2 focus-visible:ring-offset-dark-950"
-      style={
-        isUltimaVariant
-          ? {
-              borderColor:
-                'color-mix(in srgb, var(--ultima-color-surface-border) 26%, transparent)',
-              background:
-                'linear-gradient(160deg, color-mix(in srgb, var(--ultima-color-secondary) 78%, transparent), color-mix(in srgb, var(--ultima-color-surface) 52%, transparent))',
-            }
-          : {
-              background:
-                'linear-gradient(160deg, rgba(var(--color-dark-700), 0.25), rgba(var(--color-dark-900), 0.25))',
-            }
-      }
-      whileHover={{
-        y: -4,
-        background: isUltimaVariant
-          ? `linear-gradient(160deg, ${color}28, color-mix(in srgb, var(--ultima-color-secondary) 74%, transparent) 60%)`
-          : `linear-gradient(160deg, ${color}55, transparent 60%)`,
-      }}
-      onClick={onClick}
-    >
-      <div
-        className={cn(
-          'relative flex h-full min-h-[220px] flex-col justify-between overflow-hidden rounded-[13px] p-7',
-          isUltimaVariant ? ultimaPaneClassName : 'bg-dark-900',
-        )}
-        style={isUltimaVariant ? ultimaPaneSurfaceStyle : undefined}
-      >
-        {/* Subtle corner glow on hover */}
-        <div
-          className="pointer-events-none absolute -bottom-5 -right-5 h-[100px] w-[100px] opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-          style={{
-            background: `radial-gradient(circle, ${color}08, transparent 70%)`,
-          }}
-        />
-
-        <div>
-          <div className="mb-3.5 flex items-center gap-2.5">
-            <span
-              className="inline-flex items-center gap-1.5 font-mono text-[10px] font-bold uppercase tracking-widest"
-              style={{ color }}
-            >
-              <span
-                className="h-[5px] w-[5px] rounded-full"
-                style={{
-                  background: color,
-                  boxShadow: `0 0 6px ${color}80`,
-                }}
-              />
-              {item.category}
-            </span>
-            {item.tag && <TagBadge text={item.tag} color={color} />}
-          </div>
-
-          <h3
-            className={cn(
-              'mb-2.5 break-words text-[17px] font-bold leading-snug transition-colors duration-300',
-              isUltimaVariant
-                ? 'text-white/92 group-hover:text-white'
-                : 'text-dark-100 group-hover:text-white',
-            )}
-          >
-            {item.title}
-          </h3>
-
-          {item.excerpt && (
-            <p
-              className={cn(
-                'text-[13px] leading-[1.75]',
-                isUltimaVariant ? 'text-white/62' : 'text-dark-400',
-              )}
-            >
-              {item.excerpt}
-            </p>
-          )}
+    <motion.article custom={index} variants={fadeSlideUp} initial="hidden" animate="visible"
+      role="link" tabIndex={0} onClick={onClick}
+      onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); onClick(); } }}
+      className={cn('cabinet-content-card group flex min-w-0 cursor-pointer flex-col overflow-hidden rounded-[24px] border border-white/10 bg-white/[0.035] transition-colors duration-200 hover:border-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#66b2ff]', featured && 'col-span-full sm:flex-row', variant === 'default' && 'bg-dark-900')}>
+      {image && !imageFailed && (
+        <div className={cn('overflow-hidden bg-black/15', featured ? 'sm:w-[42%] sm:shrink-0' : '')}>
+          <img src={image} alt="" loading="lazy" decoding="async" onError={() => setImageFailed(true)}
+            className={cn('aspect-[16/9] w-full object-cover', featured && 'sm:aspect-auto sm:h-full sm:min-h-[260px]')} />
         </div>
-
-        <div
-          className={cn(
-            'mt-5 flex items-center justify-between pt-3.5',
-            isUltimaVariant ? 'border-white/8 border-t' : 'border-t border-dark-700/50',
-          )}
-        >
-          <span
-            className={cn(
-              'font-mono text-[11px]',
-              isUltimaVariant ? 'text-white/42' : 'text-dark-600',
-            )}
-          >
-            {item.published_at ? new Date(item.published_at).toLocaleDateString(i18n.language) : ''}
-          </span>
-          <span
-            className={cn(
-              'font-mono text-[11px]',
-              isUltimaVariant ? 'text-white/42' : 'text-dark-500',
-            )}
-          >
-            {item.read_time_minutes} {t('news.readTime')}
-          </span>
+      )}
+      <div className="flex min-w-0 flex-1 flex-col p-5 sm:p-6">
+        <div className="mb-3 flex flex-wrap items-center gap-2">
+          <CategoryBadge category={item.category} color={color} />
+          {item.is_featured && <span className="rounded-full border border-white/15 px-2.5 py-1 text-[12px] font-medium text-white/75">{t('news.featured', { defaultValue: 'Важное' })}</span>}
+          {item.tag && <TagBadge text={item.tag} color={color} />}
+        </div>
+        <h3 className={cn('break-words font-semibold leading-[1.25] tracking-[-0.015em] text-white [overflow-wrap:anywhere]', featured ? 'text-[24px] sm:text-[28px]' : 'text-[20px]')}>
+          {item.title}
+        </h3>
+        {item.excerpt && <p className="mt-3 line-clamp-3 break-words text-[14px] leading-[1.65] text-white/65 [overflow-wrap:anywhere]">{item.excerpt}</p>}
+        <div className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-2 pt-5 text-[12px] text-white/55">
+          {item.published_at && <time dateTime={item.published_at}>{new Date(item.published_at).toLocaleDateString(i18n.language)}</time>}
+          <span>{item.read_time_minutes} {t('news.readTime')}</span>
+          <span className="ml-auto inline-flex items-center gap-2 text-[13px] font-medium text-white/85">{t('news.readMore')}<ArrowIcon /></span>
         </div>
       </div>
     </motion.article>
@@ -682,10 +348,10 @@ export default function NewsSection({
   // Memoized so FeaturedCard/NewsCard receive stable object references when
   // parent state unrelated to the list changes (e.g. load-more button state).
   const { featured, regular } = useMemo(
-    () => ({
-      featured: items.find((n) => n.is_featured),
-      regular: items.filter((n) => !n.is_featured),
-    }),
+    () => {
+      const featured = items.find((item) => item.is_featured);
+      return { featured, regular: items.filter((item) => item.id !== featured?.id) };
+    },
     [items],
   );
 

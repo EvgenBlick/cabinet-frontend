@@ -357,7 +357,7 @@ function FullBalance() {
                 <div className="mt-4">
                   {isLoading ? (
                     <div className="flex items-center justify-center py-12">
-                      <div className="h-8 w-8 animate-spin rounded-full border-2 border-accent-500 border-t-transparent" />
+                      <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/50 border-t-transparent" />
                     </div>
                   ) : transactions?.items && transactions.items.length > 0 ? (
                     <motion.div
@@ -386,10 +386,10 @@ function FullBalance() {
                           <motion.div
                             key={tx.id}
                             variants={staggerItem}
-                            className="flex items-center justify-between rounded-linear border border-dark-700/30 bg-dark-800/30 p-4"
+                            className="flex min-w-0 flex-col items-start justify-between gap-3 rounded-linear border border-dark-700/30 bg-dark-800/30 p-4 sm:flex-row sm:items-center"
                           >
-                            <div className="flex-1">
-                              <div className="mb-1 flex items-center gap-3">
+                            <div className="min-w-0 flex-1">
+                              <div className="mb-1 flex flex-wrap items-center gap-x-3 gap-y-1">
                                 <span className={getTypeBadge(tx.type)}>
                                   {getTypeLabel(tx.type)}
                                 </span>
@@ -398,10 +398,10 @@ function FullBalance() {
                                 </span>
                               </div>
                               {localizedDescription && (
-                                <div className="text-sm text-dark-400">{localizedDescription}</div>
+                                <div className="break-words text-sm leading-6 text-dark-400 [overflow-wrap:anywhere]">{localizedDescription}</div>
                               )}
                             </div>
-                            <div className={`text-lg font-semibold ${colorClass}`}>
+                            <div className={`shrink-0 self-end whitespace-nowrap text-lg font-semibold sm:self-center ${colorClass}`}>
                               {sign}
                               {formatAmount(displayAmount)} {currencySymbol}
                             </div>

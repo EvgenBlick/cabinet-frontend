@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, ArrowRight, ShieldCheck, Zap, Globe, X } from 'lucide-react';
+import { ArrowRight, ShieldCheck, Zap, Globe, X } from 'lucide-react';
 import { authApi } from '@/api/auth';
 import { useAuthStore } from '@/store/auth';
 
@@ -47,7 +47,7 @@ export function YandexLinkingModal({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 50, scale: 0.96 }}
             transition={{ type: 'spring', damping: 26, stiffness: 340 }}
-            className="relative z-10 w-full max-w-md overflow-hidden rounded-t-[28px] sm:rounded-3xl border border-white/[0.14] bg-[#0c0e15] p-5 shadow-2xl sm:p-6 text-white max-h-[90dvh] overflow-y-auto"
+            className="cabinet-yandex-surface relative z-10 w-full max-w-md overflow-hidden rounded-t-[28px] sm:rounded-3xl border border-white/[0.14] bg-[#0c0e15] p-5 shadow-2xl sm:p-6 text-white max-h-[90dvh] overflow-y-auto"
           >
             {/* Top mobile handle */}
             <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-white/[0.2] sm:hidden" />
@@ -74,7 +74,7 @@ export function YandexLinkingModal({
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-xl p-2 text-white/40 hover:bg-white/[0.08] hover:text-white transition-colors"
+                className="flex h-11 w-11 items-center justify-center rounded-xl p-2 text-white/70 hover:bg-white/[0.08] hover:text-white transition-colors"
                 aria-label="Закрыть"
               >
                 <X className="h-4 w-4" />
@@ -83,7 +83,7 @@ export function YandexLinkingModal({
 
             {/* Description */}
             <p className="mt-4 text-xs leading-relaxed text-white/[0.75]">
-              Привяжите ваш Яндекс ID к личному кабинету Samurai Service. Это позволит моментально входить на сайт в 1 клик через любой браузер без ожидания Telegram:
+              Привяжите Яндекс ID, чтобы входить в кабинет через браузер:
             </p>
 
             {/* Feature Cards */}
@@ -109,7 +109,7 @@ export function YandexLinkingModal({
               </div>
 
               <div className="flex items-start gap-2.5 rounded-xl border border-white/[0.07] bg-white/[0.03] p-2.5 text-xs">
-                <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-400 mt-0.5" />
+                <ShieldCheck className="h-4 w-4 shrink-0 text-[#d4b37f] mt-0.5" />
                 <div>
                   <span className="font-semibold text-white">Полная синхронизация</span>
                   <p className="text-[11px] text-white/[0.55] mt-0.5">
@@ -124,7 +124,7 @@ export function YandexLinkingModal({
               <button
                 type="button"
                 onClick={handleGoToLinking}
-                className="group flex min-h-[46px] w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#fc3f1d] via-[#f72d07] to-[#e02000] px-4 py-2.5 text-xs font-bold text-white shadow-[0_4px_20px_rgba(252,63,29,0.35)] transition-all hover:scale-[1.02] hover:shadow-[0_6px_28px_rgba(252,63,29,0.5)] active:scale-98"
+                className="cabinet-primary-action group flex min-h-[46px] w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#fc3f1d] via-[#f72d07] to-[#e02000] px-4 py-2.5 text-xs font-bold text-white shadow-[0_4px_20px_rgba(252,63,29,0.35)] transition-all hover:scale-[1.02] hover:shadow-[0_6px_28px_rgba(252,63,29,0.5)] active:scale-98"
               >
                 <span>Привязать Яндекс ID</span>
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
@@ -133,7 +133,7 @@ export function YandexLinkingModal({
               <button
                 type="button"
                 onClick={onDismiss}
-                className="py-2 text-[11px] font-medium text-white/[0.45] hover:text-white/[0.8] transition-colors"
+                className="min-h-11 py-2 text-[13px] font-medium text-white/[0.45] hover:text-white/[0.8] transition-colors"
               >
                 Не напоминать 2 дня
               </button>
@@ -201,7 +201,7 @@ export function YandexLinkingQuickActionRow() {
           <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#fc3f1d] shadow-[0_2px_12px_rgba(252,63,29,0.35)]">
             <span className="text-base font-black text-white leading-none select-none">Я</span>
             <span className="absolute -top-0.5 -right-0.5 flex h-2.5 w-2.5">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-300 opacity-75" />
+              <span className="absolute inline-flex h-full w-full hidden rounded-full bg-amber-300 opacity-75" />
               <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-amber-400" />
             </span>
           </div>
@@ -293,7 +293,7 @@ export function YandexLinkingFloatingBadge() {
           transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className="group relative flex items-center gap-2.5 rounded-full border border-[#fc3f1d]/40 bg-[#0d0f17]/95 py-2 pl-2 pr-4 shadow-[0_4px_24px_rgba(252,63,29,0.35)] backdrop-blur-xl transition-colors hover:border-[#fc3f1d]/70 hover:shadow-[0_6px_32px_rgba(252,63,29,0.5)]"
+          className="cabinet-yandex-surface group relative flex items-center gap-2.5 rounded-full border border-[#fc3f1d]/40 bg-[#0d0f17]/95 py-2 pl-2 pr-4 shadow-[0_4px_24px_rgba(252,63,29,0.35)] backdrop-blur-xl transition-colors hover:border-[#fc3f1d]/70 hover:shadow-[0_6px_32px_rgba(252,63,29,0.5)]"
           aria-label="Привязать Яндекс ID"
         >
           {/* Ambient Outer Aura */}
@@ -303,7 +303,7 @@ export function YandexLinkingFloatingBadge() {
           <span className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#fc3f1d] shadow-[0_2px_10px_rgba(252,63,29,0.4)]">
             <span className="text-sm font-black text-white leading-none select-none">Я</span>
             <span className="absolute -top-0.5 -right-0.5 flex h-2.5 w-2.5">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-300 opacity-75" />
+              <span className="absolute inline-flex h-full w-full hidden rounded-full bg-amber-300 opacity-75" />
               <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-amber-400" />
             </span>
           </span>
@@ -312,9 +312,9 @@ export function YandexLinkingFloatingBadge() {
           <div className="relative text-left">
             <div className="flex items-center gap-1">
               <span className="text-xs font-bold text-white tracking-wide">Яндекс ID</span>
-              <Sparkles className="h-3.5 w-3.5 text-amber-400" />
+              
             </div>
-            <span className="block text-[10px] font-semibold text-[#fc7258]">
+            <span className="block text-[10px] font-semibold text-white/70">
               {t('yandexBadge.linkAction', { defaultValue: 'Привязать аккаунт' })}
             </span>
           </div>

@@ -44,7 +44,7 @@ const defaultCardStyle: CSSProperties = ultimaSurfaceStyle;
 const accentCardStyle: CSSProperties = ultimaAccentSurfaceStyle;
 
 const statusClassMap: Record<string, string> = {
-  completed: 'border-[#d4b37f]/40/25 bg-[#d4b37f]/[0.1] text-[#d4b37f]',
+  completed: 'border-[#d4b37f]/25 bg-[#d4b37f]/[0.1] text-[#d4b37f]',
   approved: 'border-sky-200/25 bg-sky-300/[0.1] text-sky-100',
   pending: 'border-amber-200/25 bg-amber-300/[0.1] text-amber-100',
   rejected: 'border-rose-200/25 bg-rose-300/[0.1] text-rose-100',
@@ -347,7 +347,7 @@ export function UltimaReferral() {
       style={accentCardStyle}
     >
       <div className="flex items-start gap-3 lg:gap-4">
-        <span className="border-[#d4b37f]/40/[0.12] flex h-11 w-11 shrink-0 items-center justify-center rounded-[8px] border bg-[#d4b37f]/[0.08] text-[#d4b37f] lg:h-12 lg:w-12">
+        <span className="border-[#d4b37f]/[0.12] flex h-11 w-11 shrink-0 items-center justify-center rounded-[8px] border bg-[#d4b37f]/[0.08] text-[#d4b37f] lg:h-12 lg:w-12">
           <Gift className="h-5 w-5 lg:h-6 lg:w-6" strokeWidth={1.8} />
         </span>
         <div className="min-w-0 flex-1">
@@ -355,7 +355,7 @@ export function UltimaReferral() {
             <span className="text-[9px] font-semibold uppercase text-white/[0.42]">
               {t('referral.linkReady', { defaultValue: 'Ссылка готова' })}
             </span>
-            <span className="border-[#d4b37f]/40/[0.18] rounded-full border bg-[#d4b37f]/[0.1] px-2.5 py-1 text-[10px] font-semibold text-[#d4b37f]">
+            <span className="border-[#d4b37f]/[0.18] rounded-full border bg-[#d4b37f]/[0.1] px-2.5 py-1 text-[10px] font-semibold text-[#d4b37f]">
               {info?.commission_percent || 0}%
             </span>
           </div>
@@ -418,8 +418,8 @@ export function UltimaReferral() {
             >
               {copiedType === 'bot' ? (
                 <>
-                  <Check className="h-3 w-3 text-emerald-400" />
-                  <span className="text-emerald-300 font-semibold">{t('referral.copied', { defaultValue: 'Скопировано' })}</span>
+                  <Check className="h-3 w-3 text-[#d4b37f]" />
+                  <span className="text-[#d4b37f] font-semibold">{t('referral.copied', { defaultValue: 'Скопировано' })}</span>
                 </>
               ) : (
                 <>
@@ -459,8 +459,8 @@ export function UltimaReferral() {
             >
               {copiedType === 'web' ? (
                 <>
-                  <Check className="h-3 w-3 text-emerald-400" />
-                  <span className="text-emerald-300 font-semibold">{t('referral.copied', { defaultValue: 'Скопировано' })}</span>
+                  <Check className="h-3 w-3 text-[#d4b37f]" />
+                  <span className="text-[#d4b37f] font-semibold">{t('referral.copied', { defaultValue: 'Скопировано' })}</span>
                 </>
               ) : (
                 <>
@@ -514,7 +514,7 @@ export function UltimaReferral() {
             defaultValue: 'Бонусы начисляются после выполнения условий программы.',
           })}
         />
-        <span className="border-[#d4b37f]/40/[0.18] shrink-0 rounded-full border bg-[#d4b37f]/[0.1] px-2.5 py-1 text-[11px] font-semibold text-[#d4b37f]">
+        <span className="border-[#d4b37f]/[0.18] shrink-0 rounded-full border bg-[#d4b37f]/[0.1] px-2.5 py-1 text-[11px] font-semibold text-[#d4b37f]">
           {terms.commission_percent}%
         </span>
       </div>
@@ -594,7 +594,7 @@ export function UltimaReferral() {
                 className={cn(
                   'shrink-0 rounded-full border px-2.5 py-1 text-[9px] font-semibold',
                   ref.has_paid
-                    ? 'border-[#d4b37f]/40/[0.18] bg-[#d4b37f]/[0.1] text-[#d4b37f]'
+                    ? 'border-[#d4b37f]/[0.18] bg-[#d4b37f]/[0.1] text-[#d4b37f]'
                     : 'border-white/[0.1] bg-white/[0.04] text-white/[0.58]',
                 )}
               >
@@ -956,7 +956,7 @@ export function UltimaReferral() {
     >
       <div className="ultima-shell-aura" />
       <div className="ultima-shell-inner ultima-shell-mobile-docked lg:max-w-[960px]">
-        <section className="ultima-scrollbar flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto pr-1 pt-[clamp(8px,2vh,16px)]">
+        <section className="ultima-scrollbar flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto pr-1 pt-0">
           <header className="flex items-end justify-between gap-3 px-1">
             <div className="min-w-0">
               <p className="text-[9px] font-semibold uppercase text-white/[0.4]">

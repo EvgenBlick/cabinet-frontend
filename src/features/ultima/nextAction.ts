@@ -29,6 +29,10 @@ export function getUltimaNextAction({
     return 'renew';
   }
 
+  if (!isConnectionCompleted) {
+    return 'setup';
+  }
+
   if (
     connectedDevicesCount !== null &&
     deviceLimit !== null &&
@@ -36,10 +40,6 @@ export function getUltimaNextAction({
     connectedDevicesCount <= 0
   ) {
     return 'device';
-  }
-
-  if (!isConnectionCompleted) {
-    return 'setup';
   }
 
   if (daysLeft !== null && daysLeft <= ULTIMA_RENEWAL_NOTICE_DAYS) {

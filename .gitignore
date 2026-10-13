@@ -6,12 +6,26 @@ node_modules/
 
 # Build output
 dist/
+dist*/
 build/
+*.tar.gz
+*.bak*
+*.server
 
-# Environment files
-.env
-.env.local
-.env.*.local
+# Environment files and secrets
+.env*
+!.env.example
+*.pem
+*.key
+*.crt
+*.pfx
+*.p12
+*.sqlite*
+*.db
+*.sql
+*.dump
+.secrets/
+credentials*.json
 
 # Logs
 *.log

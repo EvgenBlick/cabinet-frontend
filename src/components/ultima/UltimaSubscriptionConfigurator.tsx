@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { UltimaSubscriptionNavigation } from '@/components/ultima/UltimaSubscriptionNavigation';
 import { Check, Clock3, RefreshCw, SlidersHorizontal, WalletCards } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -46,6 +47,7 @@ type UltimaSubscriptionConfiguratorProps = {
   minimumTopUpHint?: ReactNode;
   paymentRecoveryCard?: ReactNode;
   trafficTopUp?: ReactNode;
+  autoRenewChoice?: ReactNode;
   bottomNav: ReactNode;
   isPayDisabled: boolean;
   onChangeTariff: () => void;
@@ -154,6 +156,7 @@ export function UltimaSubscriptionConfigurator({
   minimumTopUpHint,
   paymentRecoveryCard,
   trafficTopUp,
+  autoRenewChoice,
   bottomNav,
   isPayDisabled,
   onChangeTariff,
@@ -171,6 +174,8 @@ export function UltimaSubscriptionConfigurator({
         className="mx-auto w-full max-w-lg flex-1 px-4 pb-6 pt-4 sm:px-6"
         data-testid="ultima-subscription-configurator"
       >
+        <UltimaSubscriptionNavigation />
+            {autoRenewChoice}
         {/* Header with Title and Change Plan button */}
         <header className="mb-4">
           <div className="flex items-center justify-between gap-3">
@@ -329,7 +334,7 @@ export function UltimaSubscriptionConfigurator({
       </main>
 
       {/* Floating Glass Checkout Footer */}
-      <footer className="sticky bottom-0 z-40 border-t border-white/[0.08] bg-[#07090e]/95 p-3.5 backdrop-blur-2xl">
+      <footer className="cabinet-checkout-footer sticky bottom-0 z-40 border-t border-white/[0.08] bg-[#07090e]/95 p-3.5 backdrop-blur-2xl">
         <div className="mx-auto max-w-lg">
           {minimumTopUpHint ? (
             <div className="mb-2 text-center text-[10px] text-amber-200/80">

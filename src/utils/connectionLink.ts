@@ -38,5 +38,5 @@ export function resolveConnectionUrlForUi(input: ResolveConnectionUrlInput): str
 
   // crypt5 cannot be generated with the former client-side crypt4 key.
   // The cabinet API returns the current panel/official Happ link when available.
-  return defaultUrl;
+  return null;
 }

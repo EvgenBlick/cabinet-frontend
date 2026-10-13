@@ -182,6 +182,11 @@ export interface Subscription {
   tariff_id?: number;
   tariff_name?: string;
   traffic_reset_mode?: string;
+  traffic_base_limit_gb?: number | null;
+  traffic_device_bonus_gb?: number | null;
+  traffic_purchased_gb?: number | null;
+  traffic_next_reset_at?: string | null;
+  traffic_updated_at?: string | null;
   metered_traffic_enabled?: boolean;
   metered_access_blocked?: boolean;
   metered_server_label?: string | null;

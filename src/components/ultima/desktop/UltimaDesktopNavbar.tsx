@@ -1,8 +1,12 @@
+import { CabinetNavigationDrop } from '../CabinetNavigationDrop';
+import { useRef } from 'react';
+import { useHaptic } from '@/platform';
 import { useLocation, useNavigate } from 'react-router';
 import { ShieldCheck, User } from 'lucide-react';
 import { useAuthStore } from '@/store/auth';
 import { useBranding } from '@/hooks/useBranding';
 import { cn } from '@/lib/utils';
+import '@/styles/cabinet-navigation.css';
 
 export function UltimaDesktopNavbar({
   onBuySubscription,
@@ -13,6 +17,8 @@ export function UltimaDesktopNavbar({
 }) {
   const location = useLocation();
   const navigate = useNavigate();
+  const haptic = useHaptic();
+  const navRef = useRef<HTMLElement>(null);
   const { user, isAdmin } = useAuthStore();
   const { appName } = useBranding();
 
@@ -39,6 +45,12 @@ export function UltimaDesktopNavbar({
       onClick: onBuySubscription ? () => onBuySubscription() : undefined,
     },
     {
+      id: 'manage-subscription',
+      label: 'Подписка',
+      path: '/ultima/subscription-info',
+      active: location.pathname === '/ultima/subscription-info',
+    },
+    {
       id: 'news',
       label: 'Новости',
       path: '/ultima/news',
@@ -53,18 +65,20 @@ export function UltimaDesktopNavbar({
     },
   ];
 
+
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-white/[0.06] bg-[#07090e]/80 backdrop-blur-2xl">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3.5">
+    <header className="cabinet-desktop-navigation cabinet-glass-navigation sticky top-0 z-50 w-full border-b border-white/[0.1] bg-[#17191f]/70 backdrop-blur-2xl">
+      <div className="cabinet-desktop-navigation-inner mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-3 gap-y-3 px-4 py-3.5 sm:px-6">
         {/* 1. Left: Brand */}
         <button
           type="button"
           onClick={() => navigate('/')}
-          className="group flex items-center gap-3 focus:outline-none"
+          aria-label="На главную"
+          className="group flex min-h-11 shrink-0 items-center gap-3 rounded-2xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#e2e2e8]"
         >
-          <div className="relative flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border border-[#d4b37f]/50 bg-[#0c0e14] p-1 shadow-[0_0_16px_rgba(212,179,127,0.3)] transition-transform group-hover:scale-105">
+          <div className="relative flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border border-white/15 bg-white/[0.05] p-1 transition-transform duration-200 group-hover:scale-[1.03]">
             <img
-              src="/samurai_exact_circle.png"
+              src="/samurai_original_medallion.png"
               alt=""
               className="h-full w-full object-contain rounded-full"
               onError={(e) => {
@@ -72,28 +86,26 @@ export function UltimaDesktopNavbar({
               }}
             />
           </div>
-          <span className="font-sans text-sm font-black tracking-widest text-white transition-colors group-hover:text-[#d4b37f]">
-            {appName ? appName.toUpperCase() : 'SAMURAISERVICE'}
+          <span className="max-w-[190px] truncate text-[15px] font-semibold tracking-tight text-white">
+            {appName || 'Samurai Service'}
           </span>
         </button>
 
         {/* 2. Center: Clean Navigation Tabs */}
-        <nav className="hidden items-center gap-1 md:flex">
+        <nav ref={navRef} aria-label="Основная навигация" className="cabinet-desktop-navigation-tabs">
+          <CabinetNavigationDrop container={navRef} activeKey={location.pathname} kind="desktop" />
           {navItems.map((item) => {
             const isActive = item.active;
             return (
               <button
                 key={item.id}
                 type="button"
-                onClick={item.onClick || (() => navigate(item.path))}
-                className={cn(
-                  'rounded-xl px-3.5 py-1.5 text-xs font-semibold tracking-wide transition-all',
-                  isActive
-                    ? 'bg-white/[0.08] text-white shadow-sm ring-1 ring-white/10'
-                    : 'text-[#8e929b] hover:bg-white/[0.04] hover:text-white',
-                )}
+                aria-current={isActive ? 'page' : undefined}
+                data-active={isActive}
+                onClick={() => { if (item.id === 'subscription') haptic.impact('light'); (item.onClick || (() => navigate(item.path)))(); }}
+                className="cabinet-navigation-tab cabinet-liquid-tab"
               >
-                {item.label}
+                <span className="relative z-10">{item.label}</span>
               </button>
             );
           })}
@@ -104,12 +116,12 @@ export function UltimaDesktopNavbar({
           {/* Balance Pill -> Direct Top Up */}
           <button
             type="button"
-            onClick={() => navigate('/balance/top-up?returnTo=/')}
-            className="flex items-center gap-2 rounded-xl border border-[#d4b37f]/30 bg-[#d4b37f]/10 px-3.5 py-1.5 text-xs transition-all hover:border-[#d4b37f]/60 hover:bg-[#d4b37f]/15"
+            onClick={() => navigate(`/balance/top-up?returnTo=${encodeURIComponent(location.pathname)}`)}
+            aria-label={`Пополнить баланс: ${balanceFormatted}`}
+            className="cabinet-glass-control flex min-h-11 items-center gap-2 rounded-full border border-white/[0.12] bg-white/[0.06] px-3.5 py-1.5 text-[13px] transition-[transform,opacity] duration-200 active:scale-[0.97]"
           >
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399]" />
-            <span className="font-bold text-[#d4b37f]">{balanceFormatted}</span>
-            <span className="rounded-md bg-[#d4b37f]/20 px-1 text-[10px] font-black text-[#d4b37f]">+</span>
+            <span className="font-medium text-white">{balanceFormatted}</span>
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#e2e2e8]/20 text-[15px] font-medium text-[#e2e2e8]">+</span>
           </button>
 
           {/* Admin shortcut */}
@@ -117,7 +129,7 @@ export function UltimaDesktopNavbar({
             <button
               type="button"
               onClick={() => navigate('/admin')}
-              className="hidden items-center gap-1.5 rounded-xl border border-[#d4b37f]/30 bg-[#12151c] px-3 py-1.5 text-xs font-semibold text-[#d4b37f] transition-all hover:bg-[#1a1f29] sm:flex"
+              className="cabinet-glass-control hidden min-h-11 items-center gap-1.5 rounded-full border border-white/[0.12] bg-white/[0.05] px-3 py-1.5 text-[13px] font-medium text-white/75 transition-[transform,opacity] duration-200 active:scale-[0.97] xl:flex"
             >
               <ShieldCheck className="h-3.5 w-3.5" />
               <span>Админ</span>
@@ -129,14 +141,14 @@ export function UltimaDesktopNavbar({
             type="button"
             onClick={() => navigate('/profile')}
             className={cn(
-              'flex items-center gap-2 rounded-xl border px-3.5 py-1.5 text-xs font-semibold transition-all',
+              'cabinet-glass-control flex min-h-11 items-center gap-2 rounded-full border px-3.5 py-1.5 text-[13px] font-medium transition-[transform,opacity] duration-200 active:scale-[0.97]',
               location.pathname.startsWith('/profile')
-                ? 'border-[#d4b37f]/60 bg-[#d4b37f]/15 text-[#d4b37f]'
-                : 'border-white/[0.08] bg-white/[0.03] text-[#8e929b] hover:border-white/20 hover:text-white',
+                ? 'border-white/20 bg-white/[0.1] text-[#e2e2e8]'
+                : 'border-white/[0.12] bg-white/[0.05] text-white/75 hover:text-white',
             )}
           >
-            <User className="h-3.5 w-3.5 text-[#d4b37f]" />
-            <span>{user?.first_name || user?.username || 'Кабинет'}</span>
+            <User className="h-3.5 w-3.5 text-[#e2e2e8]" />
+            <span className="max-w-[100px] truncate">{user?.first_name || user?.username || 'Кабинет'}</span>
           </button>
         </div>
       </div>

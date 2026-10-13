@@ -208,21 +208,23 @@ export function FreshLoginPage() {
               </div>
 
               {/* Quick Dev Demo Access Button */}
-              <div className="mt-6 border-t border-white/10 pt-5">
-                <button
-                  type="button"
-                  onClick={handleQuickDemoLogin}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed py-3 text-xs font-bold transition-all hover:scale-[1.02]"
-                  style={{
-                    borderColor: `${accentLime}60`,
-                    backgroundColor: `${accentLime}15`,
-                    color: accentLime,
-                  }}
-                >
-                  <Zap className="h-4 w-4" />
-                  <span>⚡ Тестовый вход в кабинет</span>
-                </button>
-              </div>
+              {import.meta.env.DEV && (
+                <div className="mt-6 border-t border-white/10 pt-5">
+                  <button
+                    type="button"
+                    onClick={handleQuickDemoLogin}
+                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed py-3 text-xs font-bold transition-all hover:scale-[1.02]"
+                    style={{
+                      borderColor: `${accentLime}60`,
+                      backgroundColor: `${accentLime}15`,
+                      color: accentLime,
+                    }}
+                  >
+                    <Zap className="h-4 w-4" />
+                    <span>⚡ Тестовый вход в кабинет</span>
+                  </button>
+                </div>
+              )}
 
               {/* Bottom Security Note */}
               <div className="mt-5 flex items-center justify-center gap-1.5 text-[11px] text-[#6a736c]">

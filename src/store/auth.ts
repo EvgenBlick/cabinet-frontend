@@ -177,6 +177,7 @@ export const useAuthStore = create<AuthState>()(
             set({ isLoading: true });
 
             if (
+              import.meta.env.DEV &&
               typeof window !== 'undefined' &&
               (localStorage.getItem('cabinet-dev-auth') === 'true' ||
                 sessionStorage.getItem('cabinet-dev-auth') === 'true')
@@ -193,9 +194,9 @@ export const useAuthStore = create<AuthState>()(
               const validJwt = `${header}.${payload}.signature`;
               const dummyUser = {
                 id: 1,
-                telegram_id: 6636301647,
-                username: 'EvgenBlick',
-                first_name: 'Евгений',
+                telegram_id: 0,
+                username: 'dev_user',
+                first_name: 'Developer',
                 role: 'admin',
                 is_admin: true,
                 has_subscription: true,

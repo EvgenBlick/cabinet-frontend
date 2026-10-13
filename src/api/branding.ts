@@ -272,19 +272,7 @@ export const getCachedUltimaThemeConfig = (): UltimaThemeConfig | null => {
   try {
     const cached = localStorage.getItem(ULTIMA_THEME_CONFIG_CACHE_KEY);
     if (!cached) return null;
-    const parsed = JSON.parse(cached);
-    if (
-      parsed.primaryColor === '#1bd29f' ||
-      parsed.themePresetId === 'emerald-classic' ||
-      parsed.themePresetId === 'cyber-emerald'
-    ) {
-      localStorage.setItem(
-        ULTIMA_THEME_CONFIG_CACHE_KEY,
-        JSON.stringify(DEFAULT_ULTIMA_THEME_CONFIG),
-      );
-      return DEFAULT_ULTIMA_THEME_CONFIG;
-    }
-    return { ...DEFAULT_ULTIMA_THEME_CONFIG, ...parsed };
+    return { ...DEFAULT_ULTIMA_THEME_CONFIG, ...JSON.parse(cached) };
   } catch {
     return null;
   }
@@ -401,8 +389,8 @@ export const brandingApi = {
       const response = await apiClient.get<EmailAuthEnabled>('/cabinet/branding/email-auth');
       return response.data;
     } catch {
-      // If endpoint fails or offline, default to disabled
-      return { enabled: false };
+      // If endpoint doesn't exist, default to enabled
+      return { enabled: true };
     }
   },
 

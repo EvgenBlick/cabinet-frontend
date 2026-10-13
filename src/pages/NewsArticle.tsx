@@ -432,7 +432,7 @@ export default function NewsArticlePage() {
         >
           <button
             onClick={() => navigate(backPath)}
-            className="text-white/78 mb-4 flex min-h-[40px] items-center gap-2 rounded-full border border-white/10 bg-white/[0.05] px-4 text-sm transition-colors hover:bg-white/[0.08] hover:text-white"
+            className="text-white/78 mb-4 flex min-h-[44px] items-center gap-2 rounded-full border border-white/10 bg-white/[0.05] px-4 text-sm transition-colors hover:bg-white/[0.08] hover:text-white"
             aria-label={t('news.backToHome')}
           >
             <BackIcon />
@@ -474,7 +474,7 @@ export default function NewsArticlePage() {
         <section className={`${ultimaPanelClassName} p-4 sm:p-5`} style={ultimaSurfaceStyle}>
           <button
             onClick={() => navigate(backPath)}
-            className="text-white/78 mb-4 flex min-h-[40px] items-center gap-2 rounded-full border border-white/10 bg-white/[0.05] px-4 text-sm transition-colors hover:bg-white/[0.08] hover:text-white"
+            className="text-white/78 mb-4 flex min-h-[44px] items-center gap-2 rounded-full border border-white/10 bg-white/[0.05] px-4 text-sm transition-colors hover:bg-white/[0.08] hover:text-white"
             aria-label={t('news.title', { defaultValue: 'Новости' })}
           >
             <BackIcon />
@@ -483,7 +483,7 @@ export default function NewsArticlePage() {
 
           <div className="mb-4 flex flex-wrap items-center gap-2.5">
             <span
-              className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-mono text-[11px] font-bold uppercase tracking-widest"
+              className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[12px] font-medium"
               style={{
                 color,
                 background: `${color}15`,
@@ -494,14 +494,13 @@ export default function NewsArticlePage() {
                 className="h-1.5 w-1.5 rounded-full"
                 style={{
                   background: color,
-                  boxShadow: `0 0 8px ${color}`,
                 }}
               />
               {article.category}
             </span>
             {article.tag && (
               <span
-                className="inline-block rounded-full px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-wider"
+                className="inline-block rounded-full px-2.5 py-1 text-[12px] font-medium"
                 style={{
                   color,
                   border: `1px solid ${color}33`,
@@ -513,18 +512,18 @@ export default function NewsArticlePage() {
             )}
           </div>
 
-          <h1 className="text-[clamp(30px,8.6vw,42px)] font-semibold leading-[0.96] tracking-[-0.02em] text-white">
+          <h1 className="break-words [overflow-wrap:anywhere] text-[clamp(30px,8.6vw,42px)] font-semibold leading-[1.15] tracking-[-0.02em] text-white">
             {article.title}
           </h1>
 
-          <div className="text-white/52 mt-3 flex flex-wrap items-center gap-4 text-xs">
+          <div className="text-white/52 mt-3 flex flex-wrap items-center gap-4 text-[13px]">
             {article.published_at && (
-              <span className="inline-flex items-center gap-1.5 font-mono">
+              <span className="inline-flex items-center gap-1.5">
                 <CalendarIcon />
                 {new Date(article.published_at).toLocaleDateString(i18n.language)}
               </span>
             )}
-            <span className="inline-flex items-center gap-1.5 font-mono">
+            <span className="inline-flex items-center gap-1.5">
               <ClockIcon />
               {article.read_time_minutes} {t('news.readTime')}
             </span>
@@ -556,7 +555,7 @@ export default function NewsArticlePage() {
 
           <div
             ref={contentRef}
-            className="text-white/86 prose prose-invert [&_blockquote]:text-white/72 [&_figcaption]:text-white/54 [&_td]:border-white/8 max-w-none text-[15px] leading-[1.78] [&_a]:break-all [&_a]:text-[#74f0d0] [&_a]:underline [&_blockquote]:rounded-[20px] [&_blockquote]:border [&_blockquote]:border-white/10 [&_blockquote]:bg-white/[0.04] [&_blockquote]:px-4 [&_blockquote]:py-3 [&_figcaption]:mt-2 [&_figcaption]:text-sm [&_figure]:my-5 [&_h1]:mb-3 [&_h1]:text-[30px] [&_h1]:font-semibold [&_h1]:leading-[1] [&_h2]:mb-3 [&_h2]:mt-7 [&_h2]:text-[24px] [&_h2]:font-semibold [&_h2]:leading-[1.1] [&_h3]:mb-2 [&_h3]:mt-6 [&_h3]:text-[20px] [&_h3]:font-semibold [&_h3]:leading-[1.15] [&_img]:my-5 [&_img]:max-h-[min(52svh,480px)] [&_img]:w-full [&_img]:cursor-zoom-in [&_img]:rounded-[24px] [&_img]:object-contain [&_li]:mb-2 [&_ol]:mb-5 [&_ol]:pl-5 [&_p]:mb-4 [&_pre]:overflow-x-auto [&_pre]:rounded-[20px] [&_pre]:border [&_pre]:border-white/10 [&_pre]:bg-black/20 [&_pre]:p-4 [&_table]:block [&_table]:w-full [&_table]:overflow-x-auto [&_td]:border-b [&_td]:px-3 [&_td]:py-2 [&_th]:border-b [&_th]:border-white/10 [&_th]:px-3 [&_th]:py-2 [&_ul]:mb-5 [&_ul]:pl-5 [&_video]:my-5 [&_video]:max-h-[min(52svh,480px)] [&_video]:w-full [&_video]:rounded-[24px] [&_video]:bg-black/20"
+            className="text-white/86 prose prose-invert [&_blockquote]:text-white/72 [&_figcaption]:text-white/54 [&_td]:border-white/8 mx-auto min-w-0 max-w-[72ch] break-words text-[15px] leading-[1.78] [overflow-wrap:anywhere] [&_a]:break-all [&_a]:text-[#66b2ff] [&_a]:underline [&_blockquote]:rounded-[20px] [&_blockquote]:border [&_blockquote]:border-white/10 [&_blockquote]:bg-white/[0.04] [&_blockquote]:px-4 [&_blockquote]:py-3 [&_figcaption]:mt-2 [&_figcaption]:text-sm [&_figure]:my-5 [&_h1]:mb-3 [&_h1]:text-[30px] [&_h1]:font-semibold [&_h1]:leading-[1.2] [&_h2]:mb-3 [&_h2]:mt-7 [&_h2]:text-[24px] [&_h2]:font-semibold [&_h2]:leading-[1.2] [&_h3]:mb-2 [&_h3]:mt-6 [&_h3]:text-[20px] [&_h3]:font-semibold [&_h3]:leading-[1.15] [&_img]:my-5 [&_img]:max-h-[min(52svh,480px)] [&_img]:w-full [&_img]:cursor-zoom-in [&_img]:rounded-[24px] [&_img]:object-contain [&_li]:mb-2 [&_ol]:mb-5 [&_ol]:pl-5 [&_p]:mb-4 [&_pre]:overflow-x-auto [&_pre]:rounded-[20px] [&_pre]:border [&_pre]:border-white/10 [&_pre]:bg-black/20 [&_pre]:p-4 [&_table]:block [&_table]:w-full [&_table]:overflow-x-auto [&_td]:border-b [&_td]:px-3 [&_td]:py-2 [&_th]:border-b [&_th]:border-white/10 [&_th]:px-3 [&_th]:py-2 [&_ul]:mb-5 [&_ul]:pl-5 [&_video]:my-5 [&_video]:max-h-[min(52svh,480px)] [&_video]:w-full [&_video]:rounded-[24px] [&_video]:bg-black/20"
             dangerouslySetInnerHTML={{ __html: sanitizedContent }}
           />
         </section>
@@ -592,7 +591,7 @@ export default function NewsArticlePage() {
             return (
               <>
                 <span
-                  className="inline-flex items-center gap-1.5 rounded-md px-3 py-1 font-mono text-[11px] font-bold uppercase tracking-widest"
+                  className="inline-flex items-center gap-1.5 rounded-md px-3 py-1 text-[12px] font-medium"
                   style={{
                     color,
                     background: `${color}15`,
@@ -603,14 +602,13 @@ export default function NewsArticlePage() {
                     className="h-1.5 w-1.5 animate-pulse rounded-full"
                     style={{
                       background: color,
-                      boxShadow: `0 0 8px ${color}`,
-                    }}
+                        }}
                   />
                   {article.category}
                 </span>
                 {article.tag && (
                   <span
-                    className="inline-block rounded px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider"
+                    className="inline-block rounded px-2 py-0.5 text-[12px] font-medium"
                     style={{
                       color,
                       border: `1px solid ${color}33`,
@@ -626,19 +624,19 @@ export default function NewsArticlePage() {
         </div>
 
         {/* Title */}
-        <h1 className="mb-4 text-2xl font-extrabold leading-tight text-dark-50 sm:text-3xl">
+        <h1 className="mb-4 break-words [overflow-wrap:anywhere] text-2xl font-extrabold leading-tight text-dark-50 sm:text-3xl">
           {article.title}
         </h1>
 
         {/* Meta info */}
         <div className="mb-6 flex flex-wrap items-center gap-4 text-sm text-dark-400">
           {article.published_at && (
-            <span className="inline-flex items-center gap-1.5 font-mono text-xs">
+            <span className="inline-flex items-center gap-1.5 text-xs">
               <CalendarIcon />
               {new Date(article.published_at).toLocaleDateString(i18n.language)}
             </span>
           )}
-          <span className="inline-flex items-center gap-1.5 font-mono text-xs">
+          <span className="inline-flex items-center gap-1.5 text-xs">
             <ClockIcon />
             {article.read_time_minutes} {t('news.readTime')}
           </span>
@@ -678,7 +676,7 @@ export default function NewsArticlePage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
         ref={contentRef}
-        className="prose max-w-none lg:max-w-3xl [&_img]:max-h-[min(56svh,560px)] [&_img]:w-full [&_img]:cursor-zoom-in [&_img]:object-contain [&_video]:max-h-[min(56svh,560px)] [&_video]:w-full"
+        className="prose min-w-0 max-w-none break-words [overflow-wrap:anywhere] [&_pre]:max-w-full [&_pre]:overflow-x-auto [&_table]:block [&_table]:max-w-full [&_table]:overflow-x-auto lg:max-w-3xl [&_img]:max-h-[min(56svh,560px)] [&_img]:w-full [&_img]:cursor-zoom-in [&_img]:object-contain [&_video]:max-h-[min(56svh,560px)] [&_video]:w-full"
         dangerouslySetInnerHTML={{ __html: sanitizedContent }}
       />
       {renderExpandedImage()}

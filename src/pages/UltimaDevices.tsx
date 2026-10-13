@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useSearchParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
@@ -284,14 +285,14 @@ export function UltimaDevices() {
   const availableDeviceSlots = Math.max(0, currentLimit - connectedCount);
   const subscriptionLink = subscriptionData?.subscription?.subscription_url ?? '';
   const hideSubscriptionLink = Boolean(subscriptionData?.subscription?.hide_subscription_link);
-  const cryptoLinksEnabled = appConfig?.cryptoLinksEnabled === true;
+  const cryptoLinksEnabled = appConfig?.cryptoLinksEnabled !== false;
   const canUseSubscriptionLink = subscriptionLink.length > 0;
   const connectionOptions = useMemo<DeviceConnectionOption[]>(() => {
     const options: DeviceConnectionOption[] = [];
     const happCryptoLink = appConfig?.subscriptionCryptoLink?.trim();
     const incyCryptoLink = appConfig?.subscriptionIncyCryptoLink?.trim();
 
-    if (happCryptoLink) {
+    if (happCryptoLink && /^happ:\/\/crypt5\//i.test(happCryptoLink)) {
       options.push({
         kind: 'happ',
         label: 'Happ',
@@ -303,7 +304,7 @@ export function UltimaDevices() {
       });
     }
 
-    if (incyCryptoLink) {
+    if (incyCryptoLink && /^incy:\/\/crypt1\//i.test(incyCryptoLink)) {
       options.push({
         kind: 'incy',
         label: 'INCY',
@@ -365,7 +366,11 @@ export function UltimaDevices() {
   const maxTargetLimit =
     isActiveTrial || !devicePrice?.available ? currentLimit : currentLimit + maxAdd;
   const targetDelta = normalizedTargetLimit - currentLimit;
-  const targetTrafficDelta = targetDelta * Math.max(0, currentTariff?.device_traffic_gb ?? 0);
+  const bonusPerDevice = (subscriptionData?.subscription?.traffic_limit_gb ?? 0) > 0
+    ? Math.max(0, currentTariff?.device_traffic_gb ?? 0) : 0;
+  const targetTrafficDelta =
+    (Math.max(0, normalizedTargetLimit - baseDeviceLimit) -
+      Math.max(0, currentLimit - baseDeviceLimit)) * bonusPerDevice;
   const capacityPercent =
     currentLimit > 0 ? Math.min(100, Math.round((connectedCount / currentLimit) * 100)) : 0;
   const isPrimaryLoading =
@@ -681,6 +686,15 @@ export function UltimaDevices() {
                   />
                 </div>
 
+                {bonusPerDevice > 0 ? (
+                  <p data-testid="ultima-device-traffic-bonus" className="mt-3 text-sm leading-relaxed text-white/70">
+                    {t('devices.lteTrafficBonus', {
+                      count: bonusPerDevice,
+                      defaultValue: 'За каждое устройство сверх лимита тарифа — +{{count}} ГБ LTE.',
+                    })}
+                  </p>
+                ) : null}
+
                 {targetDelta !== 0 ? (
                   <div
                     data-testid="ultima-device-limit-summary"
@@ -705,7 +719,7 @@ export function UltimaDevices() {
                                 defaultValue: 'Уменьшится на {{count}}',
                               })}
                           {targetTrafficDelta !== 0
-                            ? ` · ${targetTrafficDelta > 0 ? '+' : ''}${targetTrafficDelta} ${t('common.units.gb')}`
+                            ? ` · ${targetTrafficDelta > 0 ? '+' : ''}${targetTrafficDelta} ${t('common.units.gb')} LTE`
                             : ''}
                         </p>
                       </div>
@@ -838,7 +852,7 @@ export function UltimaDevices() {
                       <button
                         type="button"
                         onClick={() => deleteMutation.mutate(device.hwid)}
-                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-[#8e929b] transition-colors hover:bg-rose-500/10 hover:text-rose-300 disabled:opacity-40"
+                        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-[#8e929b] transition-colors hover:bg-rose-500/10 hover:text-rose-300 disabled:opacity-40"
                         disabled={isBusy}
                         aria-label={t('lite.deleteDevice', {
                           defaultValue: 'Удалить устройство',
@@ -873,20 +887,21 @@ export function UltimaDevices() {
             )}
           </section>
 
-          {isConnectionPanelOpen && canUseSubscriptionLink ? (
-            <div
-              className="fixed inset-0 z-[80] flex items-end justify-center bg-black/65 p-3 backdrop-blur-sm sm:items-center"
-              onMouseDown={(event) => {
-                if (event.target === event.currentTarget) setIsConnectionPanelOpen(false);
-              }}
-            >
-              <section
-                id="ultima-connect-new-device"
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="ultima-connect-new-device-title"
-                className="border-[#d4b37f]/40/[0.18] max-h-[calc(100dvh-24px)] w-full max-w-[460px] overflow-y-auto rounded-2xl border bg-[#071f1f] p-4 shadow-2xl"
-              >
+          {isConnectionPanelOpen && canUseSubscriptionLink
+            ? createPortal(
+                <div
+                  className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-3 sm:p-4 backdrop-blur-md"
+                  onMouseDown={(event) => {
+                    if (event.target === event.currentTarget) setIsConnectionPanelOpen(false);
+                  }}
+                >
+                  <section
+                    id="ultima-connect-new-device"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="ultima-connect-new-device-title"
+                    className="relative max-h-[min(90dvh,640px)] w-full max-w-[460px] overflow-y-auto rounded-2xl border border-[#d4b37f]/30 bg-[#121418] p-5 shadow-[0_24px_70px_rgba(0,0,0,0.85),0_0_35px_rgba(212,179,127,0.1)]"
+                  >
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <h2
@@ -957,7 +972,7 @@ export function UltimaDevices() {
                                 onClick={() => setSelectedConnectionKind(option.kind)}
                                 className={`flex min-h-9 items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-[11px] font-semibold transition-colors ${
                                   isSelected
-                                    ? 'bg-[#d4b37f] text-[#d4b37f] shadow-[0_6px_18px_rgba(52,211,153,0.16)]'
+                                    ? 'bg-[#d4b37f] text-[#121418] shadow-[0_6px_18px_rgba(212,179,127,0.2)]'
                                     : 'text-white/[0.58] hover:bg-white/[0.055] hover:text-white'
                                 }`}
                               >
@@ -1008,7 +1023,7 @@ export function UltimaDevices() {
                       ) : (
                         <p
                           data-testid="ultima-device-raw-link"
-                          className="mt-3 truncate rounded-xl bg-white/[0.045] px-3 py-2.5 font-mono text-[10px] text-white/[0.58]"
+                          className="mt-3 truncate rounded-xl bg-white/[0.045] px-3 py-2.5 font-mono text-[12px] text-white/[0.7]"
                         >
                           {selectedConnectionUrl}
                         </p>
@@ -1043,7 +1058,8 @@ export function UltimaDevices() {
                   </p>
                 )}
               </section>
-            </div>
+            </div>,
+            document.body,
           ) : null}
 
           {error || success ? (
@@ -1052,7 +1068,7 @@ export function UltimaDevices() {
               className={`fixed bottom-[calc(88px+env(safe-area-inset-bottom))] left-1/2 z-[90] flex w-[calc(100%-24px)] max-w-md -translate-x-1/2 items-center gap-3 rounded-xl border px-3 py-2.5 text-[12px] shadow-2xl backdrop-blur-xl lg:bottom-6 ${
                 error
                   ? 'border-rose-300/25 bg-rose-950/90 text-rose-50'
-                  : 'border-[#d4b37f]/40/20 bg-[#d4b37f]/90 text-[#d4b37f]'
+                  : 'border-white/15 bg-[#20242c]/95 text-white'
               }`}
             >
               <span className="min-w-0 flex-1">{error || success}</span>
@@ -1062,7 +1078,7 @@ export function UltimaDevices() {
                   setError(null);
                   setSuccess(null);
                 }}
-                className="text-current/70 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg hover:bg-white/[0.08]"
+                className="text-current/70 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg hover:bg-white/[0.08]"
                 aria-label={t('common.close', { defaultValue: 'Закрыть' })}
               >
                 <X className="h-4 w-4" strokeWidth={2} />

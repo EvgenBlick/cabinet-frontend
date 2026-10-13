@@ -1,4 +1,6 @@
+import '@/styles/auth-surfaces.css';
 import { useQuery } from '@tanstack/react-query';
+import { ShieldCheck } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { brandingApi, getCachedBranding, preloadLogo, setCachedBranding } from '@/api/branding';
 import { useBrandLogoImage } from '@/hooks/useBrandLogoImage';
@@ -28,79 +30,6 @@ export default function PageLoader({ variant = 'dark', contained = false }: Page
   const { isLoaded, hasError, handleLoad, handleError } = useBrandLogoImage(logoUrl);
   const showLogo = Boolean(branding?.has_custom_logo && logoUrl && !hasError);
 
-  // Auto-detect fresh theme from route or storage if not explicitly given
-  const isFresh =
-    variant === 'fresh' ||
-    (typeof window !== 'undefined' &&
-      (window.location.pathname.startsWith('/fresh') ||
-        localStorage.getItem('cabinet_active_theme') === 'fresh'));
-
-  if (isFresh && !contained) {
-    return (
-      <div
-        data-testid="fresh-startup-loader"
-        className="fresh-backdrop-container relative flex min-h-[100dvh] items-center justify-center overflow-hidden bg-[#060907] px-6 text-[#f5f5f7]"
-      >
-        {/* Soft emerald/lime ambient aura */}
-        <div
-          className="absolute h-[500px] w-[500px] rounded-full blur-[120px]"
-          style={{
-            background:
-              'radial-gradient(circle, rgba(215, 255, 59, 0.22) 0%, rgba(16, 185, 129, 0.12) 40%, transparent 70%)',
-          }}
-        />
-
-        {/* Breathing concentric orbital rings */}
-        <div
-          aria-hidden
-          className="absolute h-64 w-64 animate-ping rounded-full border border-[#d7ff3b]/20 opacity-20 duration-1000"
-        />
-        <div
-          aria-hidden
-          className="absolute h-48 w-48 animate-pulse rounded-full border border-[#d7ff3b]/30 shadow-[0_0_50px_rgba(215,255,59,0.15)]"
-        />
-
-        {/* Center Card */}
-        <div className="relative z-10 flex flex-col items-center text-center">
-          <div className="fresh-glass-pill relative flex h-20 w-20 animate-bounce items-center justify-center rounded-3xl border border-[#d7ff3b]/40 bg-[#0d1610] p-4 shadow-[0_0_35px_rgba(215,255,59,0.3)] transition-transform duration-1000">
-            {showLogo ? (
-              <img
-                src={logoUrl || ''}
-                alt=""
-                className={cn(
-                  'h-10 w-10 object-contain transition-opacity duration-300',
-                  isLoaded ? 'opacity-100' : 'opacity-0',
-                )}
-                onLoad={handleLoad}
-                onError={handleError}
-              />
-            ) : (
-              <svg
-                className="h-9 w-9 text-[#d7ff3b]"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#d7ff3b"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" />
-                <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
-              </svg>
-            )}
-          </div>
-
-          <div className="mt-6 flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-1.5 backdrop-blur-md">
-            <span className="h-2 w-2 animate-ping rounded-full bg-[#d7ff3b]" />
-            <span className="text-xs font-semibold uppercase tracking-wider text-[#c8d0ca]">
-              Загрузка...
-            </span>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   if (contained) {
     return (
       <div
@@ -112,11 +41,7 @@ export default function PageLoader({ variant = 'dark', contained = false }: Page
           <span
             className={cn(
               'h-2.5 w-2.5 animate-pulse rounded-full',
-              isFresh
-                ? 'bg-[#d7ff3b]'
-                : variant === 'ultima'
-                  ? 'bg-[var(--ultima-color-primary)]'
-                  : 'bg-accent-400',
+              'bg-white/70',
             )}
           />
           <span className="text-sm font-medium text-dark-300">
@@ -131,71 +56,64 @@ export default function PageLoader({ variant = 'dark', contained = false }: Page
     return (
       <div
         data-testid="app-startup-loader"
-        className="relative flex min-h-[100dvh] items-center justify-center overflow-hidden px-6"
-        style={{
-          background:
-            'radial-gradient(70% 48% at 70% 42%, color-mix(in srgb, var(--ultima-color-aura) 24%, transparent), transparent 72%), linear-gradient(165deg, color-mix(in srgb, var(--ultima-color-bg-top) 88%, #020617) 0%, color-mix(in srgb, var(--ultima-color-bg-bottom) 86%, #020617) 100%)',
-        }}
+        className="cabinet-neutral-loader relative flex min-h-[100dvh] items-center justify-center overflow-hidden px-6"
+        style={{ background: '#101216' }}
+        role="status"
+        aria-label={t('common.loading', 'Загрузка')}
       >
-        <div className="ultima-shell-aura opacity-70" />
-        <div
-          aria-hidden
-          className="absolute h-72 w-72 animate-pulse rounded-full border opacity-30"
-          style={{
-            borderColor: 'color-mix(in srgb, var(--ultima-color-ring) 30%, transparent)',
-            boxShadow: '0 0 80px color-mix(in srgb, var(--ultima-color-aura) 14%, transparent)',
-          }}
-        />
-
         <div className="relative z-10 flex w-full max-w-xs flex-col items-center text-center">
-          <div className="group relative mb-2 flex h-28 w-28 items-center justify-center">
-            <div className="pointer-events-none absolute -inset-2 rounded-[34px] bg-[#d4b37f]/20 blur-xl transition-all duration-700" />
-            <div className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-[28px] border border-[#d4b37f]/45 bg-gradient-to-b from-[#1e222a] via-[#111318] to-[#07080a] p-2 shadow-[0_16px_40px_rgba(0,0,0,0.85),0_0_35px_rgba(212,179,127,0.22)] backdrop-blur-2xl">
-              <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
-              {showLogo ? (
-                <img
-                  src={logoUrl || ''}
-                  alt=""
-                  className={cn(
-                    'h-full w-full rounded-[20px] object-contain transition-opacity duration-300',
-                    isLoaded ? 'opacity-100' : 'opacity-0',
-                  )}
-                  onLoad={handleLoad}
-                  onError={handleError}
-                />
-              ) : (
-                <img
-                  src="/samurai_original_medallion.png"
-                  alt="Samurai"
-                  className="h-full w-full rounded-[20px] object-contain p-1"
-                />
+          <div
+            className="relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border bg-black/20 p-3 backdrop-blur-md"
+            style={{ borderColor:'rgba(255,255,255,.15)', boxShadow:'inset 0 1px 0 rgba(255,255,255,.08)' }}
+          >
+            <ShieldCheck
+              className={cn(
+                'absolute h-11 w-11 text-white/90 transition-opacity duration-200',
+                showLogo && isLoaded ? 'opacity-0' : 'opacity-100',
               )}
-            </div>
+              strokeWidth={1.7}
+            />
+            {showLogo ? (
+              <img
+                src={logoUrl ?? undefined}
+                alt=""
+                className={cn(
+                  'absolute inset-0 h-full w-full object-contain p-3 transition-opacity duration-200',
+                  isLoaded ? 'opacity-100' : 'opacity-0',
+                )}
+                loading="eager"
+                decoding="async"
+                onLoad={handleLoad}
+                onError={handleError}
+              />
+            ) : null}
           </div>
 
-          <div className="mt-5 text-sm font-bold uppercase tracking-wider text-[#d4b37f]">
-            {branding?.name || 'Samurai Service'}
+          <div className="mt-5 flex items-center gap-2" aria-hidden>
+            {[0, 1, 2].map((step) => (
+              <span
+                key={step}
+                className="h-1.5 w-1.5 animate-pulse rounded-full bg-white/60"
+                style={{ animationDelay: `${step * 160}ms` }}
+              />
+            ))}
           </div>
         </div>
       </div>
     );
   }
 
-  // Default Dark/Light fallback
+  const spinnerColor = variant === 'dark' ? 'border-white/60' : 'border-slate-500';
+  const bgClass =
+    variant === 'dark'
+      ? 'bg-gradient-to-b from-dark-950 via-dark-950 to-dark-900'
+      : 'bg-gradient-to-b from-white via-slate-50 to-slate-100';
+
   return (
-    <div
-      data-testid="app-startup-loader"
-      className={cn(
-        'relative flex min-h-[100dvh] items-center justify-center overflow-hidden px-6',
-        variant === 'light' ? 'bg-[#fef9f0] text-dark-900' : 'bg-[#0a0f1a] text-white',
-      )}
-    >
-      <div className="flex flex-col items-center">
-        <div className="h-12 w-12 animate-spin rounded-full border-4 border-white/20 border-t-[#d7ff3b]" />
-        <span className="mt-4 text-xs font-semibold uppercase tracking-wider text-white/70">
-          Загрузка
-        </span>
-      </div>
+    <div className={`flex min-h-[100dvh] items-center justify-center ${bgClass}`}>
+      <div
+        className={`h-10 w-10 border-[3px] ${spinnerColor} animate-spin rounded-full border-t-transparent`}
+      />
     </div>
   );
 }

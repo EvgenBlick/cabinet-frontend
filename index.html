@@ -12,11 +12,7 @@
     <title>Loading...</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600;700;800;900&display=swap" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600;700;800;900&display=swap" media="print" onload="this.media='all'" />
-    <noscript>
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600;700;800;900&display=swap" />
-    </noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap" rel="stylesheet" />
     <script>
       (() => {
         try {
@@ -43,9 +39,15 @@
           if (isFresh) {
             document.documentElement.classList.add('fresh-prepaint');
           }
+          const isUltima = !isFresh && (
+            localStorage.getItem(ULTIMA_MODE_KEY) === 'true' ||
+            localStorage.getItem('cabinet_active_theme') === 'ultima' ||
+            window.location.pathname.startsWith('/ultima')
+          );
+          if (isUltima) {
             const ultimaRaw = localStorage.getItem(ULTIMA_THEME_CONFIG_KEY);
             let ultimaConfig = ultimaRaw ? JSON.parse(ultimaRaw) : null;
-            const hasGreen = /1bd29f|00d285|1ed6bf|21d09a|10b981|0c2d2a|0c2528|0f3a38|92f4d8|49e9b3|b8ffec|emerald/i.test(ultimaRaw || '');
+            const hasGreen = /1bd29f|00d285|1ed6bf|21d09a|10b981|0c2d2a|0c2528|0f3a38|92f4d8|49e9b3|b8ffec|emerald|d8ff5a|c4ff47|efffc0|d2f58c|citrus/i.test(ultimaRaw || '');
             if (!ultimaConfig || hasGreen) {
               ultimaConfig = {
                 primaryColor: '#d4b37f',
@@ -105,12 +107,13 @@
         }
       })();
     </script>
-
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
       html.dark body {
         background-color: #0a0f1a;
       }
-      html.ultima-prepaint body {
+      html.ultima-prepaint body,
+      html.ultima-prepaint.light body {
         background: linear-gradient(
           165deg,
           color-mix(in srgb, var(--ultima-color-bg-top) 92%, #000) 0%,
@@ -139,60 +142,41 @@
         transition: opacity 420ms cubic-bezier(0.22, 0.72, 0.22, 1);
         will-change: opacity;
       }
-      html.dark #app-startup-overlay {
-        background: radial-gradient(circle at 70% 45%, rgba(212, 179, 127, 0.15), #0a0c0f 60%);
-      }
-      html.light #app-startup-overlay {
-        background: radial-gradient(circle at 70% 45%, rgba(212, 179, 127, 0.12), #f7e7ce 60%);
-      }
-      html.fresh-prepaint body {
-        background-color: #060907;
-      }
-      html.fresh-prepaint #app-startup-overlay {
-        background: radial-gradient(circle at 50% 45%, rgba(215, 255, 59, 0.22), #060907 65%);
-      }
-      html.fresh-prepaint .startup-loader-mark {
-        border-color: rgba(215, 255, 59, 0.4);
-        box-shadow: 0 0 50px rgba(215, 255, 59, 0.35);
-        background: rgba(13, 22, 16, 0.6);
-      }
-      html.fresh-prepaint .startup-loader-core {
-        border-top-color: #d7ff3b;
-      }
+      #app-startup-overlay, html.dark #app-startup-overlay, html.light #app-startup-overlay, html.fresh-prepaint #app-startup-overlay { background: #101216; }
+      html.light #app-startup-overlay { background: #e9edf3; }
+      html.light .startup-loader-mark { border-color: rgba(32,40,56,.16); background: rgba(255,255,255,.6); }
+      html.light .startup-loader-core { border-color: rgba(32,40,56,.16); border-top-color: #596273; }
       html.app-ready #app-startup-overlay {
         opacity: 0;
       }
       .startup-loader-mark {
         position: relative;
         display: grid;
-        width: 112px;
-        height: 112px;
+        width: 136px;
+        height: 88px;
         place-items: center;
-        border: 1px solid rgba(212, 179, 127, 0.45);
-        border-radius: 28px;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 26px;
         color: rgba(255, 255, 255, 0.9);
-        background: linear-gradient(180deg, #1e222a 0%, #111318 60%, #07080a 100%);
+        background: rgba(0, 0, 0, 0.16);
         box-shadow:
-          inset 0 1px 0 rgba(255, 255, 255, 0.2),
-          0 16px 40px rgba(0, 0, 0, 0.85),
-          0 0 45px rgba(212, 179, 127, 0.25);
-        backdrop-filter: blur(16px);
-        overflow: hidden;
+          inset 0 1px 0 rgba(255, 255, 255, 0.1),
+          0 0 42px rgba(210, 215, 224, 0.08);
+        backdrop-filter: blur(10px);
       }
       .startup-loader-mark::before {
         content: '';
         position: absolute;
-        inset: -12px;
-        border: 1px solid rgba(212, 179, 127, 0.3);
-        border-radius: 34px;
-        animation: startup-loader-pulse 1.8s ease-in-out infinite;
-        pointer-events: none;
+        inset: -20px;
+        border: 1px solid rgba(210, 215, 224, 0.18);
+        border-radius: inherit;
+        animation: none;
       }
       .startup-loader-core {
-        width: 28px;
-        height: 28px;
-        border: 2px solid rgba(212, 179, 127, 0.25);
-        border-top-color: #d4b37f;
+        width: 26px;
+        height: 26px;
+        border: 2px solid rgba(210, 215, 224, 0.25);
+        border-top-color: #d2d7e0;
         border-radius: 999px;
         animation: startup-loader-spin 0.9s linear infinite;
         transition: opacity 180ms ease;
@@ -202,8 +186,7 @@
         inset: 0;
         width: 100%;
         height: 100%;
-        padding: 6px;
-        border-radius: 20px;
+        padding: 10px;
         object-fit: contain;
         opacity: 0;
         transition: opacity 220ms ease;

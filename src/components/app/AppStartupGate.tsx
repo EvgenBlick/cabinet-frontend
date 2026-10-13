@@ -8,10 +8,8 @@ import { setCachedUltimaMode } from '@/hooks/useUltimaMode';
 import { useAuthStore } from '@/store/auth';
 
 let startupPromise: Promise<void> | null = null;
-const TELEGRAM_MIN_STARTUP_MS = 620;
-const WEB_MIN_STARTUP_MS = 260;
-const CONTENT_SETTLE_MS = 120;
-const OVERLAY_FADE_MS = 420;
+const CONTENT_SETTLE_MS = 20;
+const OVERLAY_FADE_MS = 150;
 
 const shouldAttemptTelegramAuth = () => {
   if (!isInTelegramWebApp() || !getTelegramInitData()) return false;
@@ -95,7 +93,6 @@ const warmAppShell = async (queryClient: QueryClient) => {
 };
 
 const runStartup = async (queryClient: QueryClient) => {
-  const startedAt = performance.now();
   const shellWarmupPromise = warmAppShell(queryClient);
 
   try {
@@ -110,14 +107,14 @@ const runStartup = async (queryClient: QueryClient) => {
     // The login page remains available if restoring or Telegram auth fails.
   }
 
-  // Race with a short timeout so network slow-downs never delay interface mounting
+  // Race with a brief timeout so network slow-downs never delay interface mounting
   await Promise.race([
     shellWarmupPromise,
-    wait(400),
+    wait(200),
   ]);
 
   if (useAuthStore.getState().isAuthenticated) {
-    await Promise.allSettled([
+    void Promise.allSettled([
       queryClient.ensureQueryData({
         queryKey: ['subscription'],
         queryFn: subscriptionApi.getSubscription,
@@ -130,9 +127,6 @@ const runStartup = async (queryClient: QueryClient) => {
       }),
     ]);
   }
-
-  const minimumDuration = isInTelegramWebApp() ? TELEGRAM_MIN_STARTUP_MS : WEB_MIN_STARTUP_MS;
-  await wait(Math.max(0, minimumDuration - (performance.now() - startedAt)));
 };
 
 export function AppStartupGate({
@@ -184,7 +178,7 @@ export function AppStartupGate({
       setIsContentMounted(true);
       document.documentElement.classList.add('app-ready');
       document.getElementById('app-startup-overlay')?.remove();
-    }, 400);
+    }, 120);
     return () => window.clearTimeout(safetyTimer);
   }, []);
 

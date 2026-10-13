@@ -1,3 +1,4 @@
+import BrowserNotifications from '@/components/BrowserNotifications';
 import { useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Navigate, Route, Routes, useLocation } from 'react-router';
@@ -10,7 +11,6 @@ import { adminRoutes } from './pages/routes/adminRoutes';
 import { protectedRoutes } from './pages/routes/protectedRoutes';
 import { publicRoutes } from './pages/routes/publicRoutes';
 import { useAuthStore } from './store/auth';
-import { CookieConsentBanner } from './components/common/CookieConsentBanner';
 
 function App() {
   useAnalyticsCounters();
@@ -128,6 +128,7 @@ function App() {
   return (
     <>
       <BlockingOverlay />
+      <BrowserNotifications />
       <Routes>
         {publicRoutes.map((route) => (
           <Route key={route.path} path={route.path} element={route.element} />
@@ -143,7 +144,6 @@ function App() {
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-      <CookieConsentBanner />
     </>
   );
 }

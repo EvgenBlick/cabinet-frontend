@@ -1,36 +1,32 @@
-# Docker Compose для локальной разработки/тестирования
-# Для production используйте готовые образы или настройте Caddy/Nginx
-# См. README.md раздел "Настройка прокси для production"
-
 services:
   cabinet-frontend:
     build:
       context: .
       dockerfile: Dockerfile
       args:
-        # API URL - use /api for same-server deployment or full URL for external backend
-        VITE_API_URL: ${VITE_API_URL:-/api}
+        VITE_API_URL: /api
         VITE_TELEGRAM_BOT_USERNAME: ${VITE_TELEGRAM_BOT_USERNAME}
         VITE_APP_NAME: ${VITE_APP_NAME:-Ultimteam VPN}
         VITE_APP_LOGO: ${VITE_APP_LOGO:-V}
     container_name: cabinet_frontend
     restart: unless-stopped
-    env_file:
-      - .env # Загрузить переменные из .env файла
-    ports:
-      # Маппинг: <хост-порт>:<контейнер-порт>
-      # Внутри контейнера nginx слушает на порту 80
-      - '${CABINET_PORT:-3020}:80'
-    networks:
-      - bot_shared
     healthcheck:
-      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://127.0.0.1:80/']
-      interval: 30s
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:80/ || exit 1"]
+      interval: 15s
       timeout: 3s
       retries: 3
-      start_period: 10s
+      start_period: 5s
+    env_file:
+      - .env
+    ports:
+      - '127.0.0.1:3020:80'
+    volumes:
+      - ./dist_new:/usr/share/nginx/html:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - bot_shared
 
 networks:
   bot_shared:
     external: true
-    name: ${BOT_NETWORK_NAME:-remnawave-bedolaga-telegram-bot_bot_network}
+    name: remnawave_bot_bot_network

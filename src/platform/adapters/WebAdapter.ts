@@ -1,3 +1,4 @@
+import { isAnimationReduced } from '@/features/preferences/reducedAnimation';
 import type {
   PlatformContext,
   PlatformCapabilities,
@@ -67,18 +68,21 @@ function createHapticController(): HapticController {
 
   return {
     impact(style: HapticImpactStyle = 'medium') {
+      if (isAnimationReduced()) return;
       if (canVibrate) {
         navigator.vibrate(vibrationPatterns[style]);
       }
     },
 
     notification(type: HapticNotificationType) {
+      if (isAnimationReduced()) return;
       if (canVibrate) {
         navigator.vibrate(notificationPatterns[type]);
       }
     },
 
     selection() {
+      if (isAnimationReduced()) return;
       if (canVibrate) {
         navigator.vibrate(5);
       }

@@ -1,0 +1,22 @@
+/* Secondary copy must remain readable on the wider desktop pages. */
+.ultima-desktop-layout [class*="text-[10px]"],
+.ultima-desktop-layout [class*="text-[11px]"],
+.ultima-desktop-layout [class*="text-[12px]"] {
+  font-size: 13px;
+}
+
+.ultima-desktop-layout button {
+  min-height: 40px;
+}
+
+.ultima-desktop-layout :is(input, select, textarea) {
+  font-size: 14px;
+}
+
+.ultima-desktop-layout p[class*="text-[10px]"],
+.ultima-desktop-layout p[class*="text-[11px]"],
+.ultima-desktop-layout p[class*="text-[12px]"],
+.ultima-desktop-layout p[class*="text-[13px]"] {
+  font-size: 14px;
+  line-height: 1.55;
+}

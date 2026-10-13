@@ -24,8 +24,9 @@ import { AppWithNavigator } from './AppWithNavigator';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { initLogoPreload } from './api/branding';
 import { getCachedFullscreenEnabled, isTelegramMobile } from './hooks/useTelegramSDK';
-import './i18n';
+import i18n from './i18n';
 import './styles/globals.css';
+import './styles/liquid-glass.css';
 
 // HMR guard — prevent double init when Vite hot-reloads the module
 const HMR_KEY = '__tg_sdk_initialized';
@@ -100,11 +101,41 @@ const queryClient = new QueryClient({
     queries: {
       retry: 1,
       refetchOnWindowFocus: false,
-      staleTime: 1000 * 60 * 2,
-      gcTime: 1000 * 60 * 10,
     },
   },
 });
+
+const getBaseLanguage = (language: string | undefined) =>
+  (language || 'ru').toLowerCase().replace('_', '-').split('-')[0];
+
+const isTranslationReady = () => {
+  if (!i18n.isInitialized) return false;
+  const activeLanguage = getBaseLanguage(i18n.resolvedLanguage || i18n.language);
+  return i18n.hasResourceBundle(activeLanguage, 'translation');
+};
+
+const ensureI18nReady = async () => {
+  if (isTranslationReady()) return;
+
+  await new Promise<void>((resolve) => {
+    const finish = () => {
+      if (!isTranslationReady()) return;
+      cleanup();
+      resolve();
+    };
+
+    const cleanup = () => {
+      i18n.off('initialized', finish);
+      i18n.off('loaded', finish);
+      i18n.off('languageChanged', finish);
+    };
+
+    i18n.on('initialized', finish);
+    i18n.on('loaded', finish);
+    i18n.on('languageChanged', finish);
+    finish();
+  });
+};
 
 const renderApp = () => {
   ReactDOM.createRoot(document.getElementById('root')!).render(
@@ -118,4 +149,4 @@ const renderApp = () => {
   );
 };
 
-renderApp();
+void ensureI18nReady().finally(renderApp);

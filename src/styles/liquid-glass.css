@@ -1,0 +1,477 @@
+/* Cabinet-only Apple material system. Login shares the material; administration retains its theme. */
+html.ultima-liquid-glass {
+  color-scheme: dark;
+  --cabinet-font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif;
+  --cabinet-accent: #e2e2e8;
+  --cabinet-action: #e2e2e8;
+  --cabinet-accent-text: #e0e0e8;
+  --cabinet-text: #f5f5f7;
+  --cabinet-muted: #aeb6c3;
+  --cabinet-border: rgba(255, 255, 255, 0.14);
+  --cabinet-card-bg: rgba(25, 25, 28, 0.48);
+  --cabinet-card-secondary: rgba(34, 34, 38, 0.38);
+  --cabinet-glass-bg: rgba(38, 38, 42, 0.38);
+  --cabinet-glass-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 8px 30px rgba(0, 0, 0, 0.2);
+  --ultima-color-primary: var(--cabinet-action) !important;
+  --ultima-color-primary-text: #18181c !important;
+  --ultima-color-secondary: #20232a !important;
+  --ultima-color-secondary-text: var(--cabinet-text) !important;
+  --ultima-color-nav-bg: #1c1f26 !important;
+  --ultima-color-nav-active: var(--cabinet-accent) !important;
+  --ultima-color-nav-text: var(--cabinet-text) !important;
+  --ultima-color-ring: var(--cabinet-accent) !important;
+  --ultima-color-aura: var(--cabinet-accent) !important;
+  --ultima-color-surface: #181b21 !important;
+  --ultima-color-surface-border: #c4ccda !important;
+  --ultima-color-scrollbar-thumb: #74849a !important;
+  --ultima-border-soft: var(--cabinet-border) !important;
+  --ultima-border-medium: rgba(255, 255, 255, 0.2) !important;
+  --ultima-text-strong: var(--cabinet-text) !important;
+  --ultima-text-muted: var(--cabinet-muted) !important;
+  --ultima-bg-surface: var(--cabinet-card-bg) !important;
+  --ultima-bg-surface-soft: var(--cabinet-card-secondary) !important;
+  --ultima-bg-surface-strong: var(--cabinet-card-bg) !important;
+  --ultima-bg-accent-surface: var(--cabinet-card-bg) !important;
+  --ultima-bg-pane: var(--cabinet-card-secondary) !important;
+  --ultima-shadow-surface: 0 6px 24px rgba(0, 0, 0, 0.14) !important;
+  --ultima-shadow-accent: var(--ultima-shadow-surface) !important;
+  /* Reuse the existing Telegram/mobile scene on desktop; no new image or scene. */
+  --ultima-bg-page-desktop: var(--ultima-bg-page-mobile) !important;
+  --ultima-bg-page-overlay-desktop: var(--ultima-bg-page-overlay-mobile) !important;
+  --ultima-bg-page-scrim-desktop: var(--ultima-bg-page-scrim-mobile) !important;
+  font-family: var(--cabinet-font);
+  background: #030305;
+}
+
+html.ultima-liquid-glass body,
+html.ultima-liquid-glass :is(button, input, select, textarea, .font-sans) {
+  font-family: var(--cabinet-font) !important;
+}
+
+html.ultima-liquid-glass body {
+  color: var(--cabinet-text);
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+}
+
+html.ultima-liquid-glass :is(h1, h2, h3) {
+  font-family: var(--cabinet-font) !important;
+  letter-spacing: -0.025em;
+  text-shadow: none;
+}
+
+html.ultima-liquid-glass :is(.ultima-shell, .ultima-desktop-layout, [class~="bg-[#07080a]"], [class~="bg-[#07090e]"]) {
+  background: transparent !important;
+}
+
+html.ultima-liquid-glass .ultima-app-backdrop {
+  background: #030305 !important;
+}
+
+html.ultima-liquid-glass :is(.cabinet-content-card, .samurai-bento-card, .ultima-card, .ultima-panel, .ultima-pane, :is(div, section)[class~="rounded-[24px]"], :is(div, section)[class~="rounded-[26px]"], :is(div, section)[class~="rounded-[28px]"], :is(div, section)[class~="rounded-[30px]"], :is(div, section)[class~="rounded-[32px]"], section[class~="rounded-2xl"]) {
+  border: 1px solid var(--cabinet-border) !important;
+  border-radius: 24px !important;
+  background: var(--cabinet-card-bg) !important;
+  background-image: linear-gradient(135deg, rgba(255,255,255,.10), transparent 45%, rgba(255,255,255,.04)) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.22), inset 0 -1px 0 rgba(255,255,255,.06), 0 16px 48px rgba(0,0,0,.18) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(155%) !important;
+  backdrop-filter: blur(28px) saturate(155%) !important;
+}
+
+/* Shared liquid material for cabinet surfaces and navigation. */
+html.ultima-liquid-glass :is(.cabinet-glass-navigation, .cabinet-glass-control, .ultima-bottom-nav) {
+  background: var(--cabinet-glass-bg) !important;
+  border: 1px solid var(--cabinet-border) !important;
+  box-shadow: var(--cabinet-glass-shadow) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(140%) !important;
+  backdrop-filter: blur(24px) saturate(140%) !important;
+}
+
+html.ultima-liquid-glass :is(.cabinet-glass-control, .ultima-btn-pill) {
+  border-radius: 999px !important;
+  min-height: 44px;
+}
+
+html.ultima-liquid-glass :is(.cabinet-primary-action, .samurai-gold-btn, .ultima-btn-primary) {
+  background: var(--cabinet-action) !important;
+  color: #ffffff !important;
+  border-color: transparent !important;
+  border-radius: 999px !important;
+  box-shadow: none !important;
+  font-weight: 600;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+html.ultima-liquid-glass :is(.cabinet-primary-action, .samurai-gold-btn, .ultima-btn-primary):hover:not(:disabled) {
+  background: #f0f0f4 !important;
+}
+
+html.ultima-liquid-glass .ultima-btn-secondary {
+  color: var(--cabinet-text) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: var(--cabinet-border) !important;
+  box-shadow: none !important;
+}
+
+html.ultima-liquid-glass :is(input, select, textarea) {
+  color: var(--cabinet-text);
+  font-size: 16px;
+  border-radius: 16px;
+}
+
+html.ultima-liquid-glass :is(button, a, input, select, textarea):focus-visible {
+  outline: 2px solid #8cc5ff !important;
+  outline-offset: 3px;
+}
+
+html.ultima-liquid-glass :is([class*="text-[9px]"], [class*="text-[10px]"], [class*="text-[11px]"]) {
+  font-size: 12px !important;
+}
+
+html.ultima-liquid-glass :is([class*="text-[12px]"], [class*="text-[13px]"]) {
+  font-size: 14px;
+}
+
+html.ultima-liquid-glass :is([class*="text-white/[0.38]"], [class*="text-white/[0.42]"], [class*="text-white/[0.44]"], [class*="text-white/[0.45]"], [class*="text-white/[0.5]"], [class*="text-white/[0.52]"], [class*="text-white/[0.54]"], [class*="text-white/[0.55]"], [class*="text-white/[0.56]"], [class*="text-white/[0.58]"], [class*="text-[#8e929b]"]) {
+  color: var(--cabinet-muted) !important;
+}
+
+/* Transitional mappings remove the previous gold accent without altering status colors. */
+html.ultima-liquid-glass :is([class*="text-[#d4b37f]"], [class*="text-[#b89358]"], [class*="text-[#c8aa76]"]) {
+  color: var(--cabinet-accent-text) !important;
+}
+
+html.ultima-liquid-glass :is([class*="border-[#d4b37f]"], [class*="border-[#b89358]"], [class*="border-[#c8aa76]"], [class*="border-[#5a5040]"]) {
+  border-color: rgba(255, 255, 255, 0.25) !important;
+}
+
+html.ultima-liquid-glass :is([class*="bg-[#d4b37f]"], [class*="bg-[#b89358]"]):not([class*="selection:bg-"]) {
+  background-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+html.ultima-liquid-glass [class~="bg-[#d4b37f]"] {
+  background-color: var(--cabinet-accent) !important;
+}
+
+html.ultima-liquid-glass [class*="text-emerald-"] {
+  color: #63d695 !important;
+}
+
+html.ultima-liquid-glass [class*="shadow-[0_0_"] {
+  box-shadow: none !important;
+}
+
+html.ultima-liquid-glass .ultima-login {
+  background: #030305 !important;
+}
+
+html.ultima-liquid-glass .ultima-ring-wave {
+  display: none;
+}
+
+html.ultima-liquid-glass .ultima-bottom-nav {
+  display: grid !important;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 2px;
+  border-radius: 28px !important;
+}
+
+html.ultima-liquid-glass .cabinet-glass-navigation .cabinet-glass-control {
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+html.ultima-liquid-glass .cabinet-glass-navigation :is(.cabinet-glass-control[data-active="true"], .cabinet-glass-control[aria-current="page"]) {
+  background: rgba(255, 255, 255, 0.16) !important;
+  color: var(--cabinet-accent-text) !important;
+}
+
+html.ultima-liquid-glass .cabinet-glass-control {
+  transition: background-color 180ms ease, border-color 180ms ease, transform 180ms ease;
+}
+
+html.ultima-liquid-glass .cabinet-glass-navigation .cabinet-glass-control:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+html.ultima-liquid-glass .samurai-gold-btn {
+  text-transform: none;
+  letter-spacing: -0.01em;
+}
+
+html.ultima-liquid-glass :is(.cabinet-primary-action, .samurai-gold-btn, .ultima-btn-primary) :is([class*="text-black"], [class*="text-[#0a0c0f]"], [class*="text-[#07080a]"]) {
+  color: #18181c !important;
+}
+
+html.ultima-liquid-glass .samurai-bento-card:hover {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  transform: none;
+}
+
+@keyframes cabinet-content-enter {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+html.ultima-liquid-glass :is(.cabinet-content-card, .samurai-bento-card, .ultima-panel) {
+  animation: cabinet-content-enter 220ms ease-out;
+}
+
+/* Opacity does not create a containing block for the fixed mobile dock/modals. */
+html.ultima-liquid-glass .cabinet-route-stage {
+  animation: cabinet-route-enter 420ms cubic-bezier(.16,1,.3,1);
+}
+@keyframes cabinet-route-enter {
+  from { opacity: .18; }
+  to { opacity: 1; }
+}
+html.ultima-liquid-glass .ultima-app-backdrop::after,
+html.ultima-liquid-glass .ultima-login::before {
+  content: '';
+  position: absolute;
+  inset: -15%;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 20% 30%, rgba(69,133,223,.30), transparent 48%),
+    radial-gradient(ellipse at 80% 70%, rgba(120,103,211,.22), transparent 45%),
+    radial-gradient(ellipse at 55% 12%, rgba(106,193,212,.16), transparent 38%);
+  animation: cabinet-liquid-drift 18s ease-in-out infinite alternate;
+}
+@keyframes cabinet-liquid-drift {
+  from { transform: translate3d(-2%, -1%, 0) scale(1); }
+  to { transform: translate3d(3%, 2%, 0) scale(1.05); }
+}
+html.ultima-liquid-glass :is(.ultima-btn-secondary, .cabinet-glass-control, input:not([type="checkbox"]):not([type="radio"]), textarea, select) {
+  background-image: linear-gradient(135deg, rgba(255,255,255,.10), rgba(255,255,255,.015) 60%) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.16), 0 4px 16px rgba(0,0,0,.10) !important;
+  transition: background-color 280ms ease, border-color 280ms ease, box-shadow 280ms ease, color 200ms ease, transform 200ms ease;
+}
+html.ultima-liquid-glass :is(.cabinet-glass-control, .ultima-btn-pill):active:not(:disabled) {
+  transform: scale(.97);
+}
+html.ultima-liquid-glass .ultima-pane {
+  -webkit-backdrop-filter: blur(12px) saturate(130%) !important;
+  backdrop-filter: blur(12px) saturate(130%) !important;
+}
+
+html.ultima-liquid-glass .cabinet-quick-action > :first-child { min-width: 0; }
+html.ultima-liquid-glass .cabinet-quick-action > :first-child > :last-child { min-width: 0; }
+html.ultima-liquid-glass .cabinet-quick-action > :last-child {
+  flex-shrink: 0;
+  width: 24px;
+  padding: 0;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  justify-content: center;
+}
+html.ultima-liquid-glass .cabinet-quick-action > :last-child > * { display: none; }
+html.ultima-liquid-glass .cabinet-quick-action > :last-child::after {
+  content: '›';
+  font-size: 26px;
+  font-weight: 400;
+  color: var(--cabinet-muted);
+}
+html.ultima-liquid-glass .cabinet-setup-action .btn-gold-beam-inner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: transparent !important;
+  border-radius: inherit;
+}
+html.ultima-liquid-glass .cabinet-setup-action .btn-gold-beam-inner > :first-child { min-width: 0; }
+html.ultima-liquid-glass .cabinet-setup-action .btn-gold-beam-inner > :last-child { flex-shrink: 0; }
+@media (max-width: 1023px) {
+  html.ultima-liquid-glass .ultima-app-main { padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px)) !important; }
+  html.ultima-liquid-glass .ultima-app-main .ultima-bottom-nav { display: none !important; }
+  html.ultima-liquid-glass .ultima-shared-nav-shell { z-index: 40; }
+  html.ultima-liquid-glass .cabinet-checkout-footer {
+    bottom: 4px;
+    border-radius: 24px 24px 0 0;
+    background: rgba(24,24,28,.78) !important;
+  }
+}
+
+/* Transparent material always has an opaque fallback on older engines. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  html.ultima-liquid-glass :is(.cabinet-glass-navigation, .cabinet-glass-control, .ultima-bottom-nav, .cabinet-content-card, .samurai-bento-card, .ultima-card, .ultima-panel, .ultima-pane) {
+    background: #22262e !important;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  html.ultima-liquid-glass {
+    --cabinet-card-bg: #181b21;
+    --cabinet-card-secondary: #20232a;
+    --cabinet-glass-bg: #22262e;
+  }
+  html.ultima-liquid-glass :is(.cabinet-glass-navigation, .cabinet-glass-control, .ultima-bottom-nav, .cabinet-content-card, .samurai-bento-card, .ultima-card, .ultima-panel, .ultima-pane, :is(div, section)[class*="rounded-["]) {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+  html.ultima-liquid-glass :is(.ultima-app-backdrop::after, .ultima-login::before) { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.ultima-liquid-glass .ultima-ring-wave {
+    display: none;
+  }
+  html.ultima-liquid-glass *,
+  html.ultima-liquid-glass *::before,
+  html.ultima-liquid-glass *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media (forced-colors: active) {
+  html.ultima-liquid-glass {
+    --cabinet-accent: Highlight;
+    --cabinet-action: Highlight;
+    --cabinet-accent-text: LinkText;
+    --cabinet-text: CanvasText;
+    --cabinet-muted: CanvasText;
+    --cabinet-border: CanvasText;
+    --cabinet-card-bg: Canvas;
+    --cabinet-card-secondary: Canvas;
+    --cabinet-glass-bg: Canvas;
+  }
+  html.ultima-liquid-glass :is(.cabinet-content-card, .cabinet-glass-navigation, .cabinet-glass-control, .ultima-card, .ultima-panel, .ultima-pane, .ultima-bottom-nav) {
+    background: Canvas !important;
+    border-color: CanvasText !important;
+    box-shadow: none !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+  html.ultima-liquid-glass :is(.cabinet-primary-action, .samurai-gold-btn, .ultima-btn-primary) {
+    background: Highlight !important;
+    color: HighlightText !important;
+  }
+}
+
+/* Approved neutral glass prototype: preserve real controls and route data. */
+html.ultima-liquid-glass :is(.cabinet-primary-action,.samurai-gold-btn,.ultima-btn-primary){color:#18181c !important;min-height:48px;border-radius:18px !important;background:linear-gradient(135deg,#eeeef2,#c8c8d1) !important;box-shadow:inset 0 1px 0 #fff9,0 4px 18px #0002 !important}
+html.ultima-liquid-glass .ultima-app-backdrop::after{display:none}
+html.ultima-liquid-glass .ultima-app-backdrop .globe-background{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+
+.globe-scene{position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);width:min(82vw,1100px);height:min(94vh,850px);opacity:.65;filter:blur(.35px)}
+.globe-hands{position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);width:min(120vw,1600px);height:auto;mix-blend-mode:screen;opacity:.60;filter:blur(.4px);pointer-events:none}
+.globe-hands-layer{position:absolute;inset:0;pointer-events:none}
+.hand-left{clip-path:polygon(0 0,50% 0,50% 100%,0 100%);animation:hand-left-drift 12s ease-in-out infinite alternate}
+.hand-right{clip-path:polygon(50% 0,100% 0,100% 100%,50% 100%);animation:hand-right-drift 14s ease-in-out infinite alternate}
+.hands-paused .globe-hands{animation-play-state:paused}
+.globe-color-light{position:absolute;inset:-12%;background:radial-gradient(ellipse at 25% 72%,rgba(45,194,155,.12),transparent 48%),radial-gradient(ellipse at 76% 32%,rgba(142,74,225,.14),transparent 45%),radial-gradient(ellipse at 49% 52%,rgba(48,195,208,.10),transparent 45%);animation:globe-light-drift 22s ease-in-out infinite alternate;pointer-events:none}
+.light-paused{animation-play-state:paused}
+.hand-left{filter:blur(.4px)}
+.hand-right{filter:blur(.4px)}
+@keyframes globe-light-drift{from{transform:translate3d(-1%,1%,0);opacity:.75}to{transform:translate3d(2%,-1%,0);opacity:1}}
+@keyframes hand-left-drift{from{transform:translate(-50%,-50%) rotate(-.35deg)}to{transform:translate(calc(-50% + 7px),calc(-50% - 5px)) rotate(.35deg)}}
+@keyframes hand-right-drift{from{transform:translate(-50%,-50%) rotate(.35deg)}to{transform:translate(calc(-50% - 7px),calc(-50% + 5px)) rotate(-.35deg)}}
+@media(max-width:700px){.globe-scene{width:145vw;height:76vh;top:48%}.globe-hands{width:210vw;top:48%}}
+html.ultima-liquid-glass .globe-background{background:#030305}
+html.ultima-liquid-glass .ultima-desktop-main{background:transparent !important}
+html.ultima-liquid-glass :is(.ultima-panel,.cabinet-content-card,.samurai-bento-card){padding:clamp(18px,2vw,28px)}
+html.ultima-liquid-glass :is(button[role="switch"]){background:rgba(255,255,255,.12) !important;border:1px solid #ffffff30 !important;box-shadow:inset 0 1px 0 #ffffff35;backdrop-filter:blur(12px);min-width:44px;min-height:28px}
+html.ultima-liquid-glass button[role="switch"][aria-checked="true"]{background:rgba(255,255,255,.32) !important}
+html.ultima-liquid-glass button[role="switch"]>span{background:linear-gradient(135deg,#fff9,#ffffff24) !important;border:1px solid #ffffff80;box-shadow:inset 0 1px 2px #fff8,0 2px 6px #0004;transition:transform 450ms cubic-bezier(.2,1.25,.4,1),background 250ms}
+html.ultima-liquid-glass button[role="switch"]:active>span{scale:1.08 .95}
+html.ultima-liquid-glass :is(.cabinet-primary-action,.ultima-btn-primary,.ultima-btn-secondary,.samurai-gold-btn):active:not(:disabled){transform:scale(.96);transition:transform 100ms ease-out}
+@media(prefers-reduced-motion:reduce){.globe-hands,.globe-color-light{animation:none !important}}
+
+html.ultima-liquid-glass body,html.ultima-liquid-glass #root{background:#030305 !important;background-image:none !important}
+html.ultima-liquid-glass .ultima-shell::before,html.ultima-liquid-glass .ultima-shell-muted-aura::after,html.ultima-liquid-glass .ultima-login::before{display:none !important}
+html.ultima-liquid-glass :is(.ultima-shell,.ultima-pane,.ultima-panel,.ultima-desktop-layout){font-family:var(--cabinet-font) !important}
+
+html.ultima-liquid-glass .cabinet-glass-navigation .cabinet-liquid-tab{background:transparent !important}
+.cabinet-liquid-tab-pill{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(135deg,#ffffff28,#ffffff0d);border:1px solid #ffffff30;box-shadow:inset 0 1px 0 #ffffff40,0 3px 12px #0002;backdrop-filter:blur(12px)}
+
+html.ultima-liquid-glass .cabinet-yandex-surface{background:rgba(24,24,28,.88) !important;border-color:#ffffff25 !important;box-shadow:inset 0 1px 0 #ffffff25,0 8px 24px #0003 !important;backdrop-filter:blur(24px);max-width:calc(100vw - 32px)}
+html.ultima-liquid-glass .cabinet-yandex-surface [class*="blur-3xl"],html.ultima-liquid-glass .cabinet-yandex-surface [class*="bg-amber-"]{display:none}
+
+/* Hierarchy: prominent payment and connection actions, quiet secondary controls. */
+html.ultima-liquid-glass :is(.cabinet-primary-action,.samurai-gold-btn,.ultima-btn-primary){box-shadow:0 3px 16px rgba(215,238,228,.14),inset 0 1px 0 #fff !important;border:1px solid #ffffffb3 !important}
+html.ultima-liquid-glass .cabinet-key-action{padding-inline:8px;border-radius:16px}
+html.ultima-liquid-glass .cabinet-key-action:hover{background:rgba(255,255,255,.045) !important}
+html.ultima-liquid-glass .cabinet-key-action> :first-child> :first-child{background:rgba(255,255,255,.14) !important;border-color:rgba(255,255,255,.3) !important}
+html.ultima-liquid-glass .cabinet-key-action> :last-child{background:#e8eee9 !important;border-color:transparent !important;color:#181c1a !important;min-height:32px;flex-shrink:0;box-shadow:0 2px 8px #0002}
+html.ultima-liquid-glass .cabinet-key-action> :last-child *{color:inherit !important}
+html.ultima-liquid-glass .cabinet-key-button{background:rgba(222,242,232,.12) !important;border-color:rgba(222,242,232,.38) !important;color:#f5f5f7 !important}
+
+/* Personal light material; dark keeps the approved particle curtain. */
+.particle-wave-background{position:absolute;inset:0;overflow:hidden;background:#030305;filter:blur(.65px);opacity:.8;pointer-events:none}
+.particle-wave-background canvas{display:block;width:100%;height:100%}
+.globe-hands{width:110vw;max-width:none;mask-image:linear-gradient(to right,transparent,black 12%,black 88%,transparent);-webkit-mask-image:linear-gradient(to right,transparent,black 12%,black 88%,transparent)}
+@media(max-width:700px){.globe-hands{width:210vw;mask-image:linear-gradient(to right,transparent,black 8%,black 92%,transparent)}}
+html.ultima-liquid-glass.light{color-scheme:light;--cabinet-text:#20242c;--cabinet-text-secondary:#555d6b;--cabinet-muted:#596273;--cabinet-accent-text:#26322c;--cabinet-border:rgba(32,40,56,.16);--cabinet-card-bg:rgba(255,255,255,.65);--cabinet-card-secondary:rgba(255,255,255,.5);--cabinet-glass-bg:rgba(255,255,255,.62);--cabinet-glass-shadow:inset 0 1px 0 #fff,0 8px 30px #29355012;--ultima-color-surface:#e9edf3 !important;--ultima-color-secondary:#dce2eb !important;--ultima-color-nav-bg:#edf0f5 !important;--ultima-border-medium:rgba(32,40,56,.18) !important;background:#e9edf3}
+html.ultima-liquid-glass.light :is(body,#root,.ultima-login,.ultima-app-backdrop,.globe-background){background:#e9edf3 !important;color:var(--cabinet-text)}
+html.ultima-liquid-glass.light :is([class*="text-white"],[class*="text-[#f5f5f7]"],[class*="text-[#e2e4e9]"],[class*="text-[#e2e2e8]"]){color:var(--cabinet-text) !important}
+html.ultima-liquid-glass.light :is([class*="text-white/"],[class*="text-white/["],[class*="text-[#8e929b]"]){color:var(--cabinet-muted) !important}
+html.ultima-liquid-glass.light :is([class*="border-white"],[class*="border-[#5a5040]"]){border-color:var(--cabinet-border) !important}
+html.ultima-liquid-glass.light :is(.cabinet-primary-action,.samurai-gold-btn,.ultima-btn-primary){background:linear-gradient(135deg,#34383f,#20242c) !important;color:#fff !important;border-color:#20242c !important;box-shadow:0 4px 14px #20242c25 !important}
+html.ultima-liquid-glass.light :is(.cabinet-primary-action,.samurai-gold-btn,.ultima-btn-primary) *{color:inherit !important}
+html.ultima-liquid-glass.light :is(.ultima-btn-secondary,.cabinet-key-button){background:#ffffff80 !important;color:#20242c !important;border-color:#20242c30 !important}
+html.ultima-liquid-glass.light :is(input,textarea,select){background:#ffffffb3 !important;color:#20242c !important;border-color:#20242c30 !important}
+html.ultima-liquid-glass.light :is(.cabinet-liquid-tab-pill,[role="switch"][aria-checked="true"]){background:rgba(32,40,56,.12) !important;border-color:#20242c30 !important}
+html.ultima-liquid-glass.light .cabinet-yandex-surface{background:#ffffffe0 !important;color:#20242c !important}
+html.ultima-liquid-glass.light .globe-scene{opacity:.95;filter:blur(.5px) brightness(1) saturate(1.45)}
+html.ultima-liquid-glass.light .cabinet-key-action> :last-child{background:#253930 !important;color:#fff !important}
+html.ultima-liquid-glass.light .cabinet-key-action> :last-child *{color:inherit !important}
+html.ultima-liquid-glass.light .cabinet-key-action> :first-child> :first-child{background:#25393014 !important;border-color:#25393030 !important}
+html.ultima-liquid-glass.light [class*="bg-black/"]{background-color:rgba(32,40,56,.045) !important}
+html.ultima-liquid-glass.light .globe-color-light{background:radial-gradient(ellipse at 25% 72%,rgba(25,185,153,.27),transparent 54%),radial-gradient(ellipse at 76% 32%,rgba(141,85,211,.26),transparent 52%),radial-gradient(ellipse at 49% 52%,rgba(34,174,202,.22),transparent 50%)}
+/* Keep selected clients and decorative action arrows legible in both materials. */
+html.ultima-liquid-glass.light [data-testid^="dashboard-crypto-client-"][aria-pressed="true"] { color:var(--cabinet-text) !important; }
+html.ultima-liquid-glass.light :is(h1,h2,h3) { text-shadow:none !important; filter:none !important; }
+html.ultima-liquid-glass.dark .cabinet-key-action>:last-child::after { color:#181c1a !important; }
+html.ultima-liquid-glass.light .cabinet-key-action>:last-child::after { color:#fff !important; }
+
+html.ultima-liquid-glass .cabinet-glass-control[aria-pressed="true"]{background:rgba(255,255,255,.18) !important;border-color:rgba(255,255,255,.4) !important;color:var(--cabinet-text) !important;box-shadow:inset 0 1px 0 #ffffff30 !important}
+html.ultima-liquid-glass.light .cabinet-glass-control[aria-pressed="true"]{background:#303946 !important;color:#fff !important;border-color:#303946 !important;box-shadow:inset 0 1px 0 #ffffff30,0 2px 8px #20242c24 !important}
+
+/* Soft grey daylight rather than a luminous white backdrop. */
+html.ultima-liquid-glass.light{--cabinet-card-bg:rgba(231,237,245,.48);--cabinet-card-secondary:rgba(221,229,239,.44);--cabinet-glass-bg:rgba(225,233,242,.66);--ultima-color-surface:#d5dbe4 !important;background:#d5dbe4}
+html.ultima-liquid-glass.light :is(body,#root,.ultima-login,.ultima-app-backdrop,.globe-background){background:#d5dbe4 !important}
+html.ultima-liquid-glass.light .globe-hands{mix-blend-mode:multiply;opacity:.18;filter:invert(1) blur(.65px)}
+html.ultima-liquid-glass.light :is(.cabinet-glass-control[aria-pressed="true"],.cabinet-glass-control[aria-selected="true"]) *{color:inherit !important}
+html.ultima-liquid-glass.light .cabinet-glass-control[aria-selected="true"]{background:#303946 !important;color:#fff !important;border-color:#303946 !important}
+html.ultima-liquid-glass.light [data-testid^="dashboard-crypto-client-"][aria-pressed="true"]{color:#fff !important}
+html.ultima-liquid-glass.light button[role="switch"][aria-checked="true"]{background:#3d5269 !important;border-color:#3d5269 !important}
+html.ultima-liquid-glass.light button[role="switch"]>span{background:linear-gradient(135deg,#fff,#e8edf4) !important;border-color:#fff !important}
+html.ultima-liquid-glass.light :is(.cabinet-primary-action,.samurai-gold-btn,.ultima-btn-primary):hover:not(:disabled){background:#404b5a !important}
+html.ultima-liquid-glass.light button:active:not(:disabled){filter:brightness(.9)}
+html.ultima-liquid-glass.light button[data-testid^="ultima-connection-"][aria-pressed="true"]{background:#303946 !important;border-color:#303946 !important;color:#fff !important;box-shadow:inset 0 1px 0 #ffffff30,0 2px 8px #20242c24;transition-property:transform,box-shadow}
+html.ultima-liquid-glass.light button[data-testid^="ultima-connection-"][aria-pressed="true"] *{color:inherit !important}
+html.ultima-liquid-glass.light button[data-testid^="ultima-connection-"][aria-pressed="false"] [class*="text-amber-"]{color:#526073 !important}
+.globe-hands{mask-image:linear-gradient(to right,transparent,black 12%,black 88%,transparent),linear-gradient(to bottom,transparent,black 12%,black 82%,transparent);mask-composite:intersect;-webkit-mask-image:linear-gradient(to right,transparent,black 12%,black 88%,transparent),linear-gradient(to bottom,transparent,black 12%,black 82%,transparent);-webkit-mask-composite:source-in}
+html.ultima-liquid-glass.light [role="tablist"] button[role="tab"]{color:#435064 !important;background:rgba(218,229,239,.5) !important;border:1px solid rgba(48,57,70,.15)}
+html.ultima-liquid-glass.light [role="tablist"] button[role="tab"][aria-selected="true"]{color:#fff !important;background:#303946 !important;border-color:#303946;transition-property:transform,box-shadow}
+
+/* Every mobile section reserves space for the persistent shared navigation. */
+@media(max-width:1023px){
+  html.ultima-liquid-glass .ultima-app-main .ultima-shell{--ultima-shared-nav-clearance:calc(84px + var(--ultima-shell-safe-bottom,0px));--ultima-shell-bottom-gap:var(--ultima-shell-frame-bottom-gap)}
+  html.ultima-liquid-glass .ultima-app-main .ultima-shell-mobile-docked{padding-bottom:var(--ultima-shared-nav-clearance,84px) !important}
+  html.ultima-liquid-glass .ultima-shell-mobile-docked .ultima-scrollbar{scroll-padding-bottom:20px}
+  html.ultima-liquid-glass .cabinet-route-stage:not(:has(.ultima-shell-mobile-docked)){padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+}
+
+@media(max-width:1023px){
+  html.ultima-liquid-glass .ultima-app-main .ultima-shell:not(:has(.ultima-shell-mobile-docked)){--ultima-shell-bottom-gap:var(--ultima-shared-nav-clearance);height:var(--ultima-shell-viewport-height);max-height:var(--ultima-shell-viewport-height);min-height:0}
+}
+
+@media(max-width:1023px){
+  html.ultima-liquid-glass .cabinet-route-stage:not(:has(.ultima-shell)){height:var(--ultima-shell-viewport-height,100dvh);overflow-y:auto;overscroll-behavior-y:contain;scroll-padding-bottom:20px}
+}
+
+/* Short viewports scroll the whole section instead of crushing its content below the header. */
+@media(max-width:1023px) and (max-height:500px){
+ html.ultima-liquid-glass .ultima-app-main .ultima-shell{--ultima-shell-bottom-gap:var(--ultima-shared-nav-clearance);height:var(--ultima-shell-viewport-height);max-height:var(--ultima-shell-viewport-height);min-height:0}
+ html.ultima-liquid-glass .ultima-app-main .ultima-shell-mobile-docked{height:auto;max-height:none;min-height:0;overflow:visible;padding-bottom:0 !important}
+ html.ultima-liquid-glass .ultima-shell-mobile-docked .ultima-scrollbar{overflow:visible;overscroll-behavior:auto;flex:none}
+}
+
+html.cabinet-reduced-animation *,html.cabinet-reduced-animation *::before,html.cabinet-reduced-animation *::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;scroll-behavior:auto !important}

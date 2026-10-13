@@ -10,20 +10,22 @@ const GiftSubscription = lazy(() => import('../GiftSubscription'));
 const GiftResult = lazy(() => import('../GiftResult'));
 const Contests = lazy(() => import('../Contests'));
 const Polls = lazy(() => import('../Polls'));
+const Info = lazy(() => import('../Info'));
 const Wheel = lazy(() => import('../Wheel'));
 const ConnectionQR = lazy(() => import('../ConnectionQR'));
 const ReferralPartnerApply = lazy(() => import('../ReferralPartnerApply'));
 const ReferralWithdrawalRequest = lazy(() => import('../ReferralWithdrawalRequest'));
 const Support = lazy(() => import('../Support'));
+const ServiceStatus = lazy(() => import('../ServiceStatus'));
 const Profile = lazy(() => import('../Profile'));
 const TopUpMethodSelect = lazy(() => import('../TopUpMethodSelect'));
 const TopUpAmount = lazy(() => import('../TopUpAmount'));
 const Balance = lazy(() => import('../Balance'));
 const Referral = lazy(() => import('../Referral'));
+const AccountLinking = lazy(() => import('../AccountLinking'));
 const Connection = lazy(() => import('../Connection'));
 const NewsArticle = lazy(() => import('../NewsArticle'));
 const UltimaNews = lazy(() => import('../UltimaNews'));
-const UltimaAccountLinking = lazy(() => import('../UltimaAccountLinking'));
 const UltimaAgreement = lazy(async () => {
   const module = await import('../UltimaAgreement');
   return { default: module.UltimaAgreement };
@@ -50,6 +52,7 @@ const UltimaSubscriptionInfo = lazy(async () => {
 });
 
 export const protectedRoutes: RouteConfig[] = [
+  {path:"/status",element:<ProtectedRoute><LazyPage><ServiceStatus /></LazyPage></ProtectedRoute>},
   {
     path: '/',
     element: (
@@ -185,7 +188,7 @@ export const protectedRoutes: RouteConfig[] = [
     element: (
       <ProtectedRoute>
         <LazyPage>
-          <UltimaAccountLinking />
+          <AccountLinking />
         </LazyPage>
       </ProtectedRoute>
     ),
@@ -196,26 +199,6 @@ export const protectedRoutes: RouteConfig[] = [
       <ProtectedRoute>
         <LazyPage>
           <UltimaPromocode />
-        </LazyPage>
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: '/gift',
-    element: (
-      <ProtectedRoute>
-        <LazyPage>
-          <UltimaGift />
-        </LazyPage>
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: '/devices',
-    element: (
-      <ProtectedRoute>
-        <LazyPage>
-          <UltimaDevices />
         </LazyPage>
       </ProtectedRoute>
     ),
@@ -275,53 +258,13 @@ export const protectedRoutes: RouteConfig[] = [
     element: (
       <ProtectedRoute>
         <LazyPage>
-          <UltimaInfo />
+          <Info />
         </LazyPage>
       </ProtectedRoute>
     ),
   },
   {
     path: '/ultima/agreement',
-    element: (
-      <ProtectedRoute>
-        <LazyPage>
-          <UltimaAgreement />
-        </LazyPage>
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: '/agreement',
-    element: (
-      <ProtectedRoute>
-        <LazyPage>
-          <UltimaAgreement />
-        </LazyPage>
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: '/rules',
-    element: (
-      <ProtectedRoute>
-        <LazyPage>
-          <UltimaAgreement />
-        </LazyPage>
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: '/privacy',
-    element: (
-      <ProtectedRoute>
-        <LazyPage>
-          <UltimaAgreement />
-        </LazyPage>
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: '/offer',
     element: (
       <ProtectedRoute>
         <LazyPage>
@@ -342,16 +285,6 @@ export const protectedRoutes: RouteConfig[] = [
   },
   {
     path: '/ultima/news',
-    element: (
-      <ProtectedRoute>
-        <LazyPage>
-          <UltimaNews />
-        </LazyPage>
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: '/news',
     element: (
       <ProtectedRoute>
         <LazyPage>

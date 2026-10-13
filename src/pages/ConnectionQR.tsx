@@ -55,12 +55,12 @@ export default function ConnectionQR() {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex min-h-dvh flex-col items-center justify-center bg-gradient-to-b from-dark-900 to-dark-950">
+    <div className="fixed inset-0 z-50 flex min-h-dvh flex-col items-center overflow-y-auto bg-gradient-to-b from-dark-900 to-dark-950 py-16">
       {/* Close button */}
       <button
         type="button"
         onClick={() => navigate(-1)}
-        className="absolute left-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-dark-800/60 backdrop-blur-sm transition-colors hover:bg-dark-700/80"
+        className="fixed left-4 top-4 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-dark-800/60 backdrop-blur-sm transition-colors hover:bg-dark-700/80"
         aria-label={t('common.close')}
       >
         <svg
@@ -75,7 +75,7 @@ export default function ConnectionQR() {
       </button>
 
       {/* Content */}
-      <div className="flex w-full max-w-sm animate-scale-in flex-col items-center px-6">
+      <div className="my-auto flex w-full max-w-sm shrink-0 animate-scale-in flex-col items-center px-6">
         {/* Branding name */}
         {appName && (
           <p className="mb-3 text-sm font-medium uppercase tracking-wider text-dark-400">
@@ -100,7 +100,7 @@ export default function ConnectionQR() {
             size={280}
             level="M"
             includeMargin={false}
-            className="h-[280px] w-[280px] sm:h-[360px] sm:w-[360px]"
+            style={{ width: 'min(280px, calc(100vw - 96px))', height: 'auto' }}
           />
         </div>
 

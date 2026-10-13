@@ -2,6 +2,10 @@ import { tokenStorage } from '@/utils/token';
 import { useAuthStore } from '@/store/auth';
 
 export function performDevDemoLogin(targetPath = '/') {
+  if (!import.meta.env.DEV) {
+    return;
+  }
+
   const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
   const payload = btoa(
     JSON.stringify({
@@ -15,9 +19,9 @@ export function performDevDemoLogin(targetPath = '/') {
 
   const dummyUser = {
     id: 1,
-    telegram_id: 6636301647,
-    username: 'EvgenBlick',
-    first_name: 'Евгений',
+    telegram_id: 0,
+    username: 'dev_user',
+    first_name: 'Developer',
     role: 'admin',
     is_admin: true,
     has_subscription: true,

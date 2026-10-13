@@ -6,6 +6,7 @@ import { useNavigate, useSearchParams } from 'react-router';
 import { balanceApi } from '@/api/balance';
 import { promoApi } from '@/api/promo';
 import { subscriptionApi } from '@/api/subscription';
+import { UltimaDesktopNavbar } from '@/components/ultima/desktop/UltimaDesktopNavbar';
 import { UltimaDesktopSubscription } from '@/components/ultima/desktop/UltimaDesktopSubscription';
 import {
   UltimaSubscriptionConfigurator,
@@ -34,6 +35,8 @@ import { useHaptic, usePlatform } from '@/platform';
 import { useAuthStore } from '@/store/auth';
 import type { PaymentMethod, Subscription, TariffPeriod } from '@/types';
 import { UltimaBottomNav } from '@/components/ultima/UltimaBottomNav';
+import { UltimaSubscriptionNavigation } from '@/components/ultima/UltimaSubscriptionNavigation';
+import { UltimaAutoRenewChoice } from '@/components/ultima/UltimaAutoRenewChoice';
 import { clearPendingTopUpFollowUp, writePendingTopUpFollowUp } from '@/utils/topUpFollowUp';
 import { trackAnalyticsConversion, trackAnalyticsEvent } from '@/utils/analyticsEvents';
 
@@ -238,6 +241,8 @@ export function UltimaSubscription() {
   );
 
   const [selectedTariffId, setSelectedTariffId] = useState<number | null>(null);
+  const requestedTariffId = Number(searchParams.get('tariffId'));
+  const requestedTariffAppliedRef = useRef<number | null>(null);
   const [isMobileTariffChooserOpen, setIsMobileTariffChooserOpen] = useState(false);
   const [hasChosenMobileTariff, setHasChosenMobileTariff] = useState(false);
 
@@ -247,13 +252,15 @@ export function UltimaSubscription() {
       return;
     }
 
-    setSelectedTariffId((previous) => {
-      if (previous && tariffs.some((tariff) => tariff.id === previous)) {
-        return previous;
-      }
-      return currentTariffId ?? tariffs[0].id;
-    });
-  }, [tariffs, currentTariffId]);
+    if (requestedTariffId > 0 && requestedTariffAppliedRef.current !== requestedTariffId && tariffs.some((tariff) => tariff.id === requestedTariffId && tariff.is_available)) {
+      requestedTariffAppliedRef.current = requestedTariffId;
+      setSelectedTariffId(requestedTariffId);
+      setHasChosenMobileTariff(true);
+      return;
+    }
+    setSelectedTariffId((previous) => previous && tariffs.some((tariff) => tariff.id === previous)
+      ? previous : currentTariffId ?? tariffs[0].id);
+  }, [tariffs, currentTariffId, requestedTariffId]);
 
   useEffect(() => {
     if (isDesktopViewport || tariffs.length <= 1) {
@@ -751,9 +758,10 @@ export function UltimaSubscription() {
       return (
         <div className="ultima-shell ultima-shell-wide ultima-flat-frames ultima-shell-subscription-desktop">
           <div className="ultima-shell-aura" />
-          <div className="ultima-shell-inner lg:max-w-[1200px]">
+          <UltimaDesktopNavbar onBuySubscription={() => navigate('/subscription')} onOpenSupport={() => navigate('/support')} />
+          <div className="relative z-10 mx-auto max-w-6xl px-6 py-8">
             <div className="flex min-h-[calc(100dvh-48px)] items-center justify-center">
-              <div className="border-[#d4b37f]/40/[0.35] h-8 w-8 animate-spin rounded-full border-2 border-t-transparent" />
+              <div className="border-white/50 h-8 w-8 animate-spin rounded-full border-2 border-t-transparent" />
             </div>
           </div>
         </div>
@@ -772,7 +780,8 @@ export function UltimaSubscription() {
       return (
         <div className="ultima-shell ultima-shell-wide ultima-flat-frames ultima-shell-subscription-desktop">
           <div className="ultima-shell-aura" />
-          <div className="ultima-shell-inner lg:max-w-[1200px]">
+          <UltimaDesktopNavbar onBuySubscription={() => navigate('/subscription')} onOpenSupport={() => navigate('/support')} />
+          <div className="relative z-10 mx-auto max-w-6xl px-6 py-8">
             <div className="flex min-h-[calc(100dvh-48px)] items-center justify-center text-dark-200">
               {t('subscription.noTariffsAvailable', { defaultValue: 'Тарифы недоступны' })}
             </div>
@@ -910,7 +919,8 @@ export function UltimaSubscription() {
     selectedTariffHasTopUp && (trafficPackages?.length ?? 0) > 0;
   const trafficPurchaseErrorMessage =
     purchaseTrafficMutation.error instanceof Error ? purchaseTrafficMutation.error.message : null;
-  const bottomNav = <UltimaBottomNav active="home" />;
+  const autoRenewChoice = subscriptionResponse?.has_subscription === false ? <UltimaAutoRenewChoice key={userId} daily={selectedTariff?.is_daily} /> : null;
+  const bottomNav = <UltimaBottomNav active="subscription" />;
 
   const openTopUpForTraffic = async (gb: number) => {
     await subscriptionApi.saveTrafficCart(gb);
@@ -1090,7 +1100,7 @@ export function UltimaSubscription() {
         formatPrice={formatPrice}
         applyPromoDiscount={applyPromoDiscount}
         onSelectTariff={(tariffId) => {
-          haptic.selection();
+          haptic.impact('light');
           setError(null);
           setSelectedTariffId(tariffId);
           setSelectedPeriodDays(null);
@@ -1111,7 +1121,7 @@ export function UltimaSubscription() {
       applyPromoDiscount={applyPromoDiscount}
       showHeading={false}
       onSelectTariff={(tariffId) => {
-        haptic.selection();
+        haptic.impact('light');
         setError(null);
         setSelectedTariffId(tariffId);
         setSelectedPeriodDays(null);
@@ -1204,6 +1214,7 @@ export function UltimaSubscription() {
       <div className="ultima-shell ultima-shell-wide ultima-flat-frames ultima-shell-subscription-desktop">
         <div className="ultima-shell-aura" />
         <UltimaDesktopSubscription
+          autoRenewChoice={autoRenewChoice}
           planSelector={desktopTariffSelector}
           trafficTopUp={trafficTopUpSection}
           title={
@@ -1214,7 +1225,7 @@ export function UltimaSubscription() {
             selectedTariffSubtitle ||
             t('subscription.purchaseSubtitle', {
               defaultValue:
-                'Выберите количество устройств и подходящий период, а итоговая оплата пересчитается автоматически.',
+                'Выберите количество устройств и срок подписки.',
             })
           }
           isCurrentTariff={selectedTariffIsCurrent}
@@ -1282,6 +1293,7 @@ export function UltimaSubscription() {
         <div className="ultima-shell-aura" />
         <div className="ultima-shell-inner ultima-shell-mobile-docked lg:max-w-[960px]">
           <section className="ultima-scrollbar min-h-0 flex-1 overflow-y-auto pr-1">
+            <UltimaSubscriptionNavigation />
             <header className="mb-3">
               <div className="mb-1 flex h-8 items-center">
                 {currentTariffId !== null ? (
@@ -1316,6 +1328,7 @@ export function UltimaSubscription() {
   return (
     <div className="min-h-screen bg-[#07080a] text-white">
       <UltimaSubscriptionConfigurator
+        autoRenewChoice={autoRenewChoice}
         title={selectedTariff.name}
         subtitle={selectedTariffSubtitle}
         isCurrentTariff={selectedTariffIsCurrent}

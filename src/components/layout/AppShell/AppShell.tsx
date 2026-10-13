@@ -3,14 +3,14 @@ import {
   useEffect,
   useState,
   useCallback,
-  useRef,
   type CSSProperties,
   type SyntheticEvent,
 } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, MotionConfig } from 'framer-motion';
+import { useReducedAnimation } from '@/hooks/useReducedAnimation';
 
 import { useAuthStore } from '@/store/auth';
 import { useHaptic } from '@/platform';
@@ -35,10 +35,9 @@ import SuccessNotificationModal from '@/components/SuccessNotificationModal';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import TicketNotificationBell from '@/components/TicketNotificationBell';
 import PageLoader from '@/components/common/PageLoader';
+import GlobeBackground from '@/components/backgrounds/GlobeBackground';
 import { BackgroundRenderer } from '@/components/backgrounds/BackgroundRenderer';
 import { SubscriptionIcon } from '@/components/icons';
-import { Palette } from 'lucide-react';
-import { useThemeEngine } from '@/themes/core/ThemeEngineContext';
 import { UltimaBottomNav } from '@/components/ultima/UltimaBottomNav';
 import {
   getUltimaTopLevelPath,
@@ -51,9 +50,6 @@ import { MobileBottomNav } from './MobileBottomNav';
 import { AppHeader } from './AppHeader';
 import { LiteModeHeader } from './LiteModeHeader';
 
-const ULTIMA_RING_DURATION_SEC = 18;
-const ULTIMA_RING_DELAYS_MOBILE = [0, 6, 12] as const;
-const ULTIMA_RING_DELAYS_DESKTOP = [0, 3, 6, 9, 12, 15] as const;
 
 // Desktop nav icons
 const HomeIcon = ({ className }: { className?: string }) => (
@@ -221,13 +217,18 @@ interface AppShellProps {
 }
 
 export function AppShell({ children }: AppShellProps) {
+  const { reduced } = useReducedAnimation();
+  useEffect(() => {
+    document.documentElement.classList.toggle("cabinet-reduced-animation", reduced);
+    return () => document.documentElement.classList.remove("cabinet-reduced-animation");
+  }, [reduced]);
+  useEffect(() => { window.dispatchEvent(new Event('cabinet:notification-slot-ready')); }, []);
   const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const isMainPage = location.pathname === '/';
   const { isAdmin, logout } = useAuthStore();
-  const { openThemeStudio } = useThemeEngine();
   const {
     isFullscreen,
     safeAreaInset,
@@ -247,15 +248,28 @@ export function AppShell({ children }: AppShellProps) {
   const { referralEnabled, wheelEnabled, hasContests, hasPolls, giftEnabled } = useFeatureFlags();
   const { isLiteMode, isLiteModeReady } = useLiteMode();
   const { isUltimaMode, isUltimaModeReady } = useUltimaMode();
-  const isDesktopViewport = useMediaQuery('(min-width: 768px)');
+  const isDesktopViewport = useMediaQuery('(min-width: 1024px)');
   const isCompactMode = isLiteMode || isUltimaMode;
   const ultimaTopLevelTab = getUltimaTopLevelTab(location.pathname);
   const isUltimaTopLevelRoute = isUltimaMode && ultimaTopLevelTab !== null;
-  const isUltimaAnimatedRoute = isUltimaMode && !location.pathname.startsWith('/admin');
+  const isUltimaAnimatedRoute =
+    isUltimaMode &&
+    !location.pathname.startsWith('/admin') &&
+    !location.pathname.startsWith('/login');
   const isUltimaSceneRoute =
     isUltimaMode && ['/', '/subscription', '/connection'].includes(location.pathname);
-  const shouldShowUltimaSharedNav = isUltimaTopLevelRoute && !isDesktopViewport;
-  const ultimaWavePhaseShiftSecRef = useRef(-((Date.now() / 1000) % ULTIMA_RING_DURATION_SEC));
+  const shouldShowUltimaSharedNav = isUltimaAnimatedRoute && !isDesktopViewport;
+  const ultimaSharedNavTab = ultimaTopLevelTab ?? (
+    /subscription/.test(location.pathname) ? 'subscription' :
+    /news/.test(location.pathname) ? 'news' :
+    /support|ticket|knowledge|^\/status$/.test(location.pathname) ? 'support' : 'profile'
+  );
+  useEffect(() => {
+    const root = document.documentElement;
+    root.classList.toggle('ultima-liquid-glass', isUltimaAnimatedRoute);
+    return () => root.classList.remove('ultima-liquid-glass');
+  }, [isUltimaAnimatedRoute]);
+
   const hasLiteHeader = isLiteMode;
   const hasRegularHeader = !isCompactMode;
   const isCompactMainPage = isCompactMode && location.pathname === '/';
@@ -464,6 +478,7 @@ export function AppShell({ children }: AppShellProps) {
   }
 
   return (
+    <MotionConfig reducedMotion={reduced ? "always" : "user"}>
     <div className="min-h-screen" style={ultimaShellStyle}>
       {/* Animated background (disabled for Ultima mode) */}
       {(!isUltimaModeReady || !isUltimaMode) && <BackgroundRenderer />}
@@ -471,35 +486,12 @@ export function AppShell({ children }: AppShellProps) {
         <div
           className="ultima-app-backdrop pointer-events-none fixed inset-0 z-0 overflow-hidden"
           style={{
-            backgroundImage: 'url(/backgrounds/samurai_gold_smoke_vibrant.jpg)',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
+            background: isDesktopViewport
+              ? 'var(--ultima-bg-page-desktop)'
+              : 'var(--ultima-bg-page-mobile)',
           }}
         >
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                'radial-gradient(circle at 50% 15%, rgba(212, 179, 127, 0.15) 0%, rgba(6, 8, 12, 0.40) 100%)',
-            }}
-          />
-          <div
-            className="absolute inset-0"
-            style={{
-              background: isDesktopViewport
-                ? 'var(--ultima-bg-page-scrim-desktop)'
-                : 'var(--ultima-bg-page-scrim-mobile)',
-            }}
-          />
-          {(isDesktopViewport ? ULTIMA_RING_DELAYS_DESKTOP : ULTIMA_RING_DELAYS_MOBILE).map(
-            (delay) => (
-              <div
-                key={delay}
-                className="ultima-ring-wave absolute left-1/2 top-1/2 h-[170vmax] w-[170vmax] -translate-x-1/2 -translate-y-1/2 transform-gpu rounded-full border"
-                style={{ animationDelay: `${ultimaWavePhaseShiftSecRef.current + delay}s` }}
-              />
-            ),
-          )}
+          <GlobeBackground />
         </div>
       )}
 
@@ -631,18 +623,6 @@ export function AppShell({ children }: AppShellProps) {
           {/* Right side actions */}
           <div className="flex items-center justify-end gap-2">
             <button
-              type="button"
-              onClick={() => {
-                haptic.impact('light');
-                openThemeStudio();
-              }}
-              className="rounded-xl border border-dark-700/50 bg-dark-800/50 p-2 text-emerald-400 transition-all duration-200 hover:bg-dark-700 hover:text-emerald-300"
-              title="Theme Studio"
-              aria-label="Theme Studio"
-            >
-              <Palette className="h-5 w-5" />
-            </button>
-            <button
               onClick={() => {
                 haptic.impact('light');
                 toggleTheme();
@@ -722,6 +702,7 @@ export function AppShell({ children }: AppShellProps) {
                 : 'pt-6',
         )}
       >
+        <div id="browser-notification-prompt-slot" className="mx-auto max-w-6xl px-4 sm:px-6" />
         {isLiteModeReady &&
         isUltimaModeReady &&
         isLiteMode &&
@@ -738,6 +719,10 @@ export function AppShell({ children }: AppShellProps) {
               {children}
             </motion.div>
           </AnimatePresence>
+        ) : isUltimaAnimatedRoute ? (
+          <div key={location.pathname} className="cabinet-route-stage" data-route={location.pathname}>
+            {children}
+          </div>
         ) : (
           children
         )}
@@ -771,7 +756,7 @@ export function AppShell({ children }: AppShellProps) {
         </button>
       ) : null}
 
-      {shouldShowUltimaSharedNav && ultimaTopLevelTab ? (
+      {shouldShowUltimaSharedNav ? (
         <div
           className={cn(
             'ultima-shared-nav-shell',
@@ -779,7 +764,7 @@ export function AppShell({ children }: AppShellProps) {
           )}
         >
           <UltimaBottomNav
-            active={ultimaTopLevelTab}
+            active={ultimaSharedNavTab}
             onHomeClick={() => handleUltimaTabChange('home')}
             onConnectionClick={() => handleUltimaTabChange('connection')}
             onNewsClick={() => handleUltimaTabChange('news')}
@@ -798,5 +783,7 @@ export function AppShell({ children }: AppShellProps) {
         />
       )}
     </div>
+    </MotionConfig>
   );
 }
+

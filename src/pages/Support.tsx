@@ -1,3 +1,4 @@
+import { TicketMediaAttachment } from '@/components/TicketMediaAttachment';
 import { useState, useRef, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useWebSocket } from '../hooks/useWebSocket';
@@ -8,14 +9,12 @@ import { ticketsApi } from '../api/tickets';
 import type { TicketMediaType } from '../api/tickets';
 import { infoApi } from '../api/info';
 import { useUltimaMode } from '../hooks/useUltimaMode';
-import { useAuthStore } from '../store/auth';
 import { logger } from '../utils/logger';
 import { checkRateLimit, getRateLimitResetTime, RATE_LIMIT_KEYS } from '../utils/rateLimit';
 import type { TicketDetail, TicketMessage } from '../types';
 import { Card } from '@/components/data-display/Card';
 import { Button } from '@/components/primitives/Button';
 import { staggerContainer, staggerItem } from '@/components/motion/transitions';
-import { usePlatform } from '@/platform';
 import { UltimaSupport } from './UltimaSupport';
 
 const log = logger.createLogger('Support');
@@ -88,104 +87,25 @@ const ACCEPT_STRING = Object.keys(ALLOWED_FILE_TYPES).join(',');
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
 // Message media display component
-function MessageMedia({ message, t }: { message: TicketMessage; t: (key: string) => string }) {
-  const [imageLoaded, setImageLoaded] = useState(false);
-  const [imageError, setImageError] = useState(false);
-  const [showFullImage, setShowFullImage] = useState(false);
-
-  if (!message.has_media || !message.media_file_id) {
-    return null;
-  }
-
-  const mediaUrl = ticketsApi.getMediaUrl(message.media_file_id);
-
-  if (message.media_type === 'photo') {
-    return (
-      <>
-        <div className="relative mt-3">
-          {!imageLoaded && !imageError && (
-            <div className="flex h-48 w-full animate-pulse items-center justify-center rounded-lg bg-dark-700">
-              <div className="h-6 w-6 animate-spin rounded-full border-2 border-accent-500 border-t-transparent" />
-            </div>
-          )}
-          {imageError ? (
-            <div className="flex h-32 w-full items-center justify-center rounded-lg bg-dark-700 text-sm text-dark-400">
-              {t('support.imageLoadFailed')}
-            </div>
-          ) : (
-            <img
-              src={mediaUrl}
-              alt={message.media_caption || 'Attached image'}
-              className={`max-h-64 max-w-full cursor-pointer rounded-lg transition-opacity hover:opacity-90 ${imageLoaded ? '' : 'hidden'}`}
-              onLoad={() => setImageLoaded(true)}
-              onError={() => setImageError(true)}
-              onClick={() => setShowFullImage(true)}
-            />
-          )}
-          {message.media_caption && (
-            <p className="mt-1 text-xs text-dark-400">{message.media_caption}</p>
-          )}
-        </div>
-
-        {/* Full image modal */}
-        {showFullImage && (
-          <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
-            onClick={() => setShowFullImage(false)}
-          >
-            <button
-              className="absolute right-4 top-4 text-white/70 hover:text-white"
-              onClick={() => setShowFullImage(false)}
-            >
-              <CloseIcon />
-            </button>
-            <img
-              src={mediaUrl}
-              alt={message.media_caption || 'Attached image'}
-              className="max-h-full max-w-full object-contain"
-            />
-          </div>
-        )}
-      </>
-    );
-  }
-
-  // For documents/videos - show download link
-  return (
-    <div className="mt-3">
-      <a
-        href={mediaUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="inline-flex items-center gap-2 rounded-lg bg-dark-700 px-3 py-2 text-sm text-dark-200 transition-colors hover:bg-dark-600"
-      >
-        <svg
-          className="h-4 w-4"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2}
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m.75 12l3 3m0 0l3-3m-3 3v-6m-1.5-9H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"
-          />
-        </svg>
-        {message.media_caption || `Download ${message.media_type}`}
-      </a>
-    </div>
-  );
+function MessageMedia({ message }: { message: TicketMessage; t: (key: string) => string }) {
+  const [fullImage, setFullImage] = useState<string | null>(null);
+  if (!message.has_media || !message.media_file_id) return null;
+  return <div className="mt-3">
+    <TicketMediaAttachment fileId={message.media_file_id} mediaType={message.media_type} caption={message.media_caption} onOpen={setFullImage} />
+    {message.media_caption && <p className="mt-1 text-xs text-dark-400">{message.media_caption}</p>}
+    {fullImage && <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4" onClick={() => setFullImage(null)}>
+      <button type="button" aria-label="Закрыть" className="absolute right-4 top-4 flex h-11 w-11 items-center justify-center text-white" onClick={() => setFullImage(null)}><CloseIcon /></button>
+      <img src={fullImage} alt={message.media_caption || 'Вложение к обращению'} className="max-h-full max-w-full object-contain" onClick={(event) => event.stopPropagation()} />
+    </div>}
+  </div>;
 }
 
 function SupportContent() {
   log.debug('Component loaded');
 
   const { t } = useTranslation();
-  const isAdmin = useAuthStore((state) => state.isAdmin);
   const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
-  const { openTelegramLink, openLink } = usePlatform();
   const [selectedTicket, setSelectedTicket] = useState<TicketDetail | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [isTicketsOpen, setIsTicketsOpen] = useState(false);
@@ -412,105 +332,16 @@ function SupportContent() {
   if (configLoading) {
     return (
       <div className="flex items-center justify-center py-24">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-accent-500 border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/50 border-t-transparent" />
       </div>
     );
   }
 
-  // If tickets are disabled, show redirect message
   if (supportConfig && !supportConfig.tickets_enabled) {
-    log.debug('Tickets disabled, config:', supportConfig);
-
-    const getSupportMessage = () => {
-      log.debug('Getting support message for type:', supportConfig.support_type);
-
-      if (supportConfig.support_type === 'profile') {
-        const supportUsername = supportConfig.support_username || '@support';
-        log.debug('Opening profile:', supportUsername);
-        return {
-          title: isAdmin ? t('support.ticketsDisabled') : t('support.title'),
-          message: t('support.contactSupport', { username: supportUsername }),
-          buttonText: t('support.contactUs'),
-          buttonAction: () => {
-            log.debug('Button clicked, opening:', supportUsername);
-
-            // Extract username without @
-            const username = supportUsername.startsWith('@')
-              ? supportUsername.slice(1)
-              : supportUsername;
-
-            const webUrl = `https://t.me/${username}`;
-            log.debug('Web URL:', webUrl);
-
-            // Use platform's openTelegramLink
-            openTelegramLink(webUrl);
-          },
-        };
-      }
-
-      if (supportConfig.support_type === 'url' && supportConfig.support_url) {
-        return {
-          title: isAdmin ? t('support.ticketsDisabled') : t('support.title'),
-          message: t('support.useExternalLink'),
-          buttonText: t('support.openSupport'),
-          buttonAction: () => {
-            openLink(supportConfig.support_url!, { tryInstantView: false });
-          },
-        };
-      }
-
-      // Fallback: contact support (should not normally happen if config is correct)
-      const supportUsername = supportConfig.support_username || '@support';
-      log.debug('Fallback: Opening profile:', supportUsername);
-      return {
-        title: isAdmin ? t('support.ticketsDisabled') : t('support.title'),
-        message: t('support.contactSupport', { username: supportUsername }),
-        buttonText: t('support.contactUs'),
-        buttonAction: () => {
-          log.debug('Fallback button clicked, opening:', supportUsername);
-
-          // Extract username without @
-          const username = supportUsername.startsWith('@')
-            ? supportUsername.slice(1)
-            : supportUsername;
-
-          const webUrl = `https://t.me/${username}`;
-          log.debug('Fallback opening URL:', webUrl);
-
-          // Use platform's openTelegramLink
-          openTelegramLink(webUrl);
-        },
-      };
-    };
-
-    const supportMessage = getSupportMessage();
-
-    return (
-      <div className="mx-auto mt-12 max-w-md">
-        <Card className="text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-dark-800">
-            <svg
-              className="h-8 w-8 text-dark-400"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={1.5}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z"
-              />
-            </svg>
-          </div>
-          <h2 className="mb-2 text-xl font-semibold text-dark-100">{supportMessage.title}</h2>
-          <p className="mb-6 text-dark-400">{supportMessage.message}</p>
-          <Button onClick={supportMessage.buttonAction} fullWidth>
-            {supportMessage.buttonText}
-          </Button>
-        </Card>
-      </div>
-    );
+    return <div className="mx-auto mt-12 max-w-md"><Card className="text-center">
+      <h2 className="mb-2 text-xl font-semibold text-dark-100">{t('support.title')}</h2>
+      <p className="break-words text-dark-400 [overflow-wrap:anywhere]">Приём обращений временно недоступен. Попробуйте позже.</p>
+    </Card></div>;
   }
 
   // Attachment preview component
@@ -536,7 +367,7 @@ function SupportContent() {
       )}
       {attachment.uploading && (
         <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-dark-900/70">
-          <div className="h-5 w-5 animate-spin rounded-full border-2 border-accent-500 border-t-transparent" />
+          <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/50 border-t-transparent" />
         </div>
       )}
       {attachment.error && <div className="mt-1 text-xs text-red-400">{attachment.error}</div>}
@@ -583,7 +414,7 @@ function SupportContent() {
             className="mb-4 flex w-full items-center justify-between gap-2 rounded-xl px-1 py-1 text-left transition-colors hover:bg-dark-700/30"
             aria-expanded={isTicketsOpen}
           >
-            <h2 className="text-lg font-semibold text-dark-100">{t('support.yourTickets')}</h2>
+            <h2 className="min-w-0 break-words text-lg font-semibold text-dark-100 [overflow-wrap:anywhere]">{t('support.yourTickets')}</h2>
             <ChevronDownIcon
               className={`h-4 w-4 text-dark-400 transition-transform duration-200 ${isTicketsOpen ? 'rotate-180' : ''}`}
             />
@@ -592,7 +423,7 @@ function SupportContent() {
           {isTicketsOpen &&
             (isLoading ? (
               <div className="flex items-center justify-center py-12">
-                <div className="h-8 w-8 animate-spin rounded-full border-2 border-accent-500 border-t-transparent" />
+                <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/50 border-t-transparent" />
               </div>
             ) : tickets?.items && tickets.items.length > 0 ? (
               <div className="space-y-2">
@@ -750,10 +581,10 @@ function SupportContent() {
               </form>
             </div>
           ) : selectedTicket ? (
-            <div className="flex h-full flex-col">
+            <div className="flex h-full min-w-0 flex-col">
               <div className="mb-6 flex flex-col gap-2 border-b border-dark-800/50 pb-4 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                  <h2 className="text-lg font-semibold text-dark-100">
+                  <h2 className="min-w-0 break-words text-lg font-semibold text-dark-100 [overflow-wrap:anywhere]">
                     {ticketDetail?.title || selectedTicket.title}
                   </h2>
                   <div className="mt-2 flex flex-wrap items-center gap-2">
@@ -771,10 +602,10 @@ function SupportContent() {
               {/* Messages */}
               {detailLoading ? (
                 <div className="flex items-center justify-center py-12">
-                  <div className="h-8 w-8 animate-spin rounded-full border-2 border-accent-500 border-t-transparent" />
+                  <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/50 border-t-transparent" />
                 </div>
               ) : ticketDetail?.messages ? (
-                <div className="scrollbar-hide mb-6 max-h-96 flex-1 space-y-4 overflow-y-auto">
+                <div className="scrollbar-hide mb-6 max-h-96 min-w-0 flex-1 space-y-4 overflow-y-auto">
                   {ticketDetail.messages.map((msg) => (
                     <div
                       key={msg.id}
@@ -784,7 +615,7 @@ function SupportContent() {
                           : 'mr-4 border border-dark-700/30 bg-dark-800/50'
                       }`}
                     >
-                      <div className="mb-2 flex items-center justify-between">
+                      <div className="mb-2 flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
                         <span
                           className={`text-xs font-medium ${msg.is_from_admin ? 'text-accent-400' : 'text-dark-400'}`}
                         >
@@ -794,7 +625,7 @@ function SupportContent() {
                           {new Date(msg.created_at).toLocaleString()}
                         </span>
                       </div>
-                      <div className="whitespace-pre-wrap text-dark-200">{msg.message_text}</div>
+                      <div className="min-w-0 whitespace-pre-wrap text-sm leading-6 text-dark-200 [overflow-wrap:anywhere]">{msg.message_text}</div>
                       {/* Display media if present */}
                       <MessageMedia message={msg} t={t} />
                     </div>
@@ -824,7 +655,7 @@ function SupportContent() {
                   <div className="space-y-3">
                     <div className="flex gap-3">
                       <textarea
-                        className="input min-h-[80px] flex-1"
+                        className="input min-h-[80px] min-w-0 flex-1"
                         placeholder={t('support.replyPlaceholder')}
                         value={replyMessage}
                         onChange={(e) => setReplyMessage(e.target.value)}
@@ -917,18 +748,10 @@ function SupportContent() {
   );
 }
 
-import { useThemeEngine } from '@/themes/core/ThemeEngineContext';
-import { CyberSupportPage } from '@/themes/cyber-matrix/pages/CyberSupportPage';
-
 export default function Support() {
   const { isUltimaMode } = useUltimaMode();
-  const { activeTheme } = useThemeEngine();
 
-  if (activeTheme === 'cyber_matrix') {
-    return <CyberSupportPage />;
-  }
-
-  if (activeTheme === 'samurai_gold' || isUltimaMode) {
+  if (isUltimaMode) {
     return <UltimaSupport />;
   }
 

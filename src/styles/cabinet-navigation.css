@@ -1,0 +1,105 @@
+/* One shared glass surface; navigation items have no individual glass layers. */
+html.ultima-liquid-glass .cabinet-bottom-navigation.ultima-bottom-nav {
+  position: relative;
+  display: grid !important;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  width: 100%;
+  max-width: 520px;
+  margin-inline: auto;
+  gap: 0 !important;
+  padding: 5px !important;
+  border-radius: 26px !important;
+}
+html.ultima-liquid-glass .cabinet-glass-navigation .cabinet-navigation-tab {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 44px;
+  padding: 8px 6px;
+  border: 0 !important;
+  border-radius: 18px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  color: var(--cabinet-text-secondary, #c5c5cc);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.2;
+  white-space: nowrap;
+  transition: color 180ms ease, transform 180ms ease;
+}
+html.ultima-liquid-glass .cabinet-bottom-navigation .cabinet-navigation-tab {
+  flex-direction: column;
+  min-height: 54px;
+  gap: 4px;
+  padding-inline: 1px;
+}
+html.ultima-liquid-glass .cabinet-bottom-navigation .cabinet-navigation-label {
+  font-size: 12px !important;
+  line-height: 14px;
+  letter-spacing: -0.3px;
+  white-space: nowrap;
+}
+html.ultima-liquid-glass .cabinet-navigation-tab[data-active="true"] {
+  color: var(--cabinet-text, #fff) !important;
+  font-weight: 600;
+}
+html.ultima-liquid-glass .cabinet-glass-navigation .cabinet-liquid-tab-pill.cabinet-navigation-drop {
+  position: absolute;
+  z-index: 0;
+  inset: auto;
+  left: 0;
+  border-radius: 18px;
+  background: linear-gradient(145deg, rgba(255,255,255,.28), rgba(255,255,255,.10) 65%, rgba(255,255,255,.18));
+  border: 1px solid rgba(255,255,255,.36);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.5), inset 0 -1px 3px rgba(0,0,0,.14), 0 3px 10px rgba(0,0,0,.12);
+  backdrop-filter: blur(8px) saturate(120%);
+  -webkit-backdrop-filter: blur(8px) saturate(120%);
+  transform-origin: center;
+  pointer-events: none;
+}
+html.ultima-liquid-glass.light .cabinet-glass-navigation .cabinet-liquid-tab-pill.cabinet-navigation-drop {
+  background: linear-gradient(145deg, #465362, #303946 70%) !important;
+  border-color: rgba(255,255,255,.45) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.35), inset 0 -1px 3px rgba(0,0,0,.25), 0 3px 10px rgba(28,36,48,.16) !important;
+}
+html.ultima-liquid-glass.light .cabinet-glass-navigation .cabinet-navigation-tab[data-active="true"],
+html.ultima-liquid-glass.light .cabinet-glass-navigation .cabinet-navigation-tab[data-active="true"] :is(span:not(.cabinet-liquid-tab-pill), svg) {
+  color: #fff !important;
+}
+html.ultima-liquid-glass .cabinet-navigation-tab:hover { color: #fff; }
+html.ultima-liquid-glass .cabinet-navigation-tab:active { transform: scale(.97); }
+html.ultima-liquid-glass .cabinet-navigation-tab:focus-visible {
+  outline: 2px solid var(--cabinet-accent-text, #66b2ff);
+  outline-offset: -2px;
+}
+html.ultima-liquid-glass .cabinet-desktop-navigation-inner { max-width: 1360px; }
+html.ultima-liquid-glass .cabinet-desktop-navigation-tabs {
+  position: relative;
+  order: 3;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 4px;
+  width: 100%;
+}
+@media (min-width: 1400px) {
+  html.ultima-liquid-glass .cabinet-desktop-navigation-tabs {
+    order: 0;
+    flex: 1;
+    width: auto;
+    max-width: 650px;
+  }
+}
+@media (min-width: 1024px) {
+  html.ultima-liquid-glass .ultima-app-main .cabinet-bottom-navigation.ultima-bottom-nav { display: none !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html.ultima-liquid-glass .cabinet-navigation-tab { transition: none; }
+}
+@media (forced-colors: active) {
+  html.ultima-liquid-glass .cabinet-navigation-tab[data-active="true"] { outline: 2px solid Highlight; }
+}

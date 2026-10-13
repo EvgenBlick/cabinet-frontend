@@ -1,0 +1,69 @@
+.dashboard-primary-quick-action {
+  display: flex;
+  width: 100%;
+  min-height: 80px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 8px;
+  border-radius: 16px;
+  text-align: left;
+  transition: background-color 180ms ease;
+}
+.dashboard-primary-quick-action:hover { background-color: rgba(128,128,128,.07); }
+.dashboard-primary-quick-action:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+.dashboard-primary-quick-action > :first-child > :last-child { min-width: 0; overflow-wrap: anywhere; }
+.dashboard-primary-quick-action-trailing {
+  display: flex;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(128,128,128,.24);
+  border-radius: 50%;
+  color: inherit;
+  background: rgba(128,128,128,.08);
+}
+@media (max-width: 380px) {
+  .dashboard-primary-quick-action { gap: 8px; padding-inline: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-primary-quick-action { transition: none; }
+}
+
+/* Important dashboard actions keep their contrast without shrinking the indicator. */
+html.ultima-liquid-glass .dashboard-primary-quick-action {
+  border: 1px solid rgba(238,238,242,.18);
+  background: rgba(238,238,242,.045);
+  margin-block: 4px;
+}
+html.ultima-liquid-glass .dashboard-primary-quick-action-trailing {
+  background: #eeeef2;
+  color: #20242c;
+  border-color: transparent;
+}
+html.ultima-liquid-glass .dashboard-primary-quick-action-trailing svg { color: inherit !important; }
+html.ultima-liquid-glass.light .dashboard-primary-quick-action {
+  border-color: rgba(48,57,70,.2);
+  background: rgba(48,57,70,.045);
+}
+html.ultima-liquid-glass.light .dashboard-primary-quick-action-trailing {
+  background: #303946;
+  color: #fff;
+}
+.dashboard-main-action {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  height: auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  line-height: 1.4;
+  white-space: normal;
+  text-align: left;
+}
+.dashboard-main-action > span { min-width: 0; overflow-wrap: anywhere; }
+.dashboard-main-action > svg { flex-shrink: 0; }

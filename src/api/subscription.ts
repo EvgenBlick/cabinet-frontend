@@ -169,6 +169,13 @@ export const subscriptionApi = {
     return response.data;
   },
 
+  // Onboarding must display actual server tariffs instead of demo fallbacks.
+  getAvailablePurchaseOptions: async (): Promise<PurchaseOptions> => {
+    const response = await apiClient.get<PurchaseOptions>('/cabinet/subscription/purchase-options');
+    if (!response.data?.sales_mode) throw new Error('Purchase options unavailable');
+    return response.data;
+  },
+
   // Get purchase options (periods, servers, traffic, devices)
   getPurchaseOptions: async (): Promise<PurchaseOptions> => {
     try {
@@ -324,61 +331,11 @@ export const subscriptionApi = {
 
   // Get app config for connection
   getAppConfig: async (): Promise<AppConfig> => {
-    try {
-      const response = await apiClient.get<AppConfig>('/cabinet/subscription/app-config');
-      if (
-        response.data &&
-        typeof response.data === 'object' &&
-        typeof response.data.hasSubscription === 'boolean'
-      ) {
-        return response.data;
-      }
-      return {
-        hasSubscription: true,
-        subscriptionUrl: 'https://samuraiservice.org/sub/connect',
-        subscriptionCryptoLink:
-          'happ://add/crypt3#https%3A%2F%2Fsamuraiservice.org%2Fsub%2Fconnect',
-        subscriptionIncyCryptoLink:
-          'incy://add/crypt3#https%3A%2F%2Fsamuraiservice.org%2Fsub%2Fconnect',
-        platforms: {
-          ios: { apps: [] },
-          android: { apps: [] },
-          windows: { apps: [] },
-          macos: { apps: [] },
-          tv: { apps: [] },
-        },
-        platformNames: {
-          ios: { ru: 'iOS', en: 'iOS' },
-          android: { ru: 'Android', en: 'Android' },
-          windows: { ru: 'Windows', en: 'Windows' },
-          macos: { ru: 'macOS', en: 'macOS' },
-          tv: { ru: 'Android TV', en: 'Android TV' },
-        },
-      };
-    } catch {
-      return {
-        hasSubscription: true,
-        subscriptionUrl: 'https://samuraiservice.org/sub/connect',
-        subscriptionCryptoLink:
-          'happ://add/crypt3#https%3A%2F%2Fsamuraiservice.org%2Fsub%2Fconnect',
-        subscriptionIncyCryptoLink:
-          'incy://add/crypt3#https%3A%2F%2Fsamuraiservice.org%2Fsub%2Fconnect',
-        platforms: {
-          ios: { apps: [] },
-          android: { apps: [] },
-          windows: { apps: [] },
-          macos: { apps: [] },
-          tv: { apps: [] },
-        },
-        platformNames: {
-          ios: { ru: 'iOS', en: 'iOS' },
-          android: { ru: 'Android', en: 'Android' },
-          windows: { ru: 'Windows', en: 'Windows' },
-          macos: { ru: 'macOS', en: 'macOS' },
-          tv: { ru: 'Android TV', en: 'Android TV' },
-        },
-      };
+    const response = await apiClient.get<AppConfig>('/cabinet/subscription/app-config');
+    if (!response.data || typeof response.data.hasSubscription !== 'boolean') {
+      throw new Error('Invalid connection configuration');
     }
+    return response.data;
   },
 
   // Get available countries/servers

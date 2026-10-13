@@ -1,7 +1,7 @@
 import { useState, type RefObject } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MessageSquarePlus, Send, X } from 'lucide-react';
-import { ticketsApi } from '../../../api/tickets';
+import { TicketMediaAttachment } from '@/components/TicketMediaAttachment';
 import type { AdminTicket, AdminTicketDetail } from '../../../api/admin';
 
 interface AdminUserTicketsTabProps {
@@ -227,22 +227,7 @@ export function AdminUserTicketsTab({
               <p className="whitespace-pre-wrap text-sm text-dark-200">{message.message_text}</p>
               {message.has_media && message.media_file_id && (
                 <div className="mt-2">
-                  {message.media_type === 'photo' ? (
-                    <img
-                      src={ticketsApi.getMediaUrl(message.media_file_id)}
-                      alt={message.media_caption || ''}
-                      className="max-h-48 max-w-full rounded-lg"
-                    />
-                  ) : (
-                    <a
-                      href={ticketsApi.getMediaUrl(message.media_file_id)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 rounded-lg bg-dark-700 px-2 py-1 text-xs text-dark-200 hover:bg-dark-600"
-                    >
-                      {message.media_caption || message.media_type}
-                    </a>
-                  )}
+                  <TicketMediaAttachment fileId={message.media_file_id} mediaType={message.media_type} caption={message.media_caption} />
                   {message.media_caption && message.media_type === 'photo' && (
                     <p className="mt-1 text-xs text-dark-400">{message.media_caption}</p>
                   )}
