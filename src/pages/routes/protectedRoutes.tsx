@@ -6,11 +6,9 @@ import type { RouteConfig } from './types';
 const Dashboard = lazy(() => import('../Dashboard'));
 const Subscription = lazy(() => import('../Subscription'));
 const SubscriptionPurchase = lazy(() => import('../SubscriptionPurchase'));
-const GiftSubscription = lazy(() => import('../GiftSubscription'));
 const GiftResult = lazy(() => import('../GiftResult'));
 const Contests = lazy(() => import('../Contests'));
 const Polls = lazy(() => import('../Polls'));
-const Info = lazy(() => import('../Info'));
 const Wheel = lazy(() => import('../Wheel'));
 const ConnectionQR = lazy(() => import('../ConnectionQR'));
 const ReferralPartnerApply = lazy(() => import('../ReferralPartnerApply'));
@@ -52,7 +50,16 @@ const UltimaSubscriptionInfo = lazy(async () => {
 });
 
 export const protectedRoutes: RouteConfig[] = [
-  {path:"/status",element:<ProtectedRoute><LazyPage><ServiceStatus /></LazyPage></ProtectedRoute>},
+  {
+    path: '/status',
+    element: (
+      <ProtectedRoute>
+        <LazyPage>
+          <ServiceStatus />
+        </LazyPage>
+      </ProtectedRoute>
+    ),
+  },
   {
     path: '/',
     element: (
@@ -88,7 +95,7 @@ export const protectedRoutes: RouteConfig[] = [
     element: (
       <ProtectedRoute>
         <LazyPage>
-          <GiftSubscription />
+          <UltimaGift />
         </LazyPage>
       </ProtectedRoute>
     ),
@@ -204,6 +211,16 @@ export const protectedRoutes: RouteConfig[] = [
     ),
   },
   {
+    path: '/devices',
+    element: (
+      <ProtectedRoute>
+        <LazyPage>
+          <UltimaDevices />
+        </LazyPage>
+      </ProtectedRoute>
+    ),
+  },
+  {
     path: '/ultima/gift',
     element: (
       <ProtectedRoute>
@@ -258,7 +275,47 @@ export const protectedRoutes: RouteConfig[] = [
     element: (
       <ProtectedRoute>
         <LazyPage>
-          <Info />
+          <UltimaInfo />
+        </LazyPage>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/agreement',
+    element: (
+      <ProtectedRoute>
+        <LazyPage>
+          <UltimaAgreement />
+        </LazyPage>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/rules',
+    element: (
+      <ProtectedRoute>
+        <LazyPage>
+          <UltimaAgreement />
+        </LazyPage>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/privacy',
+    element: (
+      <ProtectedRoute>
+        <LazyPage>
+          <UltimaAgreement />
+        </LazyPage>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/offer',
+    element: (
+      <ProtectedRoute>
+        <LazyPage>
+          <UltimaAgreement />
         </LazyPage>
       </ProtectedRoute>
     ),
@@ -284,11 +341,31 @@ export const protectedRoutes: RouteConfig[] = [
     ),
   },
   {
+    path: '/news',
+    element: (
+      <ProtectedRoute>
+        <LazyPage>
+          <UltimaNews />
+        </LazyPage>
+      </ProtectedRoute>
+    ),
+  },
+  {
     path: '/ultima/news',
     element: (
       <ProtectedRoute>
         <LazyPage>
           <UltimaNews />
+        </LazyPage>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/news/:slug',
+    element: (
+      <ProtectedRoute>
+        <LazyPage>
+          <NewsArticle />
         </LazyPage>
       </ProtectedRoute>
     ),

@@ -13,7 +13,7 @@ export default function Layout({ children }: LayoutProps) {
   const { activeTheme } = useThemeEngine();
 
   // Modern themes provide their own unified responsive shell & dock
-  if (activeTheme === 'cyber_matrix' || activeTheme === 'fresh' || activeTheme === 'samurai_gold') {
+  if (activeTheme !== 'classic') {
     return (
       <div className="relative min-h-screen w-full overflow-x-hidden">
         <DynamicThemeBackground />

@@ -219,16 +219,15 @@ export default function Subscription() {
     return <FreshSubscriptionPage />;
   }
 
-  if (activeTheme === 'samurai_gold') {
-    return <UltimaSubscription />;
+  if (activeTheme === 'classic') {
+    if (isLiteMode) {
+      return <LiteSubscription />;
+    }
+    return <FullSubscription />;
   }
 
-  // Render Lite Subscription if lite mode is enabled
-  if (isLiteMode) {
-    return <LiteSubscription />;
-  }
-
-  return <FullSubscription />;
+  // Samurai Gold / Ultima is the default luxury design
+  return <UltimaSubscription />;
 }
 
 function FullSubscription() {

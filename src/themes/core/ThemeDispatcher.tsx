@@ -24,21 +24,21 @@ export const ThemeDashboardDispatcher: React.FC = () => {
   if (isTelegramWebApp || isMobile) {
     if (activeTheme === 'cyber_matrix') return <CyberMobileDashboard />;
     if (activeTheme === 'fresh') return <FreshDashboardPage />;
-    if (activeTheme === 'samurai_gold') return <UltimaDashboard />;
-    return <FullDashboard />;
+    if (activeTheme === 'classic') return <FullDashboard />;
+    return <UltimaDashboard />;
   }
 
   // Tablet view (768 - 1199px)
   if (isTablet) {
     if (activeTheme === 'cyber_matrix') return <CyberTabletDashboard />;
     if (activeTheme === 'fresh') return <FreshDashboardPage />;
-    if (activeTheme === 'samurai_gold') return <UltimaDashboard />;
-    return <FullDashboard />;
+    if (activeTheme === 'classic') return <FullDashboard />;
+    return <UltimaDashboard />;
   }
 
   // Full Desktop view (1200px+)
   if (activeTheme === 'cyber_matrix') return <CyberDesktopDashboard />;
   if (activeTheme === 'fresh') return <FreshDashboardPage />;
-  if (activeTheme === 'samurai_gold') return <UltimaDashboard />;
-  return <FullDashboard />;
+  if (activeTheme === 'classic') return <FullDashboard />;
+  return <UltimaDashboard />;
 };
